@@ -1,0 +1,225 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Hind Siliguri', 'Manrope', sans-serif;
+  --font-mono: 'Hind Siliguri', 'Geist Mono', monospace;
+  --font-display: 'Hind Siliguri', 'Manrope', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* LuxeStore Design System - Rounded Corners */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 9999px;
+  /* Custom Colors - Warm Brown Palette */
+  --color-primary-brand: #8B5A2B;
+  --color-primary-dark: #6B4423;
+  --color-secondary-coral: #D4A574;
+  --color-background-light: #FAF7F4;
+  --color-surface-white: #FFFFFF;
+  --color-text-main: #3D2B1F;
+  --color-text-muted: #7D6B5D;
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: #FAF7F4;
+  --foreground: #3D2B1F;
+  --card: #FFFFFF;
+  --card-foreground: #3D2B1F;
+  --popover: #FFFFFF;
+  --popover-foreground: #3D2B1F;
+  --primary: #8B5A2B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5EDE6;
+  --secondary-foreground: #3D2B1F;
+  --muted: #F5EDE6;
+  --muted-foreground: #7D6B5D;
+  --accent: #D4A574;
+  --accent-foreground: #3D2B1F;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #E8DED4;
+  --input: #E8DED4;
+  --ring: #8B5A2B;
+  --chart-1: #8B5A2B;
+  --chart-2: #A67C52;
+  --chart-3: #C9A87C;
+  --chart-4: #D4A574;
+  --chart-5: #E6C9A8;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #3D2B1F;
+  --sidebar-primary: #8B5A2B;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5EDE6;
+  --sidebar-accent-foreground: #3D2B1F;
+  --sidebar-border: #E8DED4;
+  --sidebar-ring: #8B5A2B;
+}
+
+.dark {
+  --background: #1F1714;
+  --foreground: #F5EDE6;
+  --card: #2A211C;
+  --card-foreground: #F5EDE6;
+  --popover: #2A211C;
+  --popover-foreground: #F5EDE6;
+  --primary: #C9A87C;
+  --primary-foreground: #1F1714;
+  --secondary: #3D2E26;
+  --secondary-foreground: #F5EDE6;
+  --muted: #3D2E26;
+  --muted-foreground: #B5A69A;
+  --accent: #D4A574;
+  --accent-foreground: #1F1714;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #3D2E26;
+  --input: #3D2E26;
+  --ring: #C9A87C;
+  --chart-1: #C9A87C;
+  --chart-2: #A67C52;
+  --chart-3: #8B5A2B;
+  --chart-4: #D4A574;
+  --chart-5: #E6C9A8;
+  --sidebar: #2A211C;
+  --sidebar-foreground: #F5EDE6;
+  --sidebar-primary: #C9A87C;
+  --sidebar-primary-foreground: #1F1714;
+  --sidebar-accent: #3D2E26;
+  --sidebar-accent-foreground: #F5EDE6;
+  --sidebar-border: #3D2E26;
+  --sidebar-ring: #C9A87C;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Hind Siliguri', 'Manrope', sans-serif;
+  }
+
+  /* Ensure Bangla numerals are displayed properly */
+  input[type="number"],
+  input[type="text"],
+  textarea,
+  .bangla-number {
+    font-family: 'Hind Siliguri', sans-serif;
+    font-variant-numeric: normal;
+  }
+}
+
+@layer utilities {
+
+  /* Scrollbar Hide */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+    border-radius: 20px;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #475569;
+  }
+
+  /* Box Shadows */
+  .shadow-soft {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 15px rgba(139, 90, 43, 0.3);
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Material Icons Filled */
+  .material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+  }
+}
