@@ -19,7 +19,7 @@ export async function getPublicSettings() {
 
     // Return with defaults
     return {
-        store_name: settingsMap.store_name || "Abru Life Style",
+        store_name: settingsMap.store_name || "Sohozlovvo",
         store_email: settingsMap.store_email || "",
         store_phone: settingsMap.store_phone || "",
         store_address: settingsMap.store_address || "",
@@ -28,7 +28,7 @@ export async function getPublicSettings() {
         instagram_url: settingsMap.instagram_url || "",
         twitter_url: settingsMap.twitter_url || "",
         whatsapp_number: settingsMap.whatsapp_number || "",
-        meta_title: settingsMap.meta_title || "Abru Life Style - Next-Gen E-Commerce Platform",
+        meta_title: settingsMap.meta_title || "Sohozlovvo",
         meta_description: settingsMap.meta_description || "Modern e-commerce platform with lightning-fast delivery and secure payments",
         logo_url: settingsMap.logo_url || "",
         shipping_cost: settingsMap.shipping_cost || "0",

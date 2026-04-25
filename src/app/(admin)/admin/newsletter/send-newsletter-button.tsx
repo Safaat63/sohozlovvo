@@ -49,7 +49,7 @@ export function SendNewsletterButton({ activeCount }: { activeCount: number }) {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Abru Life Style Newsletter</h1>
+            <h1>Sohozlovvo Newsletter</h1>
           </div>
           <div class="content">
             <div style="white-space: pre-line;">${message}</div>
@@ -59,7 +59,7 @@ export function SendNewsletterButton({ activeCount }: { activeCount: number }) {
             </div>
           </div>
           <div class="footer">
-            <p>© 2025 Abru Life Style. All rights reserved.</p>
+            <p>© 2025 Sohozlovvo. All rights reserved.</p>
           </div>
         </div>
       </body>

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@abrulifestyle.com"
+const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@sohozlovvo.com"
 const BRANDING_CACHE_TTL_MS = 5 * 60 * 1000
 
 type EmailBranding = {
@@ -36,7 +36,7 @@ export async function getEmailBranding(): Promise<EmailBranding> {
         settingsMap[setting.key] = setting.value
     }
 
-    const storeName = settingsMap.store_name || "Abru Life Style"
+    const storeName = settingsMap.store_name || "Sohozlovvo"
     const fromAddress = extractEmailAddress(process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL)
     const supportEmail = settingsMap.store_email || fromAddress
 

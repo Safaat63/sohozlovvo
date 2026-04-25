@@ -38,7 +38,7 @@ export function ProductJsonLd({ product, url }: ProductJsonLdProps) {
       availability: "https://schema.org/InStock",
       seller: {
         "@type": "Organization",
-        name: process.env.NEXT_PUBLIC_SITE_NAME || "Abru Life Style",
+        name: process.env.NEXT_PUBLIC_SITE_NAME || "Sohozlovvo",
       },
     },
     aggregateRating:
@@ -64,7 +64,7 @@ export function OrganizationJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: process.env.NEXT_PUBLIC_SITE_NAME || "Abru Life Style",
+    name: process.env.NEXT_PUBLIC_SITE_NAME || "Sohozlovvo",
     url: process.env.NEXT_PUBLIC_APP_URL,
     logo: `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
     sameAs: [

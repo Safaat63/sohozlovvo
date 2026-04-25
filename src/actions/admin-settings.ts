@@ -34,7 +34,7 @@ export async function updateSettings(formData: FormData) {
 
     try {
         const settingsToUpdate = [
-            { key: "store_name", value: formData.get("store_name") as string || "Abru Life Style" },
+            { key: "store_name", value: formData.get("store_name") as string || "Sohozlovvo" },
             { key: "store_email", value: formData.get("store_email") as string || "" },
             { key: "store_phone", value: formData.get("store_phone") as string || "" },
             { key: "store_address", value: formData.get("store_address") as string || "" },

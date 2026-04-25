@@ -93,13 +93,13 @@ export function InvoiceButton({ order }: InvoiceButtonProps) {
             doc.setFontSize(28)
             doc.setTextColor(255, 255, 255) // White text
             doc.setFont("HindSiliguri", "normal")
-            doc.text("Abru Life Style", 14, 22)
+            doc.text("Sohozlovvo", 14, 22)
 
             doc.setFontSize(11)
             doc.setTextColor(203, 213, 225) // Light gray text
-            doc.text("Abru Life Style", 14, 30)
+            doc.text("Sohozlovvo", 14, 30)
             doc.setFontSize(9)
-            doc.text("lifestyleabru@gmail.com | +8801974540281", 14, 36)
+            doc.text("sohozlovvoo@gmail.com | +8801637469920", 14, 36)
 
             // Invoice Title - Top right
             doc.setFontSize(20)
@@ -315,11 +315,11 @@ export function InvoiceButton({ order }: InvoiceButtonProps) {
             doc.setFont("HindSiliguri", "normal")
             doc.setFontSize(10)
             doc.setTextColor(30, 58, 138)
-            doc.text("Thank you for shopping with Abru Life Style!", 105, 278, { align: "center" })
+            doc.text("Thank you for shopping with Sohozlovvo!", 105, 278, { align: "center" })
 
             doc.setFontSize(9)
             doc.setTextColor(100, 116, 139)
-            doc.text("For any questions, contact us at lifestyleabru@gmail.com", 105, 284, { align: "center" })
+            doc.text("For any questions, contact us at sohozlovvoo@gmail.com", 105, 284, { align: "center" })
 
             // Save the PDF
             doc.save(`Invoice-${order.orderNumber}.pdf`)

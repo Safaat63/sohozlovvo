@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { Footer } from "@/components/footer";
 import { FloatingSocialButtons } from "@/components/floating-social-buttons";
 import { getPublicSettings } from "@/actions/settings";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",
@@ -42,7 +42,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="apple-mobile-web-app-title" content="Abru Life Style" />
+        <meta name="apple-mobile-web-app-title" content="Sohozlovvo" />
       </head>
       <body
         className={`${hindSiliguri.variable} ${geistMono.variable} antialiased font-hind-siliguri`}

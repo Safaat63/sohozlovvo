@@ -53,7 +53,7 @@ export async function requestPasswordReset(email: string, phone: string) {
                     </div>
                     <p>This code will expire in 15 minutes.</p>
                     <p>If you didn't request this, please ignore this email.</p>
-                    <p>Best regards,<br>Abru Life Style</p>
+                    <p>Best regards,<br>Sohozlovvo</p>
                 </div>
             `,
         })

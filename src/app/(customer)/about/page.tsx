@@ -29,10 +29,10 @@ export default async function AboutPage() {
                                 It&apos;s been four years since we started our journey with a dream. Like other beginners, we tried different types of business and explored many paths. Some of them clicked and some didn&apos;t - but from every side we learned something valuable which helped us to set the final decision towards our dream.
                             </p>
                             <p>
-                                Over the time we realized, we don&apos;t want to run just a business, we want to build something meaningful where people can connect them with their emotions. That&apos;s why we decided to grow Abru Lifestyle as a true lifestyle brand.
+                                Over the time we realized, we don&apos;t want to run just a business, we want to build something meaningful where people can connect them with their emotions. That&apos;s why we decided to grow Sohozlovvo as a true lifestyle brand.
                             </p>
                             <p>
-                                We opened Abru Lifestyle for both men and women. Our goal is to serve people who love style, quality and comfort in their everyday life. We strongly believe that quality products shouldn&apos;t be expensive or out of reach for the general people. That&apos;s why, we focus on providing high-quality items at a reasonable price.
+                                We opened Sohozlovvo for both men and women. Our goal is to serve people who love style, quality and comfort in their everyday life. We strongly believe that quality products shouldn&apos;t be expensive or out of reach for the general people. That&apos;s why, we focus on providing high-quality items at a reasonable price.
                             </p>
                             <p>
                                 Our brand is inspired by traditional beauty and culture, mixed with a modern vibe. We want our customers to feel confident, stylish and connected to their roots - altogether. We&apos;re not just selling products, we&apos;re building a lifestyle.

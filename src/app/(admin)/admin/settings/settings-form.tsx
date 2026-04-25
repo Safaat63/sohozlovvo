@@ -67,7 +67,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
                         <Input
                             id="store_name"
                             name="store_name"
-                            defaultValue={settings.store_name || "Abru Life Style"}
+                            defaultValue={settings.store_name || "Sohozlovvo"}
                         />
                     </div>
                     <div className="space-y-2">
