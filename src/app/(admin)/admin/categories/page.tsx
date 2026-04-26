@@ -9,9 +9,9 @@ import { BulkEditDialog } from "./bulk-edit-dialog"
 export default async function AdminCategoriesPage({
     searchParams,
 }: {
-    searchParams: { search?: string }
+    searchParams: Promise <{ search?: string }>
 }) {
-    const categories = await getAdminCategories(searchParams.search)
+    const categories = await getAdminCategories((await searchParams).search)
 
     return (
         <div className="space-y-4 md:space-y-6">

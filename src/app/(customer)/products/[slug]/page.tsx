@@ -1,37 +1,36 @@
 import { notFound } from "next/navigation"
-import { getProduct, getProductTotalSold } from "@/actions/products"
+import { getProduct } from "@/actions/products"
 import { getPublicSettings } from "@/actions/settings"
 import { auth } from "@/lib/auth"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReviewForm } from "@/components/review-form"
-import { WishlistButtonServer } from "@/components/wishlist-button-server"
-import { ProductImageGallery } from "@/components/product-image-gallery"
-import { ProductPurchaseWithCombinations } from "@/components/product-purchase-with-combinations"
-import { ProductPriceDisplay } from "@/components/product-price-display"
-import { SocialShare } from "@/components/social-share"
-import { CompareButton } from "@/components/compare-button"
-import { StockAlertButton } from "@/components/stock-alert-button"
 import { TrackProductView } from "@/components/track-product-view"
 import { TrackProductViewAnalytics } from "@/components/track-product-view-analytics"
-import { ProductQRCode } from "@/components/product-qr-code"
-import { RelatedProducts, YouMayAlsoLike } from "@/components/product-recommendations"
-import { formatDateDhaka, calculateDiscountedPrice } from "@/lib/utils"
+import { RelatedProducts } from "@/components/product-recommendations"
+import { calculateDiscountedPrice, formatDateDhaka } from "@/lib/utils"
 import { ScrollToTop } from "@/components/scroll-to-top"
-import Image from "next/image"
-import { MessageCircle, Truck, Shield, RotateCcw, Star, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import { Star } from "lucide-react"
+
+import { 
+    ProductPriceDisplay, 
+    ProductImageGallery, 
+    ProductPurchaseWithCombinations, 
+    ProductJumpLinks 
+} from "@/components/product-client-ui"
+
+function getEmbedUrl(url: string) {
+    if (!url) return '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
+}
+
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params
     const product = await getProduct(slug)
 
-    if (!product) {
-        return {
-            title: "Product Not Found",
-        }
-    }
-
+    if (!product) return { title: "Product Not Found" }
     return {
         title: product.metaTitle || product.name,
         description: product.metaDescription || product.description,
@@ -50,18 +49,12 @@ export default async function ProductDetailPage({
         getPublicSettings(),
     ])
 
-    if (!product) {
-        notFound()
-    }
-
-    // Get total sold count
-    const totalSold = await getProductTotalSold(product.id)
+    if (!product) notFound()
 
     const verifiedReviews = product.reviews || []
-
     const activeFlashSale = product.flashSales?.[0]
+    const videoUrl = product.youtubeUrls?.[0] || null
 
-    // Calculate discounted price (flash sale takes priority over direct discount)
     const { finalPrice, hasDiscount, discountPercentage } = activeFlashSale
         ? {
             finalPrice: activeFlashSale.salePrice,
@@ -80,7 +73,6 @@ export default async function ProductDetailPage({
     const displayComparePrice = hasDiscount ? product.price : product.compareAtPrice
     const basePriceNumber = Number(displayPrice)
 
-    // Prepare variations with proper structure
     const normalizedVariations = product.variations?.map((v) => ({
         id: v.id,
         variationName: v.variationName,
@@ -94,21 +86,16 @@ export default async function ProductDetailPage({
         })),
     })) || []
 
-    // Prepare combinations - apply product discount to all combination prices
     const normalizedCombinations = product.combinations?.map((combo) => {
-        // Get the base combination price (custom or base product price)
         const originalComboPrice = combo.price !== null ? Number(combo.price) : Number(product.price)
         let discountedComboPrice = originalComboPrice
 
-        // Apply product discount to combination price
         if (hasDiscount) {
             if (activeFlashSale) {
-                // For flash sales, apply same discount ratio
                 const discountRatio = Number(activeFlashSale.salePrice) / Number(product.price)
                 discountedComboPrice = originalComboPrice * discountRatio
             } else if (product.discountType === "PERCENTAGE" && product.discountValue) {
-                const discount = (originalComboPrice * Number(product.discountValue)) / 100
-                discountedComboPrice = originalComboPrice - discount
+                discountedComboPrice = originalComboPrice - ((originalComboPrice * Number(product.discountValue)) / 100)
             } else if (product.discountType === "FIXED_AMOUNT" && product.discountValue) {
                 discountedComboPrice = originalComboPrice - Number(product.discountValue)
             }
@@ -137,115 +124,52 @@ export default async function ProductDetailPage({
         }
     }) || []
 
-    // Calculate effective stock: if has combinations, sum of combo stocks; else base stock
-    const effectiveStock = normalizedCombinations.length > 0
-        ? normalizedCombinations.reduce((sum, c) => sum + c.stock, 0)
-        : product.stock
-
     const whatsappNumber = settings.whatsapp_number?.replace(/[^0-9]/g, "") || ""
-
-    // Get dynamic URL from headers
+    const callNumber = settings.store_phone || "" 
+    
     const headersList = await import('next/headers').then(m => m.headers())
-    const host = (await headersList).get('host') || "localhost:3000"
-    const proto = (await headersList).get('x-forwarded-proto') || "http"
-    const baseUrl = `${proto}://${host}`
-    const productUrl = `${baseUrl}/products/${product.slug}`
+    const host = headersList.get('host') || "localhost:3000"
+    const proto = headersList.get('x-forwarded-proto') || "http"
+    const productUrl = `${proto}://${host}/products/${product.slug}`
+    
     const whatsappLink = whatsappNumber
-        ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'm interested in ${product.name} (${productUrl}).`)}`
+        ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hello! I'm interested in:\nProduct: ${product.name}\nProduct URL: ${productUrl}`)}`
         : null
 
+    const productRating = Number(product.rating || 0);
+
     return (
-        <main className="min-h-screen bg-background-light dark:bg-[#1a1d23]">
-            <ScrollToTop />
-            <div className="max-w-300 mx-auto px-4 md:px-10 py-6 md:py-10">
-                <TrackProductView productId={product.id} />
-                <TrackProductViewAnalytics productId={product.id} slug={product.slug} />
-
+        <>
+            <main className="min-h-screen bg-[#FBF9F5] pb-12 font-sans relative">
+                <ScrollToTop />
+                
                 {/* Breadcrumbs */}
-                <nav className="flex flex-wrap gap-2 py-2 mb-4 items-center">
-                    <Link href="/" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">Home</Link>
-                    <span className="text-muted-foreground text-sm">/</span>
-                    {product.category && (
-                        <>
-                            <Link href={`/categories/${product.category.slug}`} className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
-                                {product.category.name}
-                            </Link>
-                            <span className="text-muted-foreground text-sm">/</span>
-                        </>
-                    )}
-                    <span className="text-foreground text-sm font-semibold">{product.name}</span>
-                </nav>
+                <div className="bg-[#FBF9F5] py-4">
+                    <div className="container mx-auto px-4 md:px-10">
+                        <ul className="flex flex-wrap gap-2 items-center text-sm">
+                            <li><Link href="/" className="text-gray-500 hover:text-[#f48721]">Home</Link></li>
+                            <li className="text-gray-400">&gt;</li>
+                            <li className="text-[#222831] font-semibold">Products</li>
+                        </ul>
+                    </div>
+                </div>
 
-                {/* Product Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-4">
-                    {/* Left Column: Gallery */}
-                    <div className="lg:col-span-7 flex flex-col gap-6">
-                        <div className="relative">
-                            {/* Action Buttons */}
-                            <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-                                <WishlistButtonServer productId={product.id} variant="icon" className="size-10 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm" />
-                                <SocialShare
-                                    url={productUrl}
-                                    title={product.name}
-                                    description={product.description || undefined}
-                                />
-                            </div>
+                <div className="container mx-auto px-4 md:px-10">
+                    <TrackProductView productId={product.id} />
+                    <TrackProductViewAnalytics productId={product.id} slug={product.slug} />
+
+                    {/* Main Product Top Container */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 bg-white p-5 md:p-8 rounded-xl border border-[#eaeaea] shadow-sm">
+                        
+                        <div className="w-full relative">
                             <ProductImageGallery images={product.images} productName={product.name} />
                         </div>
-                    </div>
 
-                    {/* Right Column: Product Info */}
-                    <div className="lg:col-span-5 relative">
-                        <div className="lg:sticky lg:top-24 flex flex-col gap-6 p-6 bg-card rounded-xl shadow-soft border border-border">
-                            {/* Header */}
-                            <div className="flex flex-col gap-2">
-                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                    {activeFlashSale && (
-                                        <span className="px-2.5 py-1 rounded-full bg-accent text-white text-[10px] font-bold uppercase tracking-wide">Flash Sale</span>
-                                    )}
-                                    {!activeFlashSale && hasDiscount && discountPercentage && (
-                                        <span className="px-2.5 py-1 rounded-full bg-accent text-white text-[10px] font-bold uppercase tracking-wide">{discountPercentage}% OFF</span>
-                                    )}
-                                    {product.stock === 0 ? (
-                                        <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] font-bold uppercase tracking-wide">Out of Stock</span>
-                                    ) : product.stock <= product.lowStockAlert ? (
-                                        <span className="px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-[10px] font-bold uppercase tracking-wide">Only {product.stock} left</span>
-                                    ) : (
-                                        <span className="px-2.5 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold uppercase tracking-wide">In Stock</span>
-                                    )}
-                                </div>
+                        <div className="w-full flex flex-col pt-1">
+                            <h1 className="text-[#222831] text-[22px] md:text-[28px] font-bold leading-tight mb-1">
+                                {product.name}
+                            </h1>
 
-                                {product.brand && (
-                                    <p className="text-xs text-primary font-medium uppercase tracking-wide">{product.brand}</p>
-                                )}
-
-                                <h1 className="text-foreground tracking-tight text-2xl lg:text-3xl font-extrabold leading-tight">{product.name}</h1>
-
-                                {/* Rating */}
-                                {Number(product.rating) > 0 && (
-                                    <div className="flex items-center gap-4 mt-1">
-                                        <div className="flex gap-0.5 text-amber-400">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <Star key={i} className={`w-5 h-5 ${i < Math.floor(parseFloat(product.rating.toString())) ? "fill-current" : "text-gray-300 dark:text-gray-600"}`} />
-                                            ))}
-                                        </div>
-                                        <a href="#reviews" className="text-sm font-medium text-primary hover:underline">
-                                            {verifiedReviews.length} reviews
-                                        </a>
-                                    </div>
-                                )}
-
-                                {/* Items Sold */}
-                                {totalSold > 0 && (
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm text-muted-foreground">
-                                            <span className="font-bold text-foreground">{totalSold}</span> items sold
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Price */}
                             <ProductPriceDisplay
                                 basePrice={basePriceNumber}
                                 compareAtPrice={displayComparePrice ? Number(displayComparePrice) : null}
@@ -253,224 +177,170 @@ export default async function ProductDetailPage({
                                 discountPercentage={discountPercentage}
                             />
 
-                            {activeFlashSale && (
-                                <p className="text-sm text-muted-foreground">
-                                    Sale ends {formatDateDhaka(activeFlashSale.endDate, "PPP")}
-                                </p>
-                            )}
+                            <hr className="border-[#eaeaea] my-5" />
 
-                            {/* Short Description */}
-                            {product.description && (
-                                <p className="text-muted-foreground leading-relaxed text-sm line-clamp-3">
-                                    {product.description}
-                                </p>
-                            )}
-
-                            <div className="h-px bg-border w-full"></div>
-
-                            {/* Variations & Add to Cart */}
-                            {effectiveStock > 0 ? (
-                                <div className="space-y-4">
-                                    <ProductPurchaseWithCombinations
-                                        productId={product.id}
-                                        baseStock={product.stock}
-                                        basePrice={basePriceNumber}
-                                        variations={normalizedVariations}
-                                        combinations={normalizedCombinations}
-                                        productDiscount={{
-                                            discountType: product.discountType,
-                                            discountValue: product.discountValue ? Number(product.discountValue) : null,
-                                            discountStartDate: product.discountStartDate,
-                                            discountEndDate: product.discountEndDate,
-                                            originalPrice: Number(product.price),
-                                        }}
-                                    />
-
-                                    <div className="flex flex-col gap-3">
-                                        {whatsappLink && (
-                                            <Button
-                                                asChild
-                                                variant="outline"
-                                                className="w-full h-12 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-950/40 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/60 font-bold rounded-xl"
-                                            >
-                                                <a href={whatsappLink} target="_blank" rel="noreferrer">
-                                                    <MessageCircle className="h-4 w-4 mr-2" />
-                                                    Order on WhatsApp
-                                                </a>
-                                            </Button>
-                                        )}
-                                    </div>
-
-                                    <CompareButton productId={product.id} />
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <StockAlertButton productId={product.id} productName={product.name} />
-                                    <CompareButton productId={product.id} />
-                                </div>
-                            )}
-
-                            <ProductQRCode
-                                productName={product.name}
-                                productUrl={`/products/${product.slug}`}
+                            <ProductPurchaseWithCombinations
+                                productId={product.id}
+                                baseStock={product.stock}
+                                basePrice={basePriceNumber}
+                                variations={normalizedVariations}
+                                combinations={normalizedCombinations}
+                                whatsappLink={whatsappLink}
+                                callNumber={callNumber}
                             />
 
-                            {/* Trust Signals */}
-                            <div className="grid grid-cols-3 gap-2 pt-2">
-                                <div className="flex flex-col items-center justify-center text-center gap-1 p-2">
-                                    <Truck className="w-5 h-5 text-primary" />
-                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Countrywide Shipping</span>
+                            {product.brand && (
+                                <div className="mt-8 border border-[#eaeaea] rounded px-4 py-2 inline-flex items-center gap-3 w-max">
+                                    <span className="text-sm font-medium text-[#222831]">Brand:</span>
+                                    <span className="font-bold text-lg text-black tracking-wide uppercase">{product.brand}</span>
                                 </div>
-                                <div className="flex flex-col items-center justify-center text-center gap-1 p-2 border-l border-r border-border">
-                                    <Shield className="w-5 h-5 text-primary" />
-                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Warranty</span>
-                                </div>
-                                <div className="flex flex-col items-center justify-center text-center gap-1 p-2">
-                                    <RotateCcw className="w-5 h-5 text-primary" />
-                                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Easy Return</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Tabs Section */}
-                <div className="mt-16 md:mt-20">
-                    {/* Description Section */}
-                    <div className="py-10 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 border-b border-border">
-                        <div className="lg:col-span-2 text-muted-foreground leading-relaxed space-y-6">
-                            <h3 className="text-2xl font-bold text-foreground">Product Description</h3>
-                            {product.description && (
-                                <p className="whitespace-pre-line">{product.description}</p>
                             )}
                         </div>
-
-                        {/* Specifications Sidebar */}
-                        {product.specifications && product.specifications.length > 0 && (
-                            <div className="bg-muted rounded-2xl p-6 h-fit">
-                                <h4 className="font-bold text-foreground mb-4">Technical Specifications</h4>
-                                <div className="flex flex-col gap-3">
-                                    {product.specifications.map((spec) => (
-                                        <div key={spec.id} className="flex justify-between py-2 border-b border-border last:border-b-0">
-                                            <span className="text-muted-foreground text-sm">{spec.key}</span>
-                                            <span className="font-medium text-foreground text-sm">{spec.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Reviews Section */}
-                    <div className="py-10 border-b border-border" id="reviews">
-                        <h3 className="text-2xl font-bold text-foreground mb-8">Customer Reviews</h3>
-                        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-                            {/* Rating Summary */}
-                            <div className="w-full lg:w-1/3 flex flex-col gap-6">
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-foreground text-5xl font-black leading-tight tracking-tight">{Number(product.rating).toFixed(1)}</p>
-                                    <div className="flex gap-1 text-amber-400">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <Star key={i} className={`w-6 h-6 ${i < Math.floor(parseFloat(product.rating.toString())) ? "fill-current" : "text-gray-200 dark:text-gray-600"}`} />
-                                        ))}
-                                    </div>
-                                    <p className="text-muted-foreground text-base font-medium">Based on {verifiedReviews.length} reviews</p>
-                                </div>
+                    {/* Linear Product Sections */}
+                    <div className="mt-8 bg-white rounded-xl border border-[#eaeaea] shadow-sm relative">
+                        
+                        {/* Sticky Jump Navigation */}
+                        <ProductJumpLinks hasVideo={!!videoUrl} reviewCount={verifiedReviews.length} />
 
-                                {/* Review Form CTA */}
-                                {session?.user ? (
-                                    <Card className="bg-card border-border">
-                                        <CardHeader className="p-4 pb-2">
-                                            <CardTitle className="text-lg text-foreground">Write a Review</CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="p-4 pt-0">
-                                            <ReviewForm productId={product.id} />
-                                        </CardContent>
-                                    </Card>
-                                ) : (
-                                    <div className="p-4 bg-muted rounded-xl text-center">
-                                        <p className="text-sm text-muted-foreground mb-3">Please sign in to write a review</p>
-                                        <Link href="/auth/login" className="inline-block w-full py-3 border border-foreground text-foreground font-bold rounded-xl hover:bg-foreground hover:text-background transition-colors text-sm">
-                                            Sign In to Review
-                                        </Link>
+                        {/* Content Area */}
+                        <div className="p-6 md:p-8">
+                            
+                            {/* Description Section */}
+                            <div id="description" className="mb-12 scroll-mt-24">
+                                <h3 className="text-[18px] font-bold text-[#222831] mb-5 inline-block border-b-[3px] border-[#f48721] pb-1">
+                                    Product Details
+                                </h3>
+                                <div className="text-[#252a34] leading-loose text-sm md:text-[15px] space-y-6">
+                                    <p className="whitespace-pre-line">{product.description}</p>
+                                </div>
+                                
+                                {product.specifications && product.specifications.length > 0 && (
+                                    <div className="mt-8 bg-[#FBF9F5] rounded border border-[#eaeaea] p-5">
+                                        <h4 className="font-bold text-[#222831] mb-4">Specifications</h4>
+                                        <div className="flex flex-col">
+                                            {product.specifications.map((spec: any, idx: number) => (
+                                                <div key={spec.id} className={`flex py-2 px-4 ${idx % 2 === 0 ? 'bg-white' : ''} border-b border-[#eaeaea] last:border-b-0`}>
+                                                    <span className="text-[#252a34] font-medium w-1/3">{spec.key}</span>
+                                                    <span className="text-[#252a34] w-2/3">{spec.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Review Cards */}
-                            <div className="w-full lg:w-2/3 flex flex-col gap-6">
-                                {verifiedReviews.length > 0 ? (
-                                    verifiedReviews.map((review) => (
-                                        <div key={review.id} className="p-6 bg-card rounded-xl border border-border">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="size-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
-                                                        {review.user.name?.charAt(0) || "U"}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-bold text-foreground text-sm">{review.user.name}</p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {review.isVerified && "Verified Buyer • "}
-                                                            {formatDateDhaka(review.createdAt, "PP")}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-0.5 text-amber-400">
+                            {/* Video Section */}
+                            {videoUrl && (
+                                <div id="video" className="mb-12 pt-8 border-t border-[#eaeaea] scroll-mt-24">
+                                    <h3 className="text-[18px] font-bold text-[#222831] mb-5 inline-block border-b-[3px] border-[#f48721] pb-1">
+                                        Video
+                                    </h3>
+                                    <div className="w-full h-[250px] sm:h-[350px] md:h-[460px] bg-black rounded overflow-hidden relative shadow-md">
+                                        <iframe 
+                                            src={getEmbedUrl(videoUrl)} 
+                                            className="absolute top-0 left-0 w-full h-full border-0"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Reviews Section */}
+                            <div id="reviews" className="pt-8 border-t border-[#eaeaea] scroll-mt-24">
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                                    
+                                    {/* Left: Rating Breakdown */}
+                                    <div className="lg:col-span-4">
+                                        <div className="flex items-center gap-4 mb-3">
+                                            <span className="text-[54px] font-bold text-[#222831] leading-none tracking-tight">
+                                                {productRating.toFixed(1)}
+                                            </span>
+                                            <div>
+                                                <p className="text-[#252a34] font-medium text-sm mb-1">Average Rating</p>
+                                                <div className="flex gap-1 text-gray-300 text-sm">
                                                     {Array.from({ length: 5 }).map((_, i) => (
-                                                        <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-gray-300"}`} />
+                                                        <Star key={i} className={`w-4 h-4 ${i < Math.floor(productRating) ? "fill-[#f48721] text-[#f48721]" : ""}`} />
                                                     ))}
+                                                    <span className="ml-2">({verifiedReviews.length} Reviews)</span>
                                                 </div>
                                             </div>
-                                            {review.title && (
-                                                <h5 className="font-bold text-foreground mb-2">{review.title}</h5>
-                                            )}
-                                            {review.comment && (
-                                                <p className="text-muted-foreground text-sm leading-relaxed">{review.comment}</p>
-                                            )}
-                                            {review.images && review.images.length > 0 && (
-                                                <div className="flex gap-2 mt-4">
-                                                    {review.images.map((image, index) => (
-                                                        <Image
-                                                            key={index}
-                                                            src={image}
-                                                            alt={`Review ${index + 1}`}
-                                                            width={80}
-                                                            height={80}
-                                                            className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
-                                                        />
-                                                    ))}
-                                                </div>
-                                            )}
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="p-8 bg-muted rounded-xl text-center">
-                                        <p className="text-muted-foreground">No reviews yet. Be the first to review this product!</p>
+                                        <p className="text-sm font-bold text-[#222831] mb-6">0.00% <span className="font-normal text-gray-500">Recommended (0 of 0)</span></p>
+                                        
+                                        <div className="space-y-3">
+                                            {[5,4,3,2,1].map((stars) => (
+                                                <div key={stars} className="flex items-center gap-3">
+                                                    <div className="flex gap-0.5">
+                                                        {Array.from({ length: 5 }).map((_, i) => (
+                                                            <Star key={i} className={`w-3 h-3 ${i < stars ? "fill-[#f48721] text-[#f48721]" : "fill-[#eaeaea] text-[#eaeaea]"}`} />
+                                                        ))}
+                                                    </div>
+                                                    <div className="flex-1 h-1.5 bg-[#eaeaea] rounded-full"></div>
+                                                    <span className="text-xs text-gray-500 w-6 text-right">0%</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                )}
+
+                                    {/* Right: Form & Reviews */}
+                                    <div className="lg:col-span-8">
+                                        {session?.user ? (
+                                            <div className="mb-10">
+                                                <h3 className="text-[18px] font-bold text-[#222831] mb-3 inline-block border-b-[3px] border-[#f48721] pb-1">
+                                                    Submit Your Review
+                                                </h3>
+                                                <p className="text-sm text-[#252a34] mb-5">Your email address will not be published. Required fields are marked *</p>
+                                                
+                                                <ReviewForm productId={product.id} />
+                                            </div>
+                                        ) : (
+                                            <div className="mb-10 p-6 bg-[#FBF9F5] border border-[#eaeaea] rounded text-center">
+                                                <p className="text-sm text-[#252a34] mb-3">Please sign in to write a review</p>
+                                                <Link href="/auth/login" className="inline-block py-2 px-6 bg-[#333333] text-white font-bold rounded hover:bg-black transition-colors text-sm">
+                                                    Sign In
+                                                </Link>
+                                            </div>
+                                        )}
+
+                                        {/* Existing Reviews list */}
+                                        <div className="space-y-4">
+                                            {verifiedReviews.length > 0 ? (
+                                                verifiedReviews.map((review) => (
+                                                    <div key={review.id} className="py-4 border-b border-[#eaeaea] last:border-0">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <div className="flex gap-0.5">
+                                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                                    <Star key={i} className={`w-3.5 h-3.5 ${i < Number(review.rating) ? "fill-[#f48721] text-[#f48721]" : "fill-[#eaeaea] text-[#eaeaea]"}`} />
+                                                                ))}
+                                                            </div>
+                                                            <span className="font-bold text-sm text-[#222831] ml-2">{review.user.name}</span>
+                                                            <span className="text-xs text-gray-400">• {formatDateDhaka(review.createdAt, "PP")}</span>
+                                                        </div>
+                                                        {review.title && <h5 className="font-bold text-[#222831] mb-1 text-sm">{review.title}</h5>}
+                                                        {review.comment && <p className="text-[#555] text-sm">{review.comment}</p>}
+                                                    </div>
+                                                ))
+                                            ) : null}
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
+
                         </div>
                     </div>
-                </div>
 
-                {/* Related Products */}
-                <div className="py-12 border-t border-border">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold text-foreground">You might also like</h2>
-                        <Link href="/products" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
-                            View all <ChevronRight className="w-4 h-4" />
-                        </Link>
+                    {/* Related Products */}
+                    <div className="py-12 mt-4">
+                        <div className="flex items-center justify-between mb-6 border-b border-[#eaeaea] pb-3">
+                            <h2 className="text-xl font-bold text-[#222831] uppercase">Related Products</h2>
+                        </div>
+                        <RelatedProducts productId={product.id} categoryId={product.categoryId} limit={4} />
                     </div>
-                    <RelatedProducts
-                        productId={product.id}
-                        categoryId={product.categoryId}
-                        limit={4}
-                    />
                 </div>
-
-                {/* You May Also Like */}
-                <YouMayAlsoLike productId={product.id} limit={4} />
-            </div>
-        </main>
+            </main>
+        </>
     )
 }

@@ -43,11 +43,21 @@ const productSchema = z.object({
     isActive: z.boolean().default(true),
     isFeatured: z.boolean().default(false),
     images: z.array(z.string()).default([]),
+    youtubeUrls: z.array(z.string()).default([]),
     discountType: z.string().optional().nullable(),
     discountValue: z.coerce.number().optional().nullable(),
     discountStartDate: z.date().optional().nullable(),
     discountEndDate: z.date().optional().nullable(),
 })
+
+function parseYoutubeUrls(value: FormDataEntryValue | null): string[] {
+    if (typeof value !== "string") return []
+
+    return value
+        .split(/\r?\n|,/)
+        .map((url) => url.trim())
+        .filter(Boolean)
+}
 
 export async function getAdminProducts({
     page = 1,
@@ -197,6 +207,7 @@ export async function createProduct(formData: FormData) {
         isActive: formData.get("isActive") === "true",
         isFeatured: formData.get("isFeatured") === "true",
         images: JSON.parse(formData.get("images") as string || "[]"),
+        youtubeUrls: parseYoutubeUrls(formData.get("youtubeUrls")),
         discountType: formData.get("discountType") as string || null,
         discountValue: formData.get("discountValue") ? parseFloat(formData.get("discountValue") as string) : null,
         discountStartDate: formData.get("discountStartDate") ? new Date(formData.get("discountStartDate") as string) : null,
@@ -230,6 +241,7 @@ export async function createProduct(formData: FormData) {
             isActive: validated.data.isActive,
             isFeatured: validated.data.isFeatured,
             images: validated.data.images,
+            youtubeUrls: validated.data.youtubeUrls,
         }
 
         // Add discount fields if they exist and are valid
@@ -360,6 +372,7 @@ export async function updateProduct(id: string, formData: FormData) {
         isActive: formData.get("isActive") === "true",
         isFeatured: formData.get("isFeatured") === "true",
         images: JSON.parse(formData.get("images") as string || "[]"),
+        youtubeUrls: parseYoutubeUrls(formData.get("youtubeUrls")),
         discountType: formData.get("discountType") as string || null,
         discountValue: formData.get("discountValue") ? parseFloat(formData.get("discountValue") as string) : null,
         discountStartDate: formData.get("discountStartDate") ? new Date(formData.get("discountStartDate") as string) : null,
@@ -401,6 +414,7 @@ export async function updateProduct(id: string, formData: FormData) {
             isActive: validated.data.isActive,
             isFeatured: validated.data.isFeatured,
             images: validated.data.images,
+            youtubeUrls: validated.data.youtubeUrls,
         }
 
         // Add discount fields if they exist and are valid

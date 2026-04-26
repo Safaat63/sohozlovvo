@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { Minus, Plus, Zap } from "lucide-react"
+import { Minus, Plus, ShoppingBag, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { addToCart } from "@/actions/cart"
 import { toast } from "sonner"
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
 import { cn } from "@/lib/utils"
+import { MessageCircle } from "lucide-react"
 
-// Types matching the Prisma schema
 interface VariationOption {
     id: string
     optionName: string
@@ -43,8 +41,8 @@ interface Combination {
     id: string
     sku: string | null
     stock: number
-    price: number | string | null // Decimal comes as string from Prisma
-    originalPrice?: number | null // Original price before discount
+    price: number | string | null 
+    originalPrice?: number | null 
     isActive: boolean
     options: CombinationOption[]
 }
@@ -55,6 +53,8 @@ interface ProductPurchaseWithCombinationsProps {
     basePrice: number
     variations: Variation[]
     combinations: Combination[]
+    whatsappLink?: string | null
+    callNumber?: string | null
     productDiscount?: {
         discountType?: string | null
         discountValue?: number | null
@@ -70,28 +70,24 @@ export function ProductPurchaseWithCombinations({
     basePrice,
     variations,
     combinations,
+    whatsappLink,
+    callNumber
 }: ProductPurchaseWithCombinationsProps) {
-    // Track selected option for each variation
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
     const [quantity, setQuantity] = useState(1)
+    const [prevEffectiveStock, setPrevEffectiveStock] = useState<number | null>(null)
     const [adding, setAdding] = useState(false)
     const [ordering, setOrdering] = useState(false)
 
     const router = useRouter()
-    const currency = useCurrencySymbol()
-
     const hasVariations = variations.length > 0 && combinations.length > 0
 
-    // Find the matching combination based on selected options
     const selectedCombination = useMemo(() => {
         if (!hasVariations) return null
 
         const selectedOptionIds = Object.values(selectedOptions)
-
-        // Must have selected one option from each variation
         if (selectedOptionIds.length !== variations.length) return null
 
-        // Find combination that matches all selected options
         return combinations.find(combo => {
             const comboOptionIds = combo.options.map(o => o.optionId)
             return selectedOptionIds.every(id => comboOptionIds.includes(id)) &&
@@ -99,7 +95,6 @@ export function ProductPurchaseWithCombinations({
         }) || null
     }, [selectedOptions, combinations, variations.length, hasVariations])
 
-    // Calculate effective price and stock
     const effectivePrice = useMemo(() => {
         if (selectedCombination && selectedCombination.price !== null) {
             return typeof selectedCombination.price === 'string'
@@ -113,24 +108,27 @@ export function ProductPurchaseWithCombinations({
         if (selectedCombination) {
             return selectedCombination.stock
         }
-        // If no variations or combinations, use base stock
         if (!hasVariations) {
             return baseStock
         }
-        // If has variations but not all selected, show total stock from all combinations
         return combinations
             .filter(combo => combo.isActive)
             .reduce((sum, combo) => sum + combo.stock, 0)
     }, [selectedCombination, baseStock, hasVariations, combinations])
 
-    // Check if an option is available (has at least one in-stock combination)
+    // FIX FOR ESLINT WARNING: React 18 pattern for derived state during render
+    if (effectiveStock !== prevEffectiveStock) {
+        setPrevEffectiveStock(effectiveStock)
+        if (quantity > effectiveStock && effectiveStock > 0) {
+            setQuantity(effectiveStock)
+        }
+    }
+
     const isOptionAvailable = (variationId: string, optionId: string): boolean => {
-        // Check if any combination containing this option is in stock
         return combinations.some(combo => {
             const hasOption = combo.options.some(o => o.optionId === optionId)
             if (!hasOption) return false
 
-            // Check if this combination is compatible with current selections
             const otherSelections = Object.entries(selectedOptions)
                 .filter(([vId]) => vId !== variationId)
 
@@ -142,41 +140,16 @@ export function ProductPurchaseWithCombinations({
         })
     }
 
-    // Get display label for selected combination
-    const selectedLabel = useMemo(() => {
-        if (!hasVariations) return null
-        if (Object.keys(selectedOptions).length === 0) return "Select options"
-
-        const labels = variations.map(v => {
-            const selectedOptionId = selectedOptions[v.id]
-            if (!selectedOptionId) return null
-            const option = v.options.find(o => o.id === selectedOptionId)
-            return option ? `${v.variationName}: ${option.optionName}` : null
-        }).filter(Boolean)
-
-        return labels.join(", ")
-    }, [selectedOptions, variations, hasVariations])
-
-    // Emit price change event for parent components
     useEffect(() => {
-        // Use the combination's original price if available
         const originalPrice = selectedCombination?.originalPrice ?? null
-
         const event = new CustomEvent("variation-price-change", {
-            detail: {
-                price: effectivePrice,
-                originalPrice,
-            },
+            detail: { price: effectivePrice, originalPrice },
         })
         window.dispatchEvent(event)
     }, [effectivePrice, selectedCombination])
 
-    // Emit variant image change event when option selection changes
     useEffect(() => {
-        // Find the first selected option that has an image
         let variantImage: string | null = null
-
-        // Check all selected options for variant images
         for (const variationId of Object.keys(selectedOptions)) {
             const optionId = selectedOptions[variationId]
             const variation = variations.find(v => v.id === variationId)
@@ -187,7 +160,6 @@ export function ProductPurchaseWithCombinations({
                 break
             }
         }
-
         const event = new CustomEvent("variation-image-change", {
             detail: { image: variantImage },
             bubbles: true
@@ -195,19 +167,8 @@ export function ProductPurchaseWithCombinations({
         window.dispatchEvent(event)
     }, [selectedOptions, variations])
 
-    // Reset quantity if it exceeds stock (only when stock changes)
-    useEffect(() => {
-        if (quantity > effectiveStock && effectiveStock > 0) {
-            setQuantity(effectiveStock)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [effectiveStock])
-
     const handleOptionSelect = (variationId: string, optionId: string) => {
-        setSelectedOptions(prev => ({
-            ...prev,
-            [variationId]: optionId,
-        }))
+        setSelectedOptions(prev => ({ ...prev, [variationId]: optionId }))
     }
 
     const handleAddToCart = async (redirectToCheckout = false) => {
@@ -224,12 +185,7 @@ export function ProductPurchaseWithCombinations({
         const setLoading = redirectToCheckout ? setOrdering : setAdding
         setLoading(true)
 
-        // Pass combinationId to addToCart
-        const result = await addToCart(
-            productId,
-            quantity,
-            selectedCombination?.id
-        )
+        const result = await addToCart(productId, quantity, selectedCombination?.id)
 
         setLoading(false)
 
@@ -250,17 +206,11 @@ export function ProductPurchaseWithCombinations({
     const canAddToCart = allOptionsSelected && effectiveStock > 0
 
     return (
-        <div className="space-y-4">
-            {/* Variation Selectors */}
+        <div className="space-y-6">
             {variations.map((variation) => (
                 <div key={variation.id} className="space-y-2">
-                    <h3 className="text-sm font-semibold dark:text-white">
-                        {variation.variationName}
-                        {selectedOptions[variation.id] && (
-                            <span className="font-normal text-muted-foreground ml-2">
-                                : {variation.options.find(o => o.id === selectedOptions[variation.id])?.optionName}
-                            </span>
-                        )}
+                    <h3 className="text-sm font-semibold text-[#222831]">
+                        {variation.variationName}:
                     </h3>
                     <div className="flex flex-wrap gap-2">
                         {variation.options
@@ -277,36 +227,19 @@ export function ProductPurchaseWithCombinations({
                                         disabled={!isAvailable}
                                         className={cn(
                                             isColorVariation && option.hexCode
-                                                ? "w-10 h-10 rounded-full border-2 transition-all relative overflow-hidden"
-                                                : "px-4 py-2 text-sm rounded-md border transition-all",
+                                                ? "w-8 h-8 rounded-full border-2 transition-all relative"
+                                                : "px-4 py-1.5 text-sm rounded border transition-all bg-white",
                                             isSelected
                                                 ? isColorVariation && option.hexCode
-                                                    ? "border-primary ring-2 ring-primary/20 scale-110"
-                                                    : "border-primary bg-primary/10 text-primary font-medium"
-                                                : isColorVariation && option.hexCode
-                                                    ? "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:scale-105"
-                                                    : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500",
+                                                    ? "border-[#f48721] ring-2 ring-[#f48721]/30"
+                                                    : "border-[#f48721] text-[#f48721] font-bold"
+                                                : "border-[#e0e0e0] text-[#252a34] hover:border-[#f48721]",
                                             !isAvailable && "opacity-40 cursor-not-allowed line-through"
                                         )}
-                                        style={
-                                            isColorVariation && option.hexCode
-                                                ? { backgroundColor: option.hexCode }
-                                                : undefined
-                                        }
-                                        title={isColorVariation && option.hexCode ? option.optionName : undefined}
+                                        style={isColorVariation && option.hexCode ? { backgroundColor: option.hexCode } : undefined}
+                                        title={option.optionName}
                                     >
-                                        {isColorVariation && option.hexCode ? (
-                                            // Color circle - show color only, name in tooltip
-                                            <span className="sr-only">{option.optionName}</span>
-                                        ) : (
-                                            // Regular option button - show text
-                                            option.optionName
-                                        )}
-                                        {isColorVariation && option.hexCode && !isAvailable && (
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                <span className="text-white text-xs">✗</span>
-                                            </div>
-                                        )}
+                                        {!isColorVariation && option.optionName}
                                     </button>
                                 )
                             })}
@@ -314,101 +247,78 @@ export function ProductPurchaseWithCombinations({
                 </div>
             ))}
 
-            {/* Price and Stock Info */}
-            <div className="rounded-md border p-3 space-y-3">
-                {hasVariations && (
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Selected</span>
-                        <span className={cn(
-                            "font-medium",
-                            !allOptionsSelected && "text-amber-600"
-                        )}>
-                            {selectedLabel}
-                        </span>
-                    </div>
-                )}
-
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Price</span>
-                    <span className="font-semibold text-lg">
-                        {formatCurrency(effectivePrice, currency)}
-                    </span>
-                </div>
-
-                {selectedCombination?.sku && (
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">SKU</span>
-                        <span className="font-mono text-xs">{selectedCombination.sku}</span>
-                    </div>
-                )}
-
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Availability</span>
-                    {effectiveStock > 0 ? (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                            {effectiveStock} in stock
-                        </Badge>
-                    ) : (
-                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                            Out of stock
-                        </Badge>
-                    )}
-                </div>
-
-                {/* Quantity Selector */}
-                {effectiveStock > 0 && allOptionsSelected && (
-                    <div className="flex items-center gap-4 pt-2">
-                        <span className="font-semibold text-sm">Quantity</span>
-                        <div className="flex items-center border rounded-md">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                disabled={quantity <= 1}
-                            >
-                                <Minus className="h-4 w-4" />
-                            </Button>
-                            <span className="px-4 py-2 min-w-14 text-center">{quantity}</span>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setQuantity(Math.min(effectiveStock, quantity + 1))}
-                                disabled={quantity >= effectiveStock}
-                            >
-                                <Plus className="h-4 w-4" />
-                            </Button>
+            {effectiveStock > 0 && (
+                <div className="space-y-4">
+                    {allOptionsSelected && (
+                        <div className="flex items-center gap-4">
+                            <span className="font-medium text-[15px] text-[#222831]">Quantity:</span>
+                            <div className="flex items-center border border-[#e0e0e0] rounded bg-white w-fit h-10">
+                                <button
+                                    type="button"
+                                    className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black transition-colors"
+                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                    disabled={quantity <= 1}
+                                >
+                                    <Minus className="h-4 w-4" />
+                                </button>
+                                <input 
+                                    className="w-12 h-full text-center text-[15px] font-semibold text-[#222831] border-x border-[#e0e0e0] focus:outline-none"
+                                    value={quantity}
+                                    readOnly
+                                />
+                                <button
+                                    type="button"
+                                    className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black transition-colors"
+                                    onClick={() => setQuantity(Math.min(effectiveStock, quantity + 1))}
+                                    disabled={quantity >= effectiveStock}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                    <Button
-                        type="button"
-                        className="flex-1"
-                        onClick={() => handleAddToCart(false)}
-                        disabled={!canAddToCart || adding}
-                    >
-                        {adding ? "Adding..." : "Add to Cart"}
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => handleAddToCart(true)}
-                        disabled={!canAddToCart || ordering}
-                    >
-                        {ordering ? "Processing..." : (
-                            <span className="flex items-center justify-center gap-2">
-                                <Zap className="h-4 w-4" />
-                                Order Now
-                            </span>
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                        <Button
+                            type="button"
+                            className="w-full h-[46px] bg-[#f48721] hover:bg-[#e07b1d] text-white font-bold rounded shadow-none transition-all uppercase tracking-wide text-xs"
+                            onClick={() => handleAddToCart(false)}
+                            disabled={!canAddToCart || adding}
+                        >
+                            <ShoppingBag className="w-4 h-4 mr-2" />
+                            {adding ? "Adding..." : "Add to Cart"}
+                        </Button>
+                        <Button
+                            type="button"
+                            className="w-full h-[46px] bg-[#041f1e] hover:bg-[#062e2c] text-white font-bold rounded shadow-none transition-all uppercase tracking-wide text-xs"
+                            onClick={() => handleAddToCart(true)}
+                            disabled={!canAddToCart || ordering}
+                        >
+                            {ordering ? "Processing..." : "Buy Now"}
+                        </Button>
+                        {whatsappLink && (
+                            <a 
+                                href={whatsappLink} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="flex items-center justify-center w-full h-[46px] bg-[#27ae60] hover:bg-[#219653] text-white font-bold rounded transition-colors text-xs"
+                            >
+                                <MessageCircle className="h-4 w-4 mr-2" />
+                                Order On WhatsApp
+                            </a>
                         )}
-                    </Button>
+                        {callNumber && (
+                            <a 
+                                href={`tel:${callNumber}`} 
+                                className="flex items-center justify-center w-full h-[46px] bg-[#2A4B8D] hover:bg-[#223d73] text-white font-bold rounded transition-colors text-xs"
+                            >
+                                <Phone className="h-4 w-4 mr-2" />
+                                Call For Order
+                            </a>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }

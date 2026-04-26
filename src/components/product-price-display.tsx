@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Currency } from "@/components/currency-provider"
-import { Badge } from "@/components/ui/badge"
 
 interface ProductPriceDisplayProps {
     basePrice: number
@@ -25,7 +24,6 @@ export function ProductPriceDisplay({
     const [variationOriginalPrice, setVariationOriginalPrice] = useState<number | null>(null)
 
     useEffect(() => {
-        // Listen for variation price changes
         const handleVariationChange = (event: VariationPriceChangeEvent) => {
             setCurrentPrice(event.detail.price)
             setVariationOriginalPrice(event.detail.originalPrice ?? null)
@@ -39,29 +37,25 @@ export function ProductPriceDisplay({
         }
     }, [onPriceChange])
 
-    // Use variation original price if available, otherwise use compareAtPrice or calculate from discount
     const effectiveComparePrice = variationOriginalPrice
         || compareAtPrice
         || (hasDiscount && discountPercentage ? currentPrice / (1 - discountPercentage / 100) : null)
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-baseline gap-2 md:gap-3">
-                <span className="text-3xl md:text-4xl font-bold">
-                    <Currency value={currentPrice} className="text-3xl md:text-4xl font-bold" />
-                </span>
-                {effectiveComparePrice && currentPrice < effectiveComparePrice && (
-                    <>
-                        <Currency
-                            value={effectiveComparePrice}
-                            className="text-lg text-muted-foreground line-through"
-                        />
-                        <Badge variant="success">
-                            {Math.round(((effectiveComparePrice - currentPrice) / effectiveComparePrice) * 100)}% OFF
-                        </Badge>
-                    </>
-                )}
-            </div>
+        <div className="flex items-center flex-wrap gap-3 my-2">
+            <span className="text-[#f48721] text-[28px] font-bold tracking-tight">
+                <Currency value={currentPrice} />
+            </span>
+            {effectiveComparePrice && currentPrice < effectiveComparePrice && (
+                <>
+                    <span className="text-[#999999] text-xl line-through">
+                        <Currency value={effectiveComparePrice} />
+                    </span>
+                    <span className="bg-[#2ecc71] text-white text-[11px] font-bold px-2 py-1 rounded tracking-wide">
+                        Save {Math.round(((effectiveComparePrice - currentPrice) / effectiveComparePrice) * 100)}%
+                    </span>
+                </>
+            )}
         </div>
     )
 }

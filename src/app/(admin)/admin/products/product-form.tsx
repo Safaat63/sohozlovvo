@@ -58,6 +58,7 @@ type Product = {
     isActive: boolean
     isFeatured: boolean
     images: string[]
+    youtubeUrls?: string[]
     discountType: string | null
     discountValue: { toString: () => string } | null
     discountStartDate: Date | null
@@ -495,6 +496,21 @@ export function ProductForm({
                         defaultValue={product?.description || ""}
                         className="w-full rounded-md border px-3 py-2 text-sm"
                     />
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="youtubeUrls">Product Video URLs</Label>
+                    <textarea
+                        id="youtubeUrls"
+                        name="youtubeUrls"
+                        rows={4}
+                        defaultValue={(product?.youtubeUrls || []).join("\n")}
+                        placeholder="One URL per line (YouTube links supported)"
+                        className="w-full rounded-md border px-3 py-2 text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        Add one video URL per line. Comma-separated URLs are also supported.
+                    </p>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
