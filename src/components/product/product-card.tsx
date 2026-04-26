@@ -18,7 +18,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { ProductPurchaseSection } from "@/components/product-purchase"
+import { ProductPurchaseSection } from "@/components/product/product-purchase"
 import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
 

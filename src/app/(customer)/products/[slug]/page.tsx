@@ -5,18 +5,18 @@ import { auth } from "@/lib/auth"
 import { ReviewForm } from "@/components/review-form"
 import { TrackProductView } from "@/components/track-product-view"
 import { TrackProductViewAnalytics } from "@/components/track-product-view-analytics"
-import { RelatedProducts } from "@/components/product-recommendations"
+import { RelatedProducts } from "@/components/product/product-recommendations"
 import { calculateDiscountedPrice, formatDateDhaka } from "@/lib/utils"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import Link from "next/link"
 import { Star } from "lucide-react"
 
-import { 
-    ProductPriceDisplay, 
-    ProductImageGallery, 
-    ProductPurchaseWithCombinations, 
-    ProductJumpLinks 
-} from "@/components/product-client-ui"
+import {
+    ProductPriceDisplay,
+    ProductImageGallery,
+    ProductPurchaseWithCombinations,
+    ProductJumpLinks
+} from "@/components/product/product-client-ui"
 
 function getEmbedUrl(url: string) {
     if (!url) return '';
@@ -125,13 +125,13 @@ export default async function ProductDetailPage({
     }) || []
 
     const whatsappNumber = settings.whatsapp_number?.replace(/[^0-9]/g, "") || ""
-    const callNumber = settings.store_phone || "" 
-    
+    const callNumber = settings.store_phone || ""
+
     const headersList = await import('next/headers').then(m => m.headers())
     const host = headersList.get('host') || "localhost:3000"
     const proto = headersList.get('x-forwarded-proto') || "http"
     const productUrl = `${proto}://${host}/products/${product.slug}`
-    
+
     const whatsappLink = whatsappNumber
         ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hello! I'm interested in:\nProduct: ${product.name}\nProduct URL: ${productUrl}`)}`
         : null
@@ -142,7 +142,7 @@ export default async function ProductDetailPage({
         <>
             <main className="min-h-screen bg-[#FBF9F5] pb-12 font-sans relative">
                 <ScrollToTop />
-                
+
                 {/* Breadcrumbs */}
                 <div className="bg-[#FBF9F5] py-4">
                     <div className="container mx-auto px-4 md:px-10">
@@ -160,7 +160,7 @@ export default async function ProductDetailPage({
 
                     {/* Main Product Top Container */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 bg-white p-5 md:p-8 rounded-xl border border-[#eaeaea] shadow-sm">
-                        
+
                         <div className="w-full relative">
                             <ProductImageGallery images={product.images} productName={product.name} />
                         </div>
@@ -200,13 +200,13 @@ export default async function ProductDetailPage({
 
                     {/* Linear Product Sections */}
                     <div className="mt-8 bg-white rounded-xl border border-[#eaeaea] shadow-sm relative">
-                        
+
                         {/* Sticky Jump Navigation */}
                         <ProductJumpLinks hasVideo={!!videoUrl} reviewCount={verifiedReviews.length} />
 
                         {/* Content Area */}
                         <div className="p-6 md:p-8">
-                            
+
                             {/* Description Section */}
                             <div id="description" className="mb-12 scroll-mt-24">
                                 <h3 className="text-[18px] font-bold text-[#222831] mb-5 inline-block border-b-[3px] border-[#f48721] pb-1">
@@ -215,7 +215,7 @@ export default async function ProductDetailPage({
                                 <div className="text-[#252a34] leading-loose text-sm md:text-[15px] space-y-6">
                                     <p className="whitespace-pre-line">{product.description}</p>
                                 </div>
-                                
+
                                 {product.specifications && product.specifications.length > 0 && (
                                     <div className="mt-8 bg-[#FBF9F5] rounded border border-[#eaeaea] p-5">
                                         <h4 className="font-bold text-[#222831] mb-4">Specifications</h4>
@@ -238,8 +238,8 @@ export default async function ProductDetailPage({
                                         Video
                                     </h3>
                                     <div className="w-full h-[250px] sm:h-[350px] md:h-[460px] bg-black rounded overflow-hidden relative shadow-md">
-                                        <iframe 
-                                            src={getEmbedUrl(videoUrl)} 
+                                        <iframe
+                                            src={getEmbedUrl(videoUrl)}
                                             className="absolute top-0 left-0 w-full h-full border-0"
                                             allowFullScreen
                                         ></iframe>
@@ -250,7 +250,7 @@ export default async function ProductDetailPage({
                             {/* Reviews Section */}
                             <div id="reviews" className="pt-8 border-t border-[#eaeaea] scroll-mt-24">
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                                    
+
                                     {/* Left: Rating Breakdown */}
                                     <div className="lg:col-span-4">
                                         <div className="flex items-center gap-4 mb-3">
@@ -268,9 +268,9 @@ export default async function ProductDetailPage({
                                             </div>
                                         </div>
                                         <p className="text-sm font-bold text-[#222831] mb-6">0.00% <span className="font-normal text-gray-500">Recommended (0 of 0)</span></p>
-                                        
+
                                         <div className="space-y-3">
-                                            {[5,4,3,2,1].map((stars) => (
+                                            {[5, 4, 3, 2, 1].map((stars) => (
                                                 <div key={stars} className="flex items-center gap-3">
                                                     <div className="flex gap-0.5">
                                                         {Array.from({ length: 5 }).map((_, i) => (
@@ -292,7 +292,7 @@ export default async function ProductDetailPage({
                                                     Submit Your Review
                                                 </h3>
                                                 <p className="text-sm text-[#252a34] mb-5">Your email address will not be published. Required fields are marked *</p>
-                                                
+
                                                 <ReviewForm productId={product.id} />
                                             </div>
                                         ) : (

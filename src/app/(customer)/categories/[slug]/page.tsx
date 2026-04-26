@@ -3,7 +3,7 @@ import { getCategories, getProducts } from "@/actions/products"
 import { getPublicSettings } from "@/actions/settings"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ProductCardServer } from "@/components/product-card-server"
+import { ProductCardServer } from "@/components/product/product-card-server"
 
 interface PageProps {
     params: Promise<{ slug: string }>

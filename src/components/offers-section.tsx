@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { getProductsWithActiveDiscounts } from "@/actions/products"
-import { ProductCard } from "@/components/product-card"
+import { ProductCard } from "@/components/product/product-card"
 
 export async function OffersSection() {
     const products = await getProductsWithActiveDiscounts(8)

@@ -9,7 +9,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { ProductCardServer } from "@/components/product-card-server"
+import { ProductCardServer } from "@/components/product/product-card-server"
 import { SortSelect } from "@/components/sort-select"
 
 interface SearchParams {

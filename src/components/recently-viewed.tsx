@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useEffect, useState } from "react"
-import { ProductCard } from "./product-card"
+import { ProductCard } from "./product/product-card"
 import { getComparisonProducts } from "@/actions/comparison"
 
 interface RecentlyViewedProduct {

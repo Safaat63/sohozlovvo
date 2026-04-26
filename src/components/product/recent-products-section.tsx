@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { getRecentProducts } from "@/actions/products"
-import { ProductCard } from "@/components/product-card"
+import { ProductCard } from "@/components/product/product-card"
 
 export async function RecentProductsSection() {
     const products = await getRecentProducts(8)
