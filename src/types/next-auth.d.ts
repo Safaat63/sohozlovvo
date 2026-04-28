@@ -1,6 +1,5 @@
 import { DefaultSession } from "next-auth"
 import { UserRole } from "@/generated/prisma"
-
 declare module "@auth/core/adapters" {
     interface AdapterUser {
         role: UserRole

@@ -12,6 +12,7 @@ import { RecentProductsSection } from "@/components/product/recent-products-sect
 import { OffersSection } from "@/components/offers-section"
 import { ArrowRight, Truck, Headphones, ShieldCheck, RefreshCw, ChevronRight, Zap } from "lucide-react"
 import { ProductCardBestSellerServer } from "@/components/product/product-card-best-seller-server"
+import BrandSection from "@/components/home/BrandSection"
 
 export default async function HomePage() {
   const [featuredProducts, categories, settings, heroBanners, testimonials, specialOffers, promotionalSections] = await Promise.all([
@@ -105,36 +106,52 @@ export default async function HomePage() {
       )}
 
       {/* Featured Products / Best Sellers */}
-      <section className="py-4 md:py-16 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
+      <section className="py-4 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
         <div className="max-w-360 mx-auto">
-          <div className="flex flex-col items-center text-center mb-12">
-            <h2 className="font-semibold text-[20px] md:text-[28px] text-[#222831] mb-2">Top Selling Products</h2>
+          <div className="flex flex-col items-center text-center mb-2">
+            <h2 className="font-semibold text-[20px] md:text-[28px] text-black">Top Selling Products</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
             {featuredProducts.map((product) => (
               <ProductCardBestSellerServer key={product.id} product={product} />
             ))}
           </div>
-          <div className="mt-8 flex justify-center">
+          {/* <div className="mt-8 flex justify-center">
             <Link href="/products" className="group px-10 py-4 bg-linear-to-r from-primary to-primary/90 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2">
               View More Products
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
-          </div>
+          </div> */}
         </div>
+      </section>
+
+      {/* Brand Section */}
+      <section className="py-4 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
+        <BrandSection />
       </section>
 
       {/* Categories Section */}
       <section className="py-16 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
         <div className="max-w-360 mx-auto">
-          <div className="flex flex-row justify-between md:items-end mb-10 gap-4">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-2">Shop by Category</h2>
-              <p className="text-muted-foreground">Browse our collection by category</p>
+              <h3 className="text-black text-[22px] font-bold leading-tight">Our Brands</h3>
+              <div className="mt-3">
+                <span className="block w-[120px] h-[6px] bg-[#FF7A00] rounded-full" />
+              </div>
             </div>
-            <Link href="/categories" className="text-sm font-bold text-primary hover:text-primary/80 flex items-center gap-1 group px-4 py-2 rounded-lg border border-primary/20 hover:bg-primary/5 transition-all">
-              View All <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+
+            <div className="text-left sm:text-right">
+              <a href="https://ghorerbazar.com/all-brands" className="text-[#FF7A00] font-semibold flex items-center gap-2 uppercase text-sm">
+                <span className="underline">See all</span>
+                <ArrowRight size={16} className="text-[#FF7A00]" />
+              </a>
+
+              <div className="mt-3 flex sm:justify-end">
+                <span className="block w-[64px] h-[6px] bg-[#FF7A00] rounded-full" />
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.slice(0, 4).map((category) => (
