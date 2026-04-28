@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Hind_Siliguri, Geist_Mono } from "next/font/google";
+import { Hind_Siliguri, Open_Sans } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { FloatingSocialButtons } from "@/components/floating-social-buttons";
 import { getPublicSettings } from "@/actions/settings";
@@ -14,7 +14,7 @@ const hindSiliguri = Hind_Siliguri({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
+const openSans = Open_Sans({
   variable: "--font-mono",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -45,7 +45,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Sohozlovvo" />
       </head>
       <body
-        className={`${hindSiliguri.variable} ${geistMono.variable} antialiased font-hind-siliguri`}
+        className={`${hindSiliguri.variable} ${openSans.variable} antialiased font-sans`}
       >
         <ThemeProvider
           attribute="class"

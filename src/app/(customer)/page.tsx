@@ -3,7 +3,6 @@ import Image from "next/image"
 import { getFeaturedProducts, getCategories } from "@/actions/products"
 import { getPublicSettings } from "@/actions/settings"
 import { getActiveHeroBanners, getActiveTestimonials, getActiveSpecialOffers, getActivePromotionalSections } from "@/actions/homepage"
-import { ProductCardServer } from "@/components/product/product-card-server"
 import { RecentlyViewed } from "@/components/recently-viewed"
 import { HeroSlider } from "@/components/hero-slider"
 import { TestimonialsSection } from "@/components/testimonials-section"
@@ -12,6 +11,7 @@ import { PromotionalSectionsDisplay } from "@/components/promotional-sections-di
 import { RecentProductsSection } from "@/components/product/recent-products-section"
 import { OffersSection } from "@/components/offers-section"
 import { ArrowRight, Truck, Headphones, ShieldCheck, RefreshCw, ChevronRight, Zap } from "lucide-react"
+import { ProductCardBestSellerServer } from "@/components/product/product-card-best-seller-server"
 
 export default async function HomePage() {
   const [featuredProducts, categories, settings, heroBanners, testimonials, specialOffers, promotionalSections] = await Promise.all([
@@ -108,13 +108,11 @@ export default async function HomePage() {
       <section className="py-4 md:py-16 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
         <div className="max-w-360 mx-auto">
           <div className="flex flex-col items-center text-center mb-12">
-            <span className="text-primary font-bold tracking-wider uppercase text-sm mb-3 px-4 py-1 bg-primary/10 rounded-full">Customer Favorites</span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-foreground mb-2">Best Sellers of the Week</h2>
-            <p className="text-muted-foreground max-w-2xl">Discover our most loved products, chosen by customers like you</p>
+            <h2 className="font-semibold text-[20px] md:text-[28px] text-[#222831] mb-2">Top Selling Products</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {featuredProducts.map((product, index) => (
-              <ProductCardServer key={product.id} product={product} whatsappNumber={whatsappNumber} priority={index < 4} />
+          <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCardBestSellerServer key={product.id} product={product} />
             ))}
           </div>
           <div className="mt-8 flex justify-center">

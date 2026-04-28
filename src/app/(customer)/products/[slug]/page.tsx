@@ -140,7 +140,7 @@ export default async function ProductDetailPage({
 
     return (
         <>
-            <main className="min-h-screen bg-[#FBF9F5] pb-12 font-sans relative">
+            <div className="min-h-screen bg-[#FBF9F5] pb-12 font-sans relative">
                 <ScrollToTop />
 
                 {/* Breadcrumbs */}
@@ -154,7 +154,7 @@ export default async function ProductDetailPage({
                     </div>
                 </div>
 
-                <div className="container mx-auto px-4 md:px-10">
+                <div className="mx-auto px-4 md:px-10">
                     <TrackProductView productId={product.id} />
                     <TrackProductViewAnalytics productId={product.id} slug={product.slug} />
 
@@ -237,7 +237,7 @@ export default async function ProductDetailPage({
                                     <h3 className="text-[18px] font-bold text-[#222831] mb-5 inline-block border-b-[3px] border-[#f48721] pb-1">
                                         Video
                                     </h3>
-                                    <div className="w-full h-[250px] sm:h-[350px] md:h-[460px] bg-black rounded overflow-hidden relative shadow-md">
+                                    <div className="w-full h-62.5 sm:h-87.5 md:h-115 bg-black rounded overflow-hidden relative shadow-md">
                                         <iframe
                                             src={getEmbedUrl(videoUrl)}
                                             className="absolute top-0 left-0 w-full h-full border-0"
@@ -340,7 +340,7 @@ export default async function ProductDetailPage({
                         <RelatedProducts productId={product.id} categoryId={product.categoryId} limit={4} />
                     </div>
                 </div>
-            </main>
+            </div>
         </>
     )
 }

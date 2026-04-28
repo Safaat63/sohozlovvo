@@ -43,8 +43,8 @@ interface Combination {
     id: string
     sku: string | null
     stock: number
-    price: number | string | null 
-    originalPrice?: number | null 
+    price: number | string | null
+    originalPrice?: number | null
     isActive: boolean
     options: CombinationOption[]
 }
@@ -84,7 +84,7 @@ export function ProductPriceDisplay({
         return () => window.removeEventListener("variation-price-change", handleVariationChange)
     }, [])
 
-    const effectiveComparePrice = variationOriginalPrice || compareAtPrice || 
+    const effectiveComparePrice = variationOriginalPrice || compareAtPrice ||
         (hasDiscount && discountPercentage ? currentPrice / (1 - discountPercentage / 100) : null)
 
     return (
@@ -142,9 +142,9 @@ export function ProductImageGallery({ images, productName }: { images: string[],
     }
 
     return (
-        <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 h-auto md:h-112.5">
+        <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 h-auto md:h-135">
             {displayImages.length > 1 && (
-                <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto w-full md:w-18 custom-scrollbar pr-1 pb-1 md:pb-0">
+                <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto w-full md:w-21 custom-scrollbar pr-1 pt-4 pb-1 md:pb-0">
                     {displayImages.map((image, index) => (
                         <button
                             key={`${image}-${index}`}
@@ -153,7 +153,7 @@ export function ProductImageGallery({ images, productName }: { images: string[],
                                 setSelectedIndex(variantImage ? (index === 0 ? 0 : index - 1) : index)
                             }}
                             className={cn(
-                                "shrink-0 w-15 h-15 md:w-18 md:h-18 bg-white border cursor-pointer relative rounded transition-all",
+                                "shrink-0 w-15 h-15 md:w-21 md:h-21 bg-white border cursor-pointer relative rounded transition-all",
                                 (variantImage === null && selectedIndex === index) || (variantImage && index === 0)
                                     ? "border-[#f48721]" : "border-[#eaeaea] hover:border-gray-400"
                             )}
@@ -248,7 +248,7 @@ export function ProductPurchaseWithCombinations({
     }
 
     const allSelected = !hasVariations || Object.keys(selectedOptions).length === variations.length
-    
+
     // Unconditional Fallbacks for exact 4-button match
     const safeWhatsappLink = whatsappLink || "https://wa.me/8801321208940"
     const safeCallNumber = callNumber ? `tel:${callNumber}` : "tel:09642922922"
@@ -294,16 +294,16 @@ export function ProductPurchaseWithCombinations({
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                        <Button type="button" className="w-full h-[46px] bg-[#f48721] hover:bg-[#d9771c] text-white font-bold rounded shadow-none uppercase tracking-wide text-xs" onClick={() => handleAddToCart(false)} disabled={!allSelected || adding}>
+                        <Button type="button" className="w-full h-11.5 bg-[#f48721] hover:bg-[#d9771c] text-white font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(false)} disabled={!allSelected || adding}>
                             <ShoppingBag className="w-4 h-4 mr-2" /> {adding ? "Adding..." : "ADD TO CART"}
                         </Button>
-                        <Button type="button" className="w-full h-[46px] bg-[#041f1e] hover:bg-[#0a2e2d] text-white font-bold rounded shadow-none uppercase tracking-wide text-xs" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
+                        <Button type="button" className="w-full h-11.5 bg-[#041f1e] hover:bg-[#0a2e2d] text-white font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
                             {ordering ? "Processing..." : "BUY NOW"}
                         </Button>
-                        <a href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-[46px] bg-[#27ae60] hover:bg-[#219653] text-white font-bold rounded transition-colors text-xs">
+                        <a href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-11.5 bg-[#27ae60] hover:bg-[#219653] text-white font-semibold rounded transition-colors text-[16px]">
                             <MessageCircle className="h-4 w-4 mr-2" /> Order On WhatsApp
                         </a>
-                        <a href={safeCallNumber} className="flex items-center justify-center w-full h-[46px] bg-[#2A4B8D] hover:bg-[#223d73] text-white font-bold rounded transition-colors text-xs">
+                        <a href={safeCallNumber} className="flex items-center justify-center w-full h-11.5 bg-[#2A4B8D] hover:bg-[#223d73] text-white font-semibold rounded transition-colors text-[16px]">
                             <Phone className="h-4 w-4 mr-2" /> Call For Order
                         </a>
                     </div>
@@ -330,7 +330,7 @@ export function ProductJumpLinks({ hasVideo, reviewCount }: { hasVideo: boolean,
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => { if (entry.isIntersecting) setActiveSection(entry.target.id) })
         }, { rootMargin: "-100px 0px -60% 0px", threshold: 0 })
-        
+
         const sectionIds = ['description', 'video', 'reviews']
         const elements = sectionIds.map(id => document.getElementById(id)).filter((el): el is HTMLElement => el !== null)
         elements.forEach(s => observer.observe(s))
@@ -338,7 +338,7 @@ export function ProductJumpLinks({ hasVideo, reviewCount }: { hasVideo: boolean,
     }, [])
 
     return (
-        <div className="flex flex-wrap items-center bg-white border-b border-[#eaeaea] p-4 gap-2 sticky top-15 md:top-[70px] z-30 rounded-t-xl shadow-sm">
+        <div className="hidden md:flex flex-wrap items-center bg-white border-b border-[#eaeaea] p-4 gap-2 sticky top-15 md:top-17.5 z-30 rounded-t-xl shadow-sm">
             <a href="#description" onClick={(e) => scrollToSection(e, 'description')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "description" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]")}>Description</a>
             {hasVideo && <a href="#video" onClick={(e) => scrollToSection(e, 'video')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "video" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]")}>Product Video</a>}
             <a href="#reviews" onClick={(e) => scrollToSection(e, 'reviews')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "reviews" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]")}>Customer Reviews ({reviewCount})</a>

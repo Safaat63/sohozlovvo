@@ -25,54 +25,17 @@ interface SearchParams {
     sortBy?: "price_asc" | "price_desc" | "rating" | "newest"
 }
 
-export default async function ProductsPage({
-    searchParams,
-}: {
-    searchParams: Promise<SearchParams>
-}) {
-    const params = await searchParams
-    const [productResult, categories, brands, settings] = await Promise.all([
-        getProducts({
-            search: params.search,
-            categorySlug: params.category,
-            minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
-            maxPrice: params.maxPrice ? parseFloat(params.maxPrice) : undefined,
-            brand: params.brand,
-            rating: params.rating ? parseFloat(params.rating) : undefined,
-            inStock: params.inStock === "true",
-            hasDiscount: params.hasDiscount === "true",
-            page: params.page ? parseInt(params.page) : 1,
-            sortBy: params.sortBy,
-        }),
-        getCategories(),
-        getBrands(),
-        getPublicSettings(),
-    ])
+type Category = Awaited<ReturnType<typeof getCategories>>[number]
 
-    const { products, pagination } = productResult
-    type Category = (typeof categories)[number]
-    type Product = (typeof products)[number]
-    const whatsappNumber = settings.whatsapp_number
+interface FilterContentProps {
+    params: SearchParams
+    categories: Category[]
+    brands: string[]
+    buildQueryString: (newParams: Record<string, string | undefined>) => string
+}
 
-    // Build query string helper
-    const buildQueryString = (newParams: Record<string, string | undefined>) => {
-        const current = new URLSearchParams()
-        if (params.search) current.set("search", params.search)
-        if (params.category) current.set("category", params.category)
-        if (params.brand) current.set("brand", params.brand)
-        if (params.inStock) current.set("inStock", params.inStock)
-        if (params.sortBy) current.set("sortBy", params.sortBy)
-
-        Object.entries(newParams).forEach(([key, value]) => {
-            if (value) current.set(key, value)
-            else current.delete(key)
-        })
-
-        return current.toString() ? `?${current.toString()}` : "/products"
-    }
-
-    // Filter sidebar content component for reuse
-    const FilterContent = () => (
+function FilterContent({ params, categories, brands, buildQueryString }: FilterContentProps) {
+    return (
         <div className="space-y-0">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -185,6 +148,52 @@ export default async function ProductsPage({
             </div>
         </div>
     )
+}
+
+export default async function ProductsPage({
+    searchParams,
+}: {
+    searchParams: Promise<SearchParams>
+}) {
+    const params = await searchParams
+    const [productResult, categories, brands, settings] = await Promise.all([
+        getProducts({
+            search: params.search,
+            categorySlug: params.category,
+            minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
+            maxPrice: params.maxPrice ? parseFloat(params.maxPrice) : undefined,
+            brand: params.brand,
+            rating: params.rating ? parseFloat(params.rating) : undefined,
+            inStock: params.inStock === "true",
+            hasDiscount: params.hasDiscount === "true",
+            page: params.page ? parseInt(params.page) : 1,
+            sortBy: params.sortBy,
+        }),
+        getCategories(),
+        getBrands(),
+        getPublicSettings(),
+    ])
+
+    const { products, pagination } = productResult
+    type Product = (typeof products)[number]
+    const whatsappNumber = settings.whatsapp_number
+
+    // Build query string helper
+    const buildQueryString = (newParams: Record<string, string | undefined>) => {
+        const current = new URLSearchParams()
+        if (params.search) current.set("search", params.search)
+        if (params.category) current.set("category", params.category)
+        if (params.brand) current.set("brand", params.brand)
+        if (params.inStock) current.set("inStock", params.inStock)
+        if (params.sortBy) current.set("sortBy", params.sortBy)
+
+        Object.entries(newParams).forEach(([key, value]) => {
+            if (value) current.set(key, value)
+            else current.delete(key)
+        })
+
+        return current.toString() ? `?${current.toString()}` : "/products"
+    }
 
     return (
         <main className="flex-1 w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-background-light dark:bg-[#1a1d23] min-h-screen">
@@ -225,14 +234,24 @@ export default async function ProductsPage({
                                 <SheetHeader>
                                     <SheetTitle className="sr-only">Filters</SheetTitle>
                                 </SheetHeader>
-                                <FilterContent />
+                                <FilterContent
+                                    params={params}
+                                    categories={categories}
+                                    brands={brands}
+                                    buildQueryString={buildQueryString}
+                                />
                             </SheetContent>
                         </Sheet>
                     </div>
 
                     {/* Desktop Sidebar */}
                     <div className="hidden lg:block lg:sticky lg:top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar rounded-xl bg-card p-6 shadow-soft border border-border">
-                        <FilterContent />
+                        <FilterContent
+                            params={params}
+                            categories={categories}
+                            brands={brands}
+                            buildQueryString={buildQueryString}
+                        />
                     </div>
                 </aside>
 

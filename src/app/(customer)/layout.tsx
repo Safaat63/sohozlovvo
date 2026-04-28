@@ -15,7 +15,7 @@ export default async function BlogLayout({
         <CurrencyProvider symbol={currencySymbol}>
             <Navbar storeName={settings.store_name} />
             <main className="min-h-screen bg-background">
-                <div className="max-w-screen-2xl mx-auto w-full">
+                <div className="mx-auto w-full">
                     {children}
                 </div>
             </main>
