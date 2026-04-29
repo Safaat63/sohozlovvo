@@ -6,9 +6,7 @@ import Image from "next/image"
 import { ShoppingCart, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-
-// Assuming these match your project's import paths based on the context provided
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
+import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
 import { addToCart } from "@/actions/cart"
 import { ProductPurchaseSection } from "@/components/product/product-purchase"
@@ -63,7 +61,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
     const router = useRouter()
     const currency = useCurrencySymbol()
-    
+
     // States for interactions
     const [isCartPending, setIsCartPending] = useState(false)
     const [showQuickView, setShowQuickView] = useState(false)
@@ -131,7 +129,7 @@ export function ProductCard({ product }: ProductCardProps) {
     return (
         <>
             <div className="relative w-full bg-[#FFFFFF] border border-[#e5e7eb] rounded-lg p-2 flex flex-col group transition-shadow hover:shadow-md h-full font-sans">
-                
+
                 {/* Top Right Badge Container */}
                 <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
                     {finalBadgePercentage && finalBadgePercentage > 0 && (
@@ -142,8 +140,8 @@ export function ProductCard({ product }: ProductCardProps) {
                 </div>
 
                 {/* Product Image with Hover Effect */}
-                <Link 
-                    href={`/products/${product.slug}`} 
+                <Link
+                    href={`/products/${product.slug}`}
                     className="block relative w-full aspect-square mb-3 overflow-hidden rounded-md bg-[#f8f9fa]"
                 >
                     {product.images[0] ? (
@@ -182,7 +180,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </div>
 
                     {/* Add To Cart Button */}
-                    <button 
+                    <button
                         onClick={handleAddToCart}
                         disabled={product.stock === 0 || isCartPending}
                         className="w-full flex items-center justify-center gap-2 border-[1px] border-[#ee8434] text-[#ee8434] bg-transparent hover:bg-[#ee8434] hover:text-white transition-colors duration-300 py-1.5 rounded text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PushNotificationManager } from './push-notification-manager';
+import { PushNotificationManager } from '../providers/push-notification-manager';
 import {
     Dialog,
     DialogContent,

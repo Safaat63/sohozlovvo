@@ -14,7 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { formatDateTimeDhaka } from "@/lib/utils"
-import { InvoiceButton } from "@/components/invoice-button"
+import { InvoiceButton } from "@/components/ui/invoice-button"
 import { Trash2 } from "lucide-react"
 
 const ORDER_STATUSES = ["PENDING", "VERIFIED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"] as const

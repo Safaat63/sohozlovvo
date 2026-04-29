@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { DollarSign, Users, TrendingUp, Eye, Package, Link as LinkIcon, Tag, ExternalLink } from "lucide-react"
 import { formatCurrency } from "@/lib/currency"
 import Link from "next/link"
-import { CopyCodeButton } from "@/components/copy-code-button"
-import { AffiliateProductSearch } from "@/components/affiliate-product-search"
-import { AffiliateQRCode } from "@/components/affiliate-qr-code"
+import { CopyCodeButton } from "@/components/affiliate/copy-code-button"
+import { AffiliateProductSearch } from "@/components/affiliate/affiliate-product-search"
+import { AffiliateQRCode } from "@/components/affiliate/affiliate-qr-code"
 export default async function AffiliateDashboardPage() {
     const session = await auth()
 

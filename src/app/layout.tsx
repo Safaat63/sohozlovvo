@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri, Open_Sans } from "next/font/google";
-import { Footer } from "@/components/footer";
-import { FloatingSocialButtons } from "@/components/floating-social-buttons";
+import { FloatingSocialButtons } from "@/components/ui/floating-social-buttons";
 import { getPublicSettings } from "@/actions/settings";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import Footer from "@/components/footer/footer-new";
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",

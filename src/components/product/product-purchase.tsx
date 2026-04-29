@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ProductVariationSelector } from "@/components/product/product-variation-selector"
 import { addToCart } from "@/actions/cart"
 import { toast } from "sonner"
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
+import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 
 interface VariationOption {
     id: string

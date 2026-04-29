@@ -14,7 +14,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { updateCartItem, removeFromCart } from "@/actions/cart"
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
+import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 
 // Custom shopping bag icon component
 function ShoppingBagIcon({ className }: { className?: string }) {

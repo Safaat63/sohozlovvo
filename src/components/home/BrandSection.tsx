@@ -10,7 +10,6 @@ const BRANDS = [
   { href: "https://ghorerbazar.com/brand/khejuri", img: "https://backoffice.ghorerbazar.com/brand_images/8Gpl21757919440.png" },
   { href: "https://ghorerbazar.com/brand/Shosti food", img: "https://backoffice.ghorerbazar.com/brand_images/8matO1757919401.png" },
   { href: "https://ghorerbazar.com/brand/Honeyraj", img: "https://backoffice.ghorerbazar.com/brand_images/lCfRt1759553456.png" },
-  // add more items to test pagination
   { href: "#6", img: "https://backoffice.ghorerbazar.com/brand_images/7hNKq1768887947.png" },
   { href: "#7", img: "https://backoffice.ghorerbazar.com/brand_images/RNTIU1763611802.png" },
   { href: "#8", img: "https://backoffice.ghorerbazar.com/brand_images/8Gpl21757919440.png" },
@@ -155,9 +154,8 @@ export default function BrandSection() {
               onClick={() => scrollToPage(i)}
               aria-label={`Go to page ${i + 1}`}
               aria-current={activePage === i ? "true" : "false"}
-              className={`w-3 h-3 rounded-full transition-transform focus:outline-none ${
-                activePage === i ? "bg-[#FF7A00] scale-110" : "bg-gray-300"
-              }`}
+              className={`w-3 h-3 rounded-full transition-transform focus:outline-none ${activePage === i ? "bg-[#FF7A00] scale-110" : "bg-gray-300"
+                }`}
             />
           ))}
         </div>

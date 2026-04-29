@@ -16,7 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
+import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
 
 interface CartItem {

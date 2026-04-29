@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Currency } from "@/components/currency-provider"
+import { Currency } from "@/components/providers/currency-provider"
 
 interface ProductPriceDisplayProps {
     basePrice: number

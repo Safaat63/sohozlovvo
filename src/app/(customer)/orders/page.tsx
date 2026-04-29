@@ -5,7 +5,7 @@ import { getOrders } from "@/actions/orders"
 import { Button } from "@/components/ui/button"
 import { formatDateDhaka } from "@/lib/utils"
 import Image from "next/image"
-import { Currency } from "@/components/currency-provider"
+import { Currency } from "@/components/providers/currency-provider"
 import { ChevronRight, Package, ShoppingBag, ArrowRight } from "lucide-react"
 
 export default async function OrdersPage() {

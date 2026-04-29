@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { addToCart } from "@/actions/cart"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { Currency } from "@/components/currency-provider"
+import { Currency } from "@/components/providers/currency-provider"
 
 // --- STRICT TYPES ---
 interface VariationOption {

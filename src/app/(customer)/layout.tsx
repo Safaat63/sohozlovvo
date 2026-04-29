@@ -1,6 +1,6 @@
 import { getPublicSettings } from "@/actions/settings";
-import { Navbar } from "@/components/navbar"
-import { CurrencyProvider } from "@/components/currency-provider"
+import { Navbar } from "@/components/navbar/navbar"
+import { CurrencyProvider } from "@/components/providers/currency-provider"
 
 export const dynamic = 'force-dynamic'
 

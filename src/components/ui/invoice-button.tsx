@@ -9,8 +9,6 @@ import { formatDateDhaka } from "@/lib/utils"
 import QRCode from "qrcode"
 import { parseVariationDetails } from "@/lib/variant-utils"
 
-// Currency symbol - using BDT for better PDF compatibility
-// Using Hind Siliguri font for Bengali character support
 const CURRENCY = "BDT "
 
 // Cache font so we only load once per session

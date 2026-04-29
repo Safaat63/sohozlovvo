@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { formatDateTimeDhaka } from "@/lib/utils"
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
-import { InvoiceButton } from "@/components/invoice-button"
-import { Currency } from "@/components/currency-provider"
+import { InvoiceButton } from "@/components/ui/invoice-button"
+import { Currency } from "@/components/providers/currency-provider"
 import { parseVariationDetails } from "@/lib/variant-utils"
 
 export default async function OrderDetailPage({

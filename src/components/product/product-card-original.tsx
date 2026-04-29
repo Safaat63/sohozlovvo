@@ -19,7 +19,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { ProductPurchaseSection } from "@/components/product/product-purchase"
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
+import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
 
 interface VariationOption {

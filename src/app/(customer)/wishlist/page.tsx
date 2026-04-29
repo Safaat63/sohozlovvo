@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, ChevronRight, ShoppingBag, Trash2 } from "lucide-react"
-import { AddToCartButton } from "@/components/add-to-cart-button"
+import { AddToCartButton } from "@/components/wishlist/add-to-cart-button"
 import { WishlistRemoveButton } from "./wishlist-remove-button"
-import { Currency } from "@/components/currency-provider"
+import { Currency } from "@/components/providers/currency-provider"
 
 export default async function WishlistPage() {
     const session = await auth()
@@ -162,8 +162,8 @@ export default async function WishlistPage() {
                                             </div>
                                             <span
                                                 className={`text-xs font-medium ${inStock
-                                                        ? "text-green-600 dark:text-green-400"
-                                                        : "text-red-600 dark:text-red-400"
+                                                    ? "text-green-600 dark:text-green-400"
+                                                    : "text-red-600 dark:text-red-400"
                                                     }`}
                                             >
                                                 {inStock ? "In Stock" : "Out of Stock"}

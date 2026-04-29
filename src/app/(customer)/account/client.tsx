@@ -5,7 +5,7 @@ import { updateUserProfile, changePassword } from "@/actions/user"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { SingleImageUpload } from "@/components/single-image-upload"
+import { SingleImageUpload } from "@/components/ui/single-image-upload"
 import { formatDateDhaka } from "@/lib/utils"
 import {
     User,
@@ -162,8 +162,8 @@ export default function AccountPage({ user }: { user: UserType }) {
                                         key={item.id}
                                         onClick={() => setActiveSection(item.id)}
                                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeSection === item.id
-                                                ? "bg-primary text-primary-foreground shadow-sm"
-                                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                            ? "bg-primary text-primary-foreground shadow-sm"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                             }`}
                                     >
                                         <item.icon className="h-5 w-5" />

@@ -6,7 +6,7 @@ import { getUserLoyaltyPoints } from "@/actions/loyalty"
 import { getUserAddresses } from "@/actions/addresses"
 import { getUserProfile } from "@/actions/user"
 import { getPublicSettings } from "@/actions/settings"
-import { CheckoutForm } from "@/components/checkout-form"
+import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { ChevronRight } from "lucide-react"
 import { calculateDiscountedPrice } from "@/lib/utils"
 

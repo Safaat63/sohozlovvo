@@ -20,16 +20,16 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { SearchBar } from "@/components/search-bar"
-import { SideCart } from "@/components/side-cart"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { ComparisonCounter } from "@/components/comparison-counter"
-import { LogoutButton } from "@/components/logout-button"
-import { MobileLogoutButton } from "./mobile-logout-button"
+import { SearchBar } from "@/components/navbar/search-bar"
+import { SideCart } from "@/components/cart/side-cart"
+import { ThemeToggle } from "@/components/providers/theme-toggle"
+import { ComparisonCounter } from "@/components/navbar/comparison-counter"
+import { MobileLogoutButton } from "../auth/mobile-logout-button"
 import { MobileCategoryMenu } from "./mobile-category-menu"
 import { DesktopCategoryMenu } from "./desktop-category-menu"
-import { NotificationSubscriptionDialog } from "./notification-subscription-dialog"
+import { NotificationSubscriptionDialog } from "../ui/notification-subscription-dialog"
 import Image from "next/image"
+import { LogoutButton } from "../auth/logout-button"
 
 // Custom icon components for a cohesive look
 function UserIcon({ className }: { className?: string }) {

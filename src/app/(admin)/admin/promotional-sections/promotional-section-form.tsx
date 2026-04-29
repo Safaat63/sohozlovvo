@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { SingleImageUpload } from "@/components/single-image-upload"
+import { SingleImageUpload } from "@/components/ui/single-image-upload"
 import { createPromotionalSection, updatePromotionalSection } from "@/actions/admin-promotional-sections"
 
 type PromotionalSection = {

@@ -10,7 +10,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { ProductCardServer } from "@/components/product/product-card-server"
-import { SortSelect } from "@/components/sort-select"
+import { SortSelect } from "@/components/product/sort-select"
 
 interface SearchParams {
     search?: string

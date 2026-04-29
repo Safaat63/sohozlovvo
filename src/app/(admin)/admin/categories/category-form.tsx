@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { SingleImageUpload } from "@/components/single-image-upload"
+import { SingleImageUpload } from "@/components/ui/single-image-upload"
 import { createCategory, updateCategory } from "@/actions/admin-categories"
 
 type Category = {

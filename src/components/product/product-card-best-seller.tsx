@@ -7,7 +7,7 @@ import { ShoppingCart, Flame } from "lucide-react"
 import { addToCart } from "@/actions/cart"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { formatCurrency, useCurrencySymbol } from "@/components/currency-provider"
+import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
 
 interface ProductCardProps {
@@ -98,7 +98,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
 
     return (
         <div className="group relative flex flex-col md:flex-row items-stretch rounded-xl border border-gray-100 bg-white transition-all hover:shadow-lg w-full h-full overflow-hidden">
-            
+
             {/* Badge - Top Right */}
             {(activeFlashSale || hasDiscount) && (
                 <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-lg rounded-tr-xl bg-[#f04f36] px-2 py-1 text-[10px] md:text-xs font-bold text-white z-10">

@@ -14,7 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { SingleImageUpload } from "@/components/single-image-upload"
+import { SingleImageUpload } from "@/components/ui/single-image-upload"
 import { createTestimonial, updateTestimonial } from "@/actions/admin-testimonials"
 
 type Testimonial = {

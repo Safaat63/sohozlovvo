@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { getCart } from "@/actions/cart"
 import { getPublicSettings } from "@/actions/settings"
-import { CartItemActions } from "@/components/cart-item-actions"
+import { CartItemActions } from "@/components/cart/cart-item-actions"
 import { ShoppingBag, ArrowRight, Lock, ChevronRight } from "lucide-react"
 import Image from "next/image"
-import { Currency } from "@/components/currency-provider"
+import { Currency } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
 
 // Helper to calculate item price with discount

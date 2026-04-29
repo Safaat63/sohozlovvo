@@ -1,9 +1,9 @@
 import Link from "next/link"
 import * as LucideIcons from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/providers/theme-toggle"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { AdminMobileMenu } from "@/components/admin-mobile-menu"
+import { AdminMobileMenu } from "@/components/admin/admin-mobile-menu"
 
 export const dynamic = 'force-dynamic'
 

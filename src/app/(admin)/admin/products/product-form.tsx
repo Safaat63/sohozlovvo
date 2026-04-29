@@ -13,7 +13,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { createProduct, updateProduct } from "@/actions/admin-products"
-import { ImageUpload } from "@/components/image-upload"
+import { ImageUpload } from "@/components/ui/image-upload"
 import { Plus, Trash2, Copy, Sparkles, Check, X, ImagePlus, Loader2 } from "lucide-react"
 import { uploadImage } from "@/actions/upload"
 import Image from "next/image"

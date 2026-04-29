@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { formatDateDhaka, formatDateTimeDhaka } from "@/lib/utils"
 import Image from "next/image"
 import { OrderStatusForm } from "./order-status-form"
-import { InvoiceButton } from "@/components/invoice-button"
+import { InvoiceButton } from "@/components/ui/invoice-button"
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "success" | "warning"
 

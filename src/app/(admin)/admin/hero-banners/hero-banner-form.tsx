@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { SingleImageUpload } from "@/components/single-image-upload"
+import { SingleImageUpload } from "@/components/ui/single-image-upload"
 import { createHeroBanner, updateHeroBanner } from "@/actions/admin-hero-banners"
 
 type HeroBanner = {

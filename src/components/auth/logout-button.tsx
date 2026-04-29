@@ -1,8 +1,8 @@
 "use client"
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { Button } from "./ui/button"
 import { signOut } from "next-auth/react"
+import { Button } from "../ui/button"
 
 export function LogoutButton() {
     const handleSignOut = async () => {
