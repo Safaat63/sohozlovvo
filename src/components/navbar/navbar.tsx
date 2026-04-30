@@ -207,8 +207,9 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                             <div className="flex-1 max-w-2xl">
                                 <SearchBar />
                             </div>
-
                             <div className="flex items-center gap-6">
+
+                                <ThemeToggle />
                                 <Link href="/tracking" className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
                                     <MapPin className="h-5 w-5" />
                                     <span>Track Order</span>
@@ -295,13 +296,6 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                                     triggerLabelClassName="text-muted-foreground"
                                     badgeClassName="bg-primary text-primary-foreground"
                                 />
-
-                                <ThemeToggle />
-
-                                <Link href="/categories" className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-                                    <MenuIcon className="h-5 w-5" />
-                                    <span>More</span>
-                                </Link>
                             </div>
                         </div>
                     </div>
