@@ -107,38 +107,38 @@ export default function BrandSection() {
   return (
     <section>
       <div className="mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        {/* Header - Fixed to be row layout on all screen sizes */}
+        <div className="flex flex-row justify-between items-center gap-2 mb-6">
           <div>
-            <h3 className="text-black text-[22px] font-bold leading-tight">Our Brands</h3>
-            <div className="mt-3">
-              <span className="block w-[120px] h-[6px] bg-[#FF7A00] rounded-full" />
+            <h3 className="text-foreground text-[18px] sm:text-[22px] font-bold leading-tight">Our Brands</h3>
+            <div className="mt-2 sm:mt-3">
+              <span className="block w-[80px] sm:w-[120px] h-[4px] sm:h-[6px] bg-primary rounded-full" />
             </div>
           </div>
 
-          <div className="text-left sm:text-right">
-            <a href="https://ghorerbazar.com/all-brands" className="text-[#FF7A00] font-semibold flex items-center gap-2 uppercase text-sm">
-              <span className="underline">See all</span>
-              <ArrowRight size={16} className="text-[#FF7A00]" />
+          <div className="text-right">
+            <a href="https://ghorerbazar.com/all-brands" className="text-primary font-semibold flex items-center gap-1 sm:gap-2 uppercase text-[11px] sm:text-sm group">
+              <span className="underline group-hover:no-underline transition-all">See all</span>
+              <ArrowRight className="text-primary group-hover:translate-x-1 transition-transform w-[14px] h-[14px] sm:w-[16px] sm:h-[16px]" />
             </a>
 
-            <div className="mt-3 flex sm:justify-end">
-              <span className="block w-[64px] h-[6px] bg-[#FF7A00] rounded-full" />
+            <div className="mt-2 sm:mt-3 flex justify-end">
+              <span className="block w-[40px] sm:w-[64px] h-[4px] sm:h-[6px] bg-primary rounded-full" />
             </div>
           </div>
         </div>
 
         {/* Scrollable list */}
         <div ref={scrollRef} className="overflow-x-auto scrollbar-hide scroll-smooth" aria-label="Brand list">
-          <div ref={listRef} className="flex gap-4" style={{ paddingBottom: 8 }}>
+          <div ref={listRef} className="flex gap-3 sm:gap-4" style={{ paddingBottom: 8 }}>
             {BRANDS.map((b, idx) => (
               <a
                 key={idx}
                 href={b.href}
-                className="min-w-[180px] bg-white rounded-xl p-4 shadow-sm border border-[#f1f1f1] flex items-center justify-center"
+                className="min-w-[140px] sm:min-w-[160px] md:min-w-[180px] bg-card rounded-xl p-4 shadow-sm border border-border flex items-center justify-center transition-all hover:shadow-md hover:border-primary/50"
                 aria-label={`Brand ${idx + 1}`}
               >
-                <div className="relative w-full h-[60px] flex items-center justify-center">
+                <div className="relative w-full h-[50px] sm:h-[60px] flex items-center justify-center">
                   <Image src={b.img} alt={`brand-${idx}`} fill className="object-contain" />
                 </div>
               </a>
@@ -154,8 +154,9 @@ export default function BrandSection() {
               onClick={() => scrollToPage(i)}
               aria-label={`Go to page ${i + 1}`}
               aria-current={activePage === i ? "true" : "false"}
-              className={`w-3 h-3 rounded-full transition-transform focus:outline-none ${activePage === i ? "bg-[#FF7A00] scale-110" : "bg-gray-300"
-                }`}
+              className={`w-3 h-3 rounded-full transition-transform focus:outline-none ${
+                activePage === i ? "bg-primary scale-110" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              }`}
             />
           ))}
         </div>

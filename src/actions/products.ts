@@ -159,6 +159,31 @@ export async function getProducts(params?: {
                                 id: true,
                                 optionName: true,
                                 isActive: true,
+                                variationId: true,
+                                image: true,
+                                hexCode: true,
+                            },
+                        },
+                    },
+                },
+                combinations: {
+                    include: {
+                        options: {
+                            select: {
+                                id: true,
+                                optionId: true,
+                                option: {
+                                    select: {
+                                        id: true,
+                                        optionName: true,
+                                        variation: {
+                                            select: {
+                                                id: true,
+                                                variationName: true,
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -212,8 +237,37 @@ function serializeProductForClient(product: any) {
             salePrice: toPlainNumber(fs.salePrice),
         })),
         variations: product.variations?.map((v: any) => ({
-            ...v,
-            options: v.options,
+            id: v.id,
+            variationName: v.variationName,
+            options: v.options?.map((option: any) => ({
+                id: option.id,
+                optionName: option.optionName,
+                isActive: option.isActive,
+                variationId: option.variationId,
+                image: option.image ?? null,
+                hexCode: option.hexCode ?? null,
+            })) || [],
+        })),
+        combinations: product.combinations?.map((combo: any) => ({
+            id: combo.id,
+            sku: combo.sku,
+            stock: combo.stock,
+            price: combo.price !== null && combo.price !== undefined
+                ? toPlainNumber(combo.price)
+                : null,
+            isActive: combo.isActive,
+            options: combo.options?.map((comboOption: any) => ({
+                id: comboOption.id,
+                optionId: comboOption.optionId,
+                option: comboOption.option ? {
+                    id: comboOption.option.id,
+                    optionName: comboOption.option.optionName,
+                    variation: comboOption.option.variation ? {
+                        id: comboOption.option.variation.id,
+                        variationName: comboOption.option.variation.variationName,
+                    } : null,
+                } : null,
+            })) || [],
         })),
     }
 }
@@ -432,6 +486,30 @@ export async function getRecentProducts(limit: number = 8) {
                             optionName: true,
                             isActive: true,
                             hexCode: true,
+                            variationId: true,
+                            image: true,
+                        },
+                    },
+                },
+            },
+            combinations: {
+                include: {
+                    options: {
+                        select: {
+                            id: true,
+                            optionId: true,
+                            option: {
+                                select: {
+                                    id: true,
+                                    optionName: true,
+                                    variation: {
+                                        select: {
+                                            id: true,
+                                            variationName: true,
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },
@@ -516,6 +594,31 @@ export async function getProductsWithActiveDiscounts(limit: number = 8) {
                             id: true,
                             optionName: true,
                             isActive: true,
+                            variationId: true,
+                            image: true,
+                            hexCode: true,
+                        },
+                    },
+                },
+            },
+            combinations: {
+                include: {
+                    options: {
+                        select: {
+                            id: true,
+                            optionId: true,
+                            option: {
+                                select: {
+                                    id: true,
+                                    optionName: true,
+                                    variation: {
+                                        select: {
+                                            id: true,
+                                            variationName: true,
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },

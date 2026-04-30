@@ -2,7 +2,6 @@ import { isInWishlist } from "@/actions/wishlist"
 import { ProductCard } from "./product-card-original"
 
 interface ProductCardServerProps {
-    // Prisma models include Decimal fields; we normalise to plain numbers before passing to the client card.
     product: any
     whatsappNumber?: string
     priority?: boolean

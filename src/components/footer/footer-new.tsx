@@ -60,7 +60,7 @@ function Footer () {
   ];
 
   return (
-    <div className="pt-20 px-10 md:px-30 lg:px-50 pb-5 border-t-2 lg:text-sm">
+    <div className="pt-20 px-5 md:px-15 lg:px-25 pb-5 border-t-2 lg:text-sm">
       <div className="lg:flex lg:gap-10">
         {/* website description */}
         <div className="lg:w-1/3 lg:shrink-0">

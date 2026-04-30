@@ -4,7 +4,8 @@ import { getCart } from "@/actions/cart"
 import { getWishlistCount } from "@/actions/wishlist"
 import { getCategories } from "@/actions/products"
 import { getUserAffiliate } from "@/actions/affiliates"
-import { Package, DollarSign } from "lucide-react"
+import { getRelatedProducts } from "@/actions/product-recommendations"
+import { DollarSign, Home, MapPin } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,16 +23,13 @@ import {
 } from "@/components/ui/sheet"
 import { SearchBar } from "@/components/navbar/search-bar"
 import { SideCart } from "@/components/cart/side-cart"
-import { ThemeToggle } from "@/components/providers/theme-toggle"
-import { ComparisonCounter } from "@/components/navbar/comparison-counter"
-import { MobileLogoutButton } from "../auth/mobile-logout-button"
 import { MobileCategoryMenu } from "./mobile-category-menu"
 import { DesktopCategoryMenu } from "./desktop-category-menu"
 import { NotificationSubscriptionDialog } from "../ui/notification-subscription-dialog"
+import { ThemeToggle } from "../providers/theme-toggle"
 import Image from "next/image"
 import { LogoutButton } from "../auth/logout-button"
 
-// Custom icon components for a cohesive look
 function UserIcon({ className }: { className?: string }) {
     return (
         <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -84,10 +82,8 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
             0
         )
 
-    // Filter categories for menu (only show those with showInMenu=true)
     const menuCategories = categories.filter(cat => cat.showInMenu !== false)
 
-    // Serialize categories for client components
     const serializedCategories = menuCategories.map(cat => ({
         id: cat.id,
         name: cat.name,
@@ -99,22 +95,18 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
         })) || [],
     }))
 
-    // Serialize cart for client component (updated for combination system)
     const serializedCart = cart ? {
         id: cart.id,
         items: cart.items.map((item) => {
-            // Get combination details if exists
             const combination = item.combination
             const combinationLabel = combination?.options
                 ?.map(o => `${o.option.variation.variationName}: ${o.option.optionName}`)
                 .join(", ") || null
 
-            // Calculate price with discount
             let basePrice = combination?.price
                 ? Number(combination.price)
                 : Number(item.product.price)
 
-            // Apply product discount if applicable
             const product = item.product
             if (product.discountType && product.discountValue && Number(product.discountValue) > 0) {
                 const now = new Date()
@@ -138,7 +130,6 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                 }
             }
 
-            // Use combination stock if exists
             const itemStock = combination?.stock ?? item.product.stock
 
             return {
@@ -153,6 +144,7 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                     name: item.product.name,
                     slug: item.product.slug,
                     price: item.product.price.toString(),
+                    categoryId: item.product.categoryId ?? null,
                     images: item.product.images,
                     stock: item.product.stock,
                 },
@@ -160,269 +152,373 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
         }),
     } : null
 
+    const relatedProducts = cart?.items?.length
+        ? await (async () => {
+            const relatedLimit = 8
+            const perItemLimit = Math.max(2, Math.ceil(relatedLimit / cart.items.length))
+            const lists = await Promise.all(
+                cart.items.map((item) =>
+                    getRelatedProducts(
+                        item.product.id,
+                        item.product.categoryId ?? null,
+                        perItemLimit
+                    )
+                )
+            )
+
+            const cartProductIds = new Set(cart.items.map((item) => item.product.id))
+            const merged = lists.flat().filter((product) => !cartProductIds.has(product.id))
+            const seen = new Set<string>()
+            const unique: typeof merged = []
+
+            for (const product of merged) {
+                if (seen.has(product.id)) continue
+                seen.add(product.id)
+                unique.push(product)
+            }
+
+            return unique.slice(0, relatedLimit)
+        })()
+        : []
+
+    const serializedRelatedProducts = relatedProducts.map((product) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: Number(product.price),
+        images: product.images ?? [],
+    }))
+
     return (
-        <header className="sticky top-0 z-50 w-full">
-            {/* Top Bar - Promotional Banner */}
-            {/* <div className="bg-linear-to-r from-primary via-primary/90 to-accent text-primary-foreground text-center py-2 px-4 text-sm font-medium">
-                <span className="animate-pulse">✨</span> Free Shipping on Orders Over ৳2000 <span className="animate-pulse">✨</span>
-            </div> */}
-
-            {/* Main Navbar */}
-            <div className="bg-background/98 backdrop-blur-xl border-b-2 border-primary/10 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 items-center justify-between gap-4">
-                        {/* Logo */}
-                        <Link href="/" className="flex items-center gap-3 group shrink-0">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg group-hover:bg-primary/30 transition-all duration-300" />
-                                <Image src="/icon0.svg" alt="Logo" width={52} height={52} className="relative w-12 h-12 md:w-13 md:h-13 transition-transform group-hover:scale-110" />
-                            </div>
-                            <span className="hidden sm:block text-xl md:text-2xl font-bold">
-                                {storeName}
-                            </span>
-                        </Link>
-
-                        {/* Center Search Bar */}
-                        <div className="hidden md:flex flex-1 max-w-xl mx-8">
-                            <SearchBar />
-                        </div>
-
-                        {/* Right Actions */}
-                        <div className="flex items-center gap-1 sm:gap-2">
-                            {/* Mobile Search */}
-                            <Sheet>
-                                <SheetTrigger asChild className="md:hidden">
-                                    <button className="p-2.5 text-foreground hover:text-primary hover:bg-primary/10 rounded-full transition-all duration-200">
-                                        <SearchIcon className="h-5 w-5" />
-                                    </button>
-                                </SheetTrigger>
-                                <SheetContent side="top" className="h-auto border-none bg-background/95 backdrop-blur-xl">
-                                    <div className="pt-12 pb-6 px-4">
-                                        <SearchBar isMobile={true} />
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
-
-                            {/* Wishlist */}
-                            <Link href="/wishlist" className="p-2.5 text-foreground hover:text-primary hover:bg-primary/10 rounded-full transition-all duration-200 relative">
-                                <HeartIcon className="h-5 w-5" />
-                                {wishlistCount > 0 && (
-                                    <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-accent rounded-full shadow-lg">
-                                        {wishlistCount}
-                                    </span>
-                                )}
+        <>
+            {/* UPPER NAVBAR - NON-STICKY (Scrolls away normally) */}
+            <header className="w-full bg-background border-b border-border relative z-50">
+                {/* Desktop Header */}
+                <div className="hidden lg:block">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <div className="flex h-20 items-center justify-between gap-6">
+                            <Link href="/" className="flex items-center gap-3 shrink-0">
+                                <Image src="/icon0.svg" alt="Logo" width={56} height={56} className="w-12 h-12" />
+                                <span className="text-xl font-bold text-primary">
+                                    {storeName}
+                                </span>
                             </Link>
 
-                            {/* Comparison Counter */}
-                            <ComparisonCounter />
+                            <div className="flex-1 max-w-2xl">
+                                <SearchBar />
+                            </div>
 
-                            {/* User Menu */}
-                            {session?.user ? (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <button className="p-2.5 text-foreground hover:text-primary hover:bg-primary/10 rounded-full transition-all duration-200">
-                                            <UserIcon className="h-5 w-5" />
-                                        </button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-56 mt-2 shadow-xl border-primary/10">
-                                        <DropdownMenuLabel className="bg-linear-to-r from-primary/5 to-accent/5 -m-1 mb-1 p-3 rounded-t-lg">
-                                            <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-semibold">{session.user.name}</p>
-                                                <p className="text-xs text-muted-foreground">{session.user.email}</p>
-                                            </div>
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/account" className="cursor-pointer">My Account</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/orders" className="cursor-pointer">Orders</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/wishlist" className="cursor-pointer">Wishlist</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/addresses" className="cursor-pointer">Addresses</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem asChild className="cursor-pointer p-0">
-                                            <NotificationSubscriptionDialog userId={session?.user?.id} />
-                                        </DropdownMenuItem>
-                                        {userAffiliate && (
-                                            <>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem asChild>
-                                                    <Link href="/affiliate" className="text-green-600 dark:text-green-400 cursor-pointer">
-                                                        <DollarSign className="h-4 w-4 mr-2" />
-                                                        Affiliate Dashboard
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                            </>
-                                        )}
-                                        {session.user.role === "ADMIN" && (
-                                            <>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem asChild>
-                                                    <Link href="/admin" className="cursor-pointer">Admin Dashboard</Link>
-                                                </DropdownMenuItem>
-                                            </>
-                                        )}
-                                        <DropdownMenuSeparator />
-                                        <LogoutButton />
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            ) : (
-                                <Link href="/auth/login" className="p-2.5 text-foreground hover:text-primary hover:bg-primary/10 rounded-full transition-all duration-200">
-                                    <UserIcon className="h-5 w-5" />
+                            <div className="flex items-center gap-6">
+                                <Link href="/tracking" className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                                    <MapPin className="h-5 w-5" />
+                                    <span>Track Order</span>
                                 </Link>
-                            )}
 
-                            {/* Theme Toggle */}
-                            <ThemeToggle />
-
-                            {/* Cart */}
-                            <SideCart cart={serializedCart} itemCount={itemCount} />
-
-                            {/* Mobile Menu Button */}
-                            <Sheet>
-                                <SheetTrigger asChild className="lg:hidden">
-                                    <button className="p-2.5 ml-1 text-foreground hover:text-primary hover:bg-primary/10 rounded-full transition-all duration-200">
-                                        <MenuIcon className="h-5 w-5" />
-                                    </button>
-                                </SheetTrigger>
-                                <SheetContent side="right" className="w-full max-w-sm p-0 flex flex-col bg-linear-to-b from-background to-secondary/30">
-                                    <SheetHeader className="p-6 pb-4 bg-linear-to-r from-primary/10 to-accent/10 border-b border-primary/10">
-                                        <SheetTitle className="text-left flex items-center gap-3">
-                                            <Image src="/icon0.svg" alt="Logo" width={32} height={32} className="w-8 h-8" />
-                                            <span className="text-lg font-bold">
-                                                {storeName}
-                                            </span>
-                                        </SheetTitle>
-                                    </SheetHeader>
-                                    <div className="flex-1 overflow-y-auto p-4">
-                                        <nav className="flex flex-col space-y-1">
-                                            {/* Quick Links */}
-                                            <div className="grid grid-cols-2 gap-2 mb-4">
-                                                <Link href="/" className="flex flex-col items-center gap-2 p-4 bg-card hover:bg-primary/10 rounded-xl border border-primary/10 transition-all duration-200 group">
-                                                    <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                                        </svg>
-                                                    </div>
-                                                    <span className="text-xs font-medium">Home</span>
-                                                </Link>
-                                                <Link href="/products" className="flex flex-col items-center gap-2 p-4 bg-card hover:bg-primary/10 rounded-xl border border-primary/10 transition-all duration-200 group">
-                                                    <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                                        <Package className="w-5 h-5 text-primary" />
-                                                    </div>
-                                                    <span className="text-xs font-medium">Products</span>
-                                                </Link>
-                                                <Link href="/products?sortBy=newest" className="flex flex-col items-center gap-2 p-4 bg-card hover:bg-primary/10 rounded-xl border border-primary/10 transition-all duration-200 group">
-                                                    <div className="p-2 bg-accent/10 rounded-lg group-hover:bg-accent/20 transition-colors">
-                                                        <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                        </svg>
-                                                    </div>
-                                                    <span className="text-xs font-medium">New Arrivals</span>
-                                                </Link>
-                                                <Link href="/products?hasDiscount=true" className="flex flex-col items-center gap-2 p-4 bg-linear-to-br from-accent/20 to-primary/20 hover:from-accent/30 hover:to-primary/30 rounded-xl border border-accent/20 transition-all duration-200 group">
-                                                    <div className="p-2 bg-accent/20 rounded-lg">
-                                                        <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                                        </svg>
-                                                    </div>
-                                                    <span className="text-xs font-bold text-accent">Sale</span>
-                                                </Link>
-                                            </div>
-
-                                            {/* Categories Section */}
-                                            <div className="pt-2 pb-3">
-                                                <p className="px-3 text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
-                                                    Categories
-                                                </p>
-                                                <div className="bg-card rounded-xl border border-primary/10 overflow-hidden">
-                                                    <MobileCategoryMenu categories={serializedCategories} />
+                                {session?.user ? (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                                                <UserIcon className="h-5 w-5" />
+                                                <span>Account</span>
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-56 mt-2 shadow-xl border-border bg-popover text-popover-foreground">
+                                            <DropdownMenuLabel className="-m-1 mb-1 p-3 rounded-t-lg bg-muted">
+                                                <div className="flex flex-col space-y-1">
+                                                    <p className="text-sm font-semibold text-foreground">{session.user.name}</p>
+                                                    <p className="text-xs text-muted-foreground">{session.user.email}</p>
                                                 </div>
-                                            </div>
-
-                                            <Link href="/categories" className="flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-all duration-200">
-                                                View All Categories
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </Link>
-
-                                            {/* User Actions */}
-                                            {session?.user && (
-                                                <div className="pt-4 mt-2 border-t border-primary/10">
-                                                    {userAffiliate && (
-                                                        <Link href="/affiliate" className="flex items-center gap-3 py-3 px-4 mb-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-500/10 hover:bg-green-500/20 rounded-xl transition-all duration-200">
-                                                            <DollarSign className="h-5 w-5" />
+                                            </DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/account" className="cursor-pointer">My Account</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/orders" className="cursor-pointer">Orders</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/wishlist" className="cursor-pointer">Wishlist</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/addresses" className="cursor-pointer">Addresses</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem asChild className="cursor-pointer p-0">
+                                                <NotificationSubscriptionDialog userId={session?.user?.id} />
+                                            </DropdownMenuItem>
+                                            {userAffiliate && (
+                                                <>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem asChild>
+                                                        <Link href="/affiliate" className="text-green-600 cursor-pointer">
+                                                            <DollarSign className="h-4 w-4 mr-2" />
                                                             Affiliate Dashboard
                                                         </Link>
-                                                    )}
-                                                    {session.user.role === "ADMIN" && (
-                                                        <Link href="/admin" className="flex items-center gap-3 py-3 px-4 mb-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-xl transition-all duration-200">
-                                                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            </svg>
-                                                            Admin Dashboard
-                                                        </Link>
-                                                    )}
-                                                    <MobileLogoutButton />
-                                                </div>
+                                                    </DropdownMenuItem>
+                                                </>
                                             )}
-                                            {!session?.user && (
-                                                <div className="pt-4 mt-2 border-t border-primary/10 space-y-2">
-                                                    <Link href="/auth/login" className="flex items-center justify-center gap-2 py-3 px-4 text-sm font-semibold text-primary-foreground bg-linear-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20">
-                                                        Sign In
-                                                    </Link>
-                                                    <Link href="/auth/register" className="flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium text-primary bg-transparent border-2 border-primary/30 hover:border-primary hover:bg-primary/10 rounded-xl transition-all duration-200">
-                                                        Create Account
-                                                    </Link>
-                                                </div>
+                                            {session.user.role === "ADMIN" && (
+                                                <>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem asChild>
+                                                        <Link href="/admin" className="cursor-pointer">Admin Dashboard</Link>
+                                                    </DropdownMenuItem>
+                                                </>
                                             )}
+                                            <DropdownMenuSeparator />
+                                            <LogoutButton />
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                ) : (
+                                    <Link href="/auth/login" className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                                        <UserIcon className="h-5 w-5" />
+                                        <span>Sign In</span>
+                                    </Link>
+                                )}
 
-                                            {/* Notification */}
-                                            <div className="pt-4 mt-2 border-t border-primary/10">
-                                                <div className="px-4 py-2">
-                                                    <NotificationSubscriptionDialog userId={session?.user?.id} />
-                                                </div>
-                                            </div>
-                                        </nav>
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
+                                <Link href="/wishlist" className="relative flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                                    <HeartIcon className="h-5 w-5" />
+                                    <span>Wishlist</span>
+                                    {wishlistCount > 0 && (
+                                        <span className="absolute -top-1 -right-2 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-primary-foreground bg-primary rounded-full">
+                                            {wishlistCount}
+                                        </span>
+                                    )}
+                                </Link>
+
+                                <SideCart
+                                    cart={serializedCart}
+                                    itemCount={itemCount}
+                                    relatedProducts={serializedRelatedProducts}
+                                    triggerLabel="Cart"
+                                    triggerClassName="text-muted-foreground hover:text-foreground"
+                                    triggerLabelClassName="text-muted-foreground"
+                                    badgeClassName="bg-primary text-primary-foreground"
+                                />
+
+                                <ThemeToggle />
+
+                                <Link href="/categories" className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                                    <MenuIcon className="h-5 w-5" />
+                                    <span>More</span>
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Desktop Category Navigation Bar */}
-                <div className="hidden lg:block border-t border-primary/5">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <nav className="flex items-center justify-center gap-1 py-2">
-                            <Link href="/products?sortBy=newest" className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200">
-                                New Arrivals
+                {/* Mobile Header + Menu */}
+                <div className="lg:hidden">
+                    <Sheet>
+                        <div className="flex h-14 items-center justify-between px-4">
+                            <SheetTrigger asChild>
+                                <button className="p-2 text-foreground">
+                                    <MenuIcon className="h-6 w-6" />
+                                </button>
+                            </SheetTrigger>
+                            <Link href="/" className="flex items-center gap-2">
+                                <Image src="/icon0.svg" alt="Logo" width={40} height={40} className="w-9 h-9" />
+                                <span className="text-base font-bold text-primary">{storeName}</span>
                             </Link>
-                            <span className="w-px h-4 bg-primary/20" />
-                            <DesktopCategoryMenu categories={serializedCategories} />
-                            <span className="w-px h-4 bg-primary/20" />
-                            <Link href="/products" className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200">
-                                All Products
-                            </Link>
-                            <span className="w-px h-4 bg-primary/20" />
-                            <Link href="/products?hasDiscount=true" className="px-4 py-2 text-sm font-bold text-accent hover:bg-accent/10 rounded-lg transition-all duration-200 flex items-center gap-1">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-                                </span>
-                                Sale
-                            </Link>
-                        </nav>
-                    </div>
+                            <div className="flex items-center gap-2">
+                                <SideCart
+                                    cart={serializedCart}
+                                    itemCount={itemCount}
+                                    relatedProducts={serializedRelatedProducts}
+                                    triggerClassName="text-foreground"
+                                    badgeClassName="bg-primary text-primary-foreground"
+                                />
+                                <ThemeToggle />
+                            </div>
+                        </div>
+
+                        <SheetContent side="left" className="w-[320px] max-w-[90vw] p-0 bg-background text-foreground border-border">
+                            <SheetHeader className="px-4 py-3 border-b border-border">
+                                <SheetTitle className="text-left flex items-center justify-between text-base font-semibold">
+                                    <span className="flex items-center gap-2">
+                                        <MenuIcon className="h-5 w-5" />
+                                        Menu
+                                    </span>
+                                </SheetTitle>
+                            </SheetHeader>
+                            <div className="p-4 space-y-5">
+                                {session?.user ? (
+                                    <Link href="/account" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
+                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
+                                            <UserIcon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-base font-semibold">{session.user.name}</p>
+                                            <p className="text-sm">Account</p>
+                                        </div>
+                                    </Link>
+                                ) : (
+                                    <Link href="/auth/login" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
+                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
+                                            <UserIcon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-base font-semibold">Hello there!</p>
+                                            <p className="text-sm">Sign in</p>
+                                        </div>
+                                    </Link>
+                                )}
+
+                                <div className="rounded-2xl border border-border overflow-hidden">
+                                    <MobileCategoryMenu categories={serializedCategories} />
+                                </div>
+
+                                <div>
+                                    <p className="text-base font-semibold">Quick Links</p>
+                                    <span className="inline-block w-12 h-0.5 bg-primary mt-1" />
+                                    <div className="mt-3 rounded-2xl border border-border p-4 space-y-3">
+                                        <Link href="/about" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">i</span>
+                                            About Us
+                                        </Link>
+                                        <Link href="/wishlist" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">
+                                                <HeartIcon className="h-4 w-4" />
+                                            </span>
+                                            Wishlists
+                                        </Link>
+                                        <Link href="/products?category=oil-ghee" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">O</span>
+                                            Oil &amp; Ghee
+                                        </Link>
+                                        <Link href="/faq" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">?</span>
+                                            Faqs
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+            </header>
+
+            {/* LOWER NAVBAR (CATEGORIES) - STICKY */}
+            <div className="hidden lg:block bg-secondary/90 backdrop-blur-md sticky top-0 z-40 border-b border-border w-full shadow-sm">
+                <div className="max-w-7xl mx-auto px-6">
+                    <nav className="flex items-center gap-4 py-2">
+                        <DesktopCategoryMenu categories={serializedCategories} />
+                    </nav>
                 </div>
             </div>
-        </header>
+
+            {/* MOBILE BOTTOM BAR - FIXED */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border text-foreground z-50">
+                <div className="grid grid-cols-5 items-center h-16">
+                    <Link href="/" className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                        <Home className="h-5 w-5" />
+                        Home
+                    </Link>
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <button className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                                <MenuIcon className="h-5 w-5" />
+                                Menu
+                            </button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[320px] max-w-[90vw] p-0 bg-background text-foreground border-border">
+                            <SheetHeader className="px-4 py-3 border-b border-border">
+                                <SheetTitle className="text-left flex items-center justify-between text-base font-semibold">
+                                    <span className="flex items-center gap-2">
+                                        <MenuIcon className="h-5 w-5" />
+                                        Menu
+                                    </span>
+                                </SheetTitle>
+                            </SheetHeader>
+                            <div className="p-4 space-y-5">
+                                {session?.user ? (
+                                    <Link href="/account" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
+                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
+                                            <UserIcon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-base font-semibold">{session.user.name}</p>
+                                            <p className="text-sm">Account</p>
+                                        </div>
+                                    </Link>
+                                ) : (
+                                    <Link href="/auth/login" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
+                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
+                                            <UserIcon className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-base font-semibold">Hello there!</p>
+                                            <p className="text-sm">Sign in</p>
+                                        </div>
+                                    </Link>
+                                )}
+
+                                <div className="rounded-2xl border border-border overflow-hidden">
+                                    <MobileCategoryMenu categories={serializedCategories} />
+                                </div>
+
+                                <div>
+                                    <p className="text-base font-semibold">Quick Links</p>
+                                    <span className="inline-block w-12 h-0.5 bg-primary mt-1" />
+                                    <div className="mt-3 rounded-2xl border border-border p-4 space-y-3">
+                                        <Link href="/about" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">i</span>
+                                            About Us
+                                        </Link>
+                                        <Link href="/wishlist" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">
+                                                <HeartIcon className="h-4 w-4" />
+                                            </span>
+                                            Wishlists
+                                        </Link>
+                                        <Link href="/products?category=oil-ghee" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">O</span>
+                                            Oil &amp; Ghee
+                                        </Link>
+                                        <Link href="/faq" className="flex items-center gap-3 text-sm text-foreground">
+                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">?</span>
+                                            Faqs
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                    <SideCart
+                        cart={serializedCart}
+                        itemCount={itemCount}
+                        relatedProducts={serializedRelatedProducts}
+                        triggerLabel="Cart"
+                        triggerClassName="text-muted-foreground hover:text-primary"
+                        triggerLabelClassName="text-muted-foreground"
+                        badgeClassName="bg-primary text-primary-foreground"
+                    />
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <button className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                                <SearchIcon className="h-5 w-5" />
+                                Search
+                            </button>
+                        </SheetTrigger>
+                        <SheetContent side="top" className="h-auto border-none bg-background">
+                            <div className="pt-6 pb-4 px-4">
+                                <SearchBar isMobile={true} />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                    {session?.user ? (
+                        <Link href="/account" className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                            <UserIcon className="h-5 w-5" />
+                            Account
+                        </Link>
+                    ) : (
+                        <Link href="/auth/login" className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                            <UserIcon className="h-5 w-5" />
+                            Account
+                        </Link>
+                    )}
+                </div>
+            </div>
+        </>
     )
 }

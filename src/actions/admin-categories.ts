@@ -14,6 +14,44 @@ async function checkAdminAccess() {
     return session
 }
 
+async function getUniqueCategorySlug(baseSlug: string) {
+    const existing = await prisma.category.findMany({
+        where: { slug: { startsWith: baseSlug } },
+        select: { slug: true },
+    })
+
+    if (!existing.length) return baseSlug
+
+    const existingSlugs = new Set(existing.map((item) => item.slug))
+    let suffix = 2
+    let candidate = `${baseSlug}-${suffix}`
+    while (existingSlugs.has(candidate)) {
+        suffix += 1
+        candidate = `${baseSlug}-${suffix}`
+    }
+
+    return candidate
+}
+
+async function getUniqueCategoryName(baseName: string) {
+    const existing = await prisma.category.findMany({
+        where: { name: { startsWith: baseName } },
+        select: { name: true },
+    })
+
+    if (!existing.length) return baseName
+
+    const existingNames = new Set(existing.map((item) => item.name))
+    let suffix = 2
+    let candidate = `${baseName} ${suffix}`
+    while (existingNames.has(candidate)) {
+        suffix += 1
+        candidate = `${baseName} ${suffix}`
+    }
+
+    return candidate
+}
+
 const categorySchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     slug: z.string().min(2, "Slug must be at least 2 characters"),
@@ -186,6 +224,52 @@ export async function deleteCategory(id: string) {
         return { success: true }
     } catch {
         return { error: "Failed to delete category" }
+    }
+}
+
+export async function duplicateCategory(id: string) {
+    const session = await checkAdminAccess()
+
+    const category = await prisma.category.findUnique({
+        where: { id },
+    })
+
+    if (!category) return { error: "Category not found" }
+
+    const baseSlug = `${category.slug}-copy`
+    const baseName = `${category.name} (Copy)`
+    const uniqueSlug = await getUniqueCategorySlug(baseSlug)
+    const uniqueName = await getUniqueCategoryName(baseName)
+
+    try {
+        const newCategory = await prisma.category.create({
+            data: {
+                name: uniqueName,
+                slug: uniqueSlug,
+                description: category.description,
+                image: category.image,
+                parentId: category.parentId,
+                isActive: category.isActive,
+                showInMenu: category.showInMenu,
+            },
+        })
+
+        await prisma.auditLog.create({
+            data: {
+                userId: session.user.id,
+                action: "DUPLICATE",
+                entity: "Category",
+                entityId: newCategory.id,
+                changes: JSON.stringify({ sourceCategoryId: category.id }),
+            },
+        })
+
+        revalidatePath("/admin/categories")
+        revalidatePath("/products")
+        return { success: true, categoryId: newCategory.id }
+    } catch (error: unknown) {
+        console.error("Category duplication error:", error)
+        return { error: "Failed to duplicate category" }
     }
 }
 

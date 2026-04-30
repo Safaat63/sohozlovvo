@@ -41,8 +41,8 @@ interface Combination {
     id: string
     sku: string | null
     stock: number
-    price: number | string | null 
-    originalPrice?: number | null 
+    price: number | string | null
+    originalPrice?: number | null
     isActive: boolean
     options: CombinationOption[]
 }
@@ -82,10 +82,30 @@ export function ProductPurchaseWithCombinations({
     const router = useRouter()
     const hasVariations = variations.length > 0 && combinations.length > 0
 
+    const fallbackSelectedOptions = useMemo(() => {
+        if (!hasVariations) {
+            return {}
+        }
+
+        const firstVariation = variations[0]
+        const firstActiveOption = firstVariation?.options
+            .find((option) => option.isActive)
+
+        return firstActiveOption ? { [firstVariation.id]: firstActiveOption.id } : {}
+    }, [hasVariations, variations])
+
+    const resolvedSelectedOptions = useMemo(() => {
+        if (Object.keys(selectedOptions).length > 0) {
+            return selectedOptions
+        }
+
+        return fallbackSelectedOptions
+    }, [fallbackSelectedOptions, selectedOptions])
+
     const selectedCombination = useMemo(() => {
         if (!hasVariations) return null
 
-        const selectedOptionIds = Object.values(selectedOptions)
+        const selectedOptionIds = Object.values(resolvedSelectedOptions)
         if (selectedOptionIds.length !== variations.length) return null
 
         return combinations.find(combo => {
@@ -93,7 +113,7 @@ export function ProductPurchaseWithCombinations({
             return selectedOptionIds.every(id => comboOptionIds.includes(id)) &&
                 comboOptionIds.length === selectedOptionIds.length
         }) || null
-    }, [selectedOptions, combinations, variations.length, hasVariations])
+    }, [resolvedSelectedOptions, combinations, variations.length, hasVariations])
 
     const effectivePrice = useMemo(() => {
         if (selectedCombination && selectedCombination.price !== null) {
@@ -129,7 +149,7 @@ export function ProductPurchaseWithCombinations({
             const hasOption = combo.options.some(o => o.optionId === optionId)
             if (!hasOption) return false
 
-            const otherSelections = Object.entries(selectedOptions)
+            const otherSelections = Object.entries(resolvedSelectedOptions)
                 .filter(([vId]) => vId !== variationId)
 
             const isCompatible = otherSelections.every(([, selectedOptionId]) =>
@@ -165,7 +185,7 @@ export function ProductPurchaseWithCombinations({
             bubbles: true
         })
         window.dispatchEvent(event)
-    }, [selectedOptions, variations])
+    }, [resolvedSelectedOptions, variations])
 
     const handleOptionSelect = (variationId: string, optionId: string) => {
         setSelectedOptions(prev => ({ ...prev, [variationId]: optionId }))
@@ -202,7 +222,7 @@ export function ProductPurchaseWithCombinations({
         }
     }
 
-    const allOptionsSelected = !hasVariations || Object.keys(selectedOptions).length === variations.length
+    const allOptionsSelected = !hasVariations || Object.keys(resolvedSelectedOptions).length === variations.length
     const canAddToCart = allOptionsSelected && effectiveStock > 0
 
     return (
@@ -216,7 +236,7 @@ export function ProductPurchaseWithCombinations({
                         {variation.options
                             .filter((option) => option.isActive)
                             .map((option) => {
-                                const isSelected = selectedOptions[variation.id] === option.id
+                                const isSelected = resolvedSelectedOptions[variation.id] === option.id
                                 const isAvailable = isOptionAvailable(variation.id, option.id)
                                 const isColorVariation = variation.variationName.toLowerCase().includes('color')
 
@@ -261,7 +281,7 @@ export function ProductPurchaseWithCombinations({
                                 >
                                     <Minus className="h-4 w-4" />
                                 </button>
-                                <input 
+                                <input
                                     className="w-12 h-full text-center text-[15px] font-semibold text-[#222831] border-x border-[#e0e0e0] focus:outline-none"
                                     value={quantity}
                                     readOnly
@@ -297,10 +317,10 @@ export function ProductPurchaseWithCombinations({
                             {ordering ? "Processing..." : "Buy Now"}
                         </Button>
                         {whatsappLink && (
-                            <a 
-                                href={whatsappLink} 
-                                target="_blank" 
-                                rel="noreferrer" 
+                            <a
+                                href={whatsappLink}
+                                target="_blank"
+                                rel="noreferrer"
                                 className="flex items-center justify-center w-full h-[46px] bg-[#27ae60] hover:bg-[#219653] text-white font-bold rounded transition-colors text-xs"
                             >
                                 <MessageCircle className="h-4 w-4 mr-2" />
@@ -308,8 +328,8 @@ export function ProductPurchaseWithCombinations({
                             </a>
                         )}
                         {callNumber && (
-                            <a 
-                                href={`tel:${callNumber}`} 
+                            <a
+                                href={`tel:${callNumber}`}
                                 className="flex items-center justify-center w-full h-[46px] bg-[#2A4B8D] hover:bg-[#223d73] text-white font-bold rounded transition-colors text-xs"
                             >
                                 <Phone className="h-4 w-4 mr-2" />

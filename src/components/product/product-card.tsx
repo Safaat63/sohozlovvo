@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
 import { addToCart } from "@/actions/cart"
-import { ProductPurchaseSection } from "@/components/product/product-purchase"
+import { ProductPurchaseWithCombinations } from "@/components/product/product-purchase-with-combinations"
 import {
     Dialog,
     DialogContent,
@@ -21,12 +21,37 @@ interface VariationOption {
     id: string
     optionName: string
     isActive: boolean
+    variationId: string
+    image?: string | null
+    hexCode?: string | null
 }
 
 interface Variation {
     id: string
     variationName: string
     options: VariationOption[]
+}
+
+interface CombinationOption {
+    id: string
+    optionId: string
+    option: {
+        id: string
+        optionName: string
+        variation: {
+            id: string
+            variationName: string
+        } | null
+    } | null
+}
+
+interface Combination {
+    id: string
+    sku: string | null
+    stock: number
+    price: number | string | null
+    isActive: boolean
+    options: CombinationOption[]
 }
 
 interface ProductCardProps {
@@ -44,6 +69,7 @@ interface ProductCardProps {
         description?: string | null
         lowStockAlert?: number | null
         variations?: Variation[]
+        combinations?: Combination[]
         discountType?: string | null
         discountValue?: number | null
         discountStartDate?: Date | null
@@ -67,6 +93,7 @@ export function ProductCard({ product }: ProductCardProps) {
     const [showQuickView, setShowQuickView] = useState(false)
 
     const hasVariations = Array.isArray(product.variations) && product.variations.length > 0
+        && Array.isArray(product.combinations) && product.combinations.length > 0
 
     // 1. Check for active flash sale
     const now = new Date()
@@ -128,12 +155,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
     return (
         <>
-            <div className="relative w-full bg-[#FFFFFF] border border-[#e5e7eb] rounded-lg p-2 flex flex-col group transition-shadow hover:shadow-md h-full font-sans">
+            <div className="relative w-full bg-card border border-border rounded-lg p-2 flex flex-col group transition-shadow hover:shadow-md h-full font-sans">
 
                 {/* Top Right Badge Container */}
                 <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
                     {finalBadgePercentage && finalBadgePercentage > 0 && (
-                        <div className="bg-[#61b876] text-white text-[12px] font-medium px-2 py-0.5 rounded flex items-center justify-center tracking-wide shadow-sm">
+                        <div className="bg-primary text-primary-foreground text-[12px] font-medium px-2 py-0.5 rounded flex items-center justify-center tracking-wide shadow-sm">
                             Save {finalBadgePercentage}%
                         </div>
                     )}
@@ -142,7 +169,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Product Image with Hover Effect */}
                 <Link
                     href={`/products/${product.slug}`}
-                    className="block relative w-full aspect-square mb-3 overflow-hidden rounded-md bg-[#f8f9fa]"
+                    className="block relative w-full aspect-square mb-3 overflow-hidden rounded-md bg-muted"
                 >
                     {product.images[0] ? (
                         <Image
@@ -153,7 +180,7 @@ export function ProductCard({ product }: ProductCardProps) {
                             className="object-contain p-2 transition-transform duration-500 ease-in-out group-hover:scale-110"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
                             No Image
                         </div>
                     )}
@@ -162,18 +189,18 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Product Details */}
                 <div className="flex flex-col flex-1 px-1">
                     <Link href={`/products/${product.slug}`}>
-                        <h3 className="text-[16px] font-medium text-[#020101] leading-[1.3] mb-1.5 hover:text-[#ee8434] transition-colors line-clamp-2">
+                        <h3 className="text-[16px] font-medium text-card-foreground leading-[1.3] mb-1.5 hover:text-primary transition-colors line-clamp-2">
                             {product.name}
                         </h3>
                     </Link>
 
                     {/* Price Row */}
                     <div className="flex items-center gap-2.5 mb-3 mt-auto">
-                        <span className="text-[18px] font-bold text-[#ee8434]">
+                        <span className="text-[18px] font-bold text-primary">
                             {formatCurrency(displayPrice, currency)}
                         </span>
                         {displayComparePrice !== null && displayComparePrice !== undefined && displayComparePrice > displayPrice && (
-                            <span className="text-[15px] text-[#9ca3af] line-through font-medium decoration-1">
+                            <span className="text-[15px] text-muted-foreground line-through font-medium decoration-1">
                                 {formatCurrency(displayComparePrice, currency)}
                             </span>
                         )}
@@ -183,7 +210,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     <button
                         onClick={handleAddToCart}
                         disabled={product.stock === 0 || isCartPending}
-                        className="w-full flex items-center justify-center gap-2 border-[1px] border-[#ee8434] text-[#ee8434] bg-transparent hover:bg-[#ee8434] hover:text-white transition-colors duration-300 py-1.5 rounded text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full flex items-center justify-center gap-2 border-[1px] border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors duration-300 py-1.5 rounded text-[15px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isCartPending ? (
                             <Loader2 className="w-[16px] h-[16px] animate-spin" />
@@ -224,11 +251,12 @@ export function ProductCard({ product }: ProductCardProps) {
                             </div>
 
                             {/* Render your provided purchase section */}
-                            <ProductPurchaseSection
+                            <ProductPurchaseWithCombinations
                                 productId={product.id}
-                                stock={product.stock}
-                                basePrice={displayPrice} // Send the already discounted base price
+                                baseStock={product.stock}
+                                basePrice={displayPrice}
                                 variations={product.variations || []}
+                                combinations={product.combinations || []}
                             />
                         </div>
                     </DialogContent>

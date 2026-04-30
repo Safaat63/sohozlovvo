@@ -52,6 +52,7 @@ export function RecentlyViewed() {
           description: product.description ?? null,
           lowStockAlert: (product as { lowStockAlert?: number | null }).lowStockAlert ?? null,
           variations: (product as { variations?: ProductCardType["variations"] }).variations,
+          combinations: (product as { combinations?: ProductCardType["combinations"] }).combinations,
           discountType: (product as { discountType?: string | null }).discountType ?? null,
           discountValue: (product as { discountValue?: number | null }).discountValue ?? null,
           discountStartDate: (product as { discountStartDate?: Date | null }).discountStartDate ?? null,

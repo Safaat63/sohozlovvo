@@ -89,15 +89,15 @@ export function ProductPriceDisplay({
 
     return (
         <div className="flex items-center flex-wrap gap-3 my-2">
-            <span className="text-[#f48721] text-[26px] md:text-3xl font-bold tracking-tight">
+            <span className="text-primary text-[26px] md:text-3xl font-bold tracking-tight">
                 <Currency value={currentPrice} />
             </span>
             {effectiveComparePrice && currentPrice < effectiveComparePrice && (
                 <>
-                    <span className="text-[#999999] text-lg md:text-xl line-through">
+                    <span className="text-muted-foreground text-lg md:text-xl line-through">
                         <Currency value={effectiveComparePrice} />
                     </span>
-                    <span className="bg-[#2ecc71] text-white text-[11px] md:text-xs font-bold px-2 py-1 rounded tracking-wide">
+                    <span className="bg-primary text-primary-foreground text-[11px] md:text-xs font-bold px-2 py-1 rounded tracking-wide">
                         Save {Math.round(((effectiveComparePrice - currentPrice) / effectiveComparePrice) * 100)}%
                     </span>
                 </>
@@ -131,7 +131,7 @@ export function ProductImageGallery({ images, productName }: { images: string[],
         return images
     }, [variantImage, images])
 
-    if (displayImages.length === 0) return <div className="aspect-square bg-gray-100 flex items-center justify-center text-gray-400 rounded">No Image</div>
+    if (displayImages.length === 0) return <div className="aspect-square bg-muted flex items-center justify-center text-muted-foreground rounded">No Image</div>
 
     const currentImage = variantImage ? variantImage : displayImages[selectedIndex]
 
@@ -153,9 +153,9 @@ export function ProductImageGallery({ images, productName }: { images: string[],
                                 setSelectedIndex(variantImage ? (index === 0 ? 0 : index - 1) : index)
                             }}
                             className={cn(
-                                "shrink-0 w-15 h-15 md:w-21 md:h-21 bg-white border cursor-pointer relative rounded transition-all",
+                                "shrink-0 w-15 h-15 md:w-21 md:h-21 bg-card border cursor-pointer relative rounded transition-all",
                                 (variantImage === null && selectedIndex === index) || (variantImage && index === 0)
-                                    ? "border-[#f48721]" : "border-[#eaeaea] hover:border-gray-400"
+                                    ? "border-primary" : "border-border hover:border-primary/50"
                             )}
                         >
                             <Image src={image} alt={`thumb ${index}`} fill className="object-contain p-1" sizes="80px" />
@@ -165,7 +165,7 @@ export function ProductImageGallery({ images, productName }: { images: string[],
             )}
             <div
                 ref={imageContainerRef}
-                className="flex-1 bg-white border border-[#eaeaea] overflow-hidden relative rounded group cursor-zoom-in min-h-75"
+                className="flex-1 bg-card border border-border overflow-hidden relative rounded group cursor-zoom-in min-h-75"
                 onMouseMove={handleMouseMove}
                 onMouseEnter={() => setIsZoomed(true)}
                 onMouseLeave={() => setIsZoomed(false)}
@@ -180,7 +180,7 @@ export function ProductImageGallery({ images, productName }: { images: string[],
                     sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 <div className={cn(
-                    "absolute top-4 left-4 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 transition-opacity",
+                    "absolute top-4 left-4 bg-foreground/80 text-background text-xs px-2 py-1 rounded-full flex items-center gap-1 transition-opacity",
                     isZoomed ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                 )}>
                     <ZoomIn className="h-3 w-3" />
@@ -267,8 +267,8 @@ export function ProductPurchaseWithCombinations({
                                     onClick={() => setSelectedOptions(prev => ({ ...prev, [variation.id]: option.id }))}
                                     disabled={!isAvailable}
                                     className={cn(
-                                        "px-4 py-1.5 text-sm rounded border transition-all bg-white",
-                                        isSelected ? "border-[#f48721] text-[#f48721] font-bold" : "border-[#eaeaea] text-[#252a34] hover:border-[#f48721]",
+                                        "px-4 py-1.5 text-sm rounded border transition-all bg-card",
+                                        isSelected ? "border-primary text-primary font-bold" : "border-border text-foreground hover:border-primary",
                                         !isAvailable && "opacity-40 cursor-not-allowed line-through"
                                     )}
                                 >
@@ -284,26 +284,27 @@ export function ProductPurchaseWithCombinations({
                 <div className="space-y-4">
                     {allSelected && (
                         <div className="flex items-center gap-4">
-                            <span className="font-medium text-sm text-[#222831]">Quantity:</span>
-                            <div className="flex items-center border border-[#eaeaea] rounded bg-white w-fit h-9">
-                                <button type="button" className="w-9 h-full flex items-center justify-center text-gray-500 hover:text-black" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-3 w-3" /></button>
-                                <input className="w-12 h-full text-center text-sm font-bold text-[#222831] border-x border-[#eaeaea] focus:outline-none" value={quantity} readOnly />
-                                <button type="button" className="w-9 h-full flex items-center justify-center text-gray-500 hover:text-black" onClick={() => setQuantity(Math.min(effectiveStock, quantity + 1))} disabled={quantity >= effectiveStock}><Plus className="h-3 w-3" /></button>
+                            <span className="font-medium text-sm text-foreground">Quantity:</span>
+                            <div className="flex items-center border border-border rounded bg-card w-fit h-9">
+                                <button type="button" className="w-9 h-full flex items-center justify-center text-muted-foreground hover:text-foreground" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-3 w-3" /></button>
+                                <input className="w-12 h-full text-center text-sm font-bold text-foreground border-x border-border focus:outline-none bg-transparent" value={quantity} readOnly />
+                                <button type="button" className="w-9 h-full flex items-center justify-center text-muted-foreground hover:text-foreground" onClick={() => setQuantity(Math.min(effectiveStock, quantity + 1))} disabled={quantity >= effectiveStock}><Plus className="h-3 w-3" /></button>
                             </div>
                         </div>
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                        <Button type="button" className="w-full h-11.5 bg-[#f48721] hover:bg-[#d9771c] text-white font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(false)} disabled={!allSelected || adding}>
+                        <Button type="button" className="w-full h-11.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(false)} disabled={!allSelected || adding}>
                             <ShoppingBag className="w-4 h-4 mr-2" /> {adding ? "Adding..." : "ADD TO CART"}
                         </Button>
-                        <Button type="button" className="w-full h-11.5 bg-[#041f1e] hover:bg-[#0a2e2d] text-white font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
+                        <Button type="button" className="w-full h-11.5 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
                             {ordering ? "Processing..." : "BUY NOW"}
                         </Button>
-                        <a href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-11.5 bg-[#27ae60] hover:bg-[#219653] text-white font-semibold rounded transition-colors text-[16px]">
+                        {/* Note: Kept specific brand colors for third party platforms (WhatsApp / Phone) but you can replace with custom themes if needed */}
+                        <a href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-11.5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 text-white font-semibold rounded transition-colors text-[16px]">
                             <MessageCircle className="h-4 w-4 mr-2" /> Order On WhatsApp
                         </a>
-                        <a href={safeCallNumber} className="flex items-center justify-center w-full h-11.5 bg-[#2A4B8D] hover:bg-[#223d73] text-white font-semibold rounded transition-colors text-[16px]">
+                        <a href={safeCallNumber} className="flex items-center justify-center w-full h-11.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 text-white font-semibold rounded transition-colors text-[16px]">
                             <Phone className="h-4 w-4 mr-2" /> Call For Order
                         </a>
                     </div>
@@ -338,10 +339,10 @@ export function ProductJumpLinks({ hasVideo, reviewCount }: { hasVideo: boolean,
     }, [])
 
     return (
-        <div className="hidden md:flex flex-wrap items-center bg-white border-b border-[#eaeaea] p-4 gap-2 sticky top-15 md:top-17.5 z-30 rounded-t-xl shadow-sm">
-            <a href="#description" onClick={(e) => scrollToSection(e, 'description')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "description" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]")}>Description</a>
-            {hasVideo && <a href="#video" onClick={(e) => scrollToSection(e, 'video')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "video" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]")}>Product Video</a>}
-            <a href="#reviews" onClick={(e) => scrollToSection(e, 'reviews')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "reviews" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]")}>Customer Reviews ({reviewCount})</a>
+        <div className="hidden md:flex flex-wrap items-center bg-card border-b border-border p-4 gap-2 sticky top-15 md:top-17.5 z-30 rounded-t-xl shadow-sm">
+            <a href="#description" onClick={(e) => scrollToSection(e, 'description')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "description" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Description</a>
+            {hasVideo && <a href="#video" onClick={(e) => scrollToSection(e, 'video')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "video" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Product Video</a>}
+            <a href="#reviews" onClick={(e) => scrollToSection(e, 'reviews')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "reviews" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Customer Reviews ({reviewCount})</a>
         </div>
     )
 }

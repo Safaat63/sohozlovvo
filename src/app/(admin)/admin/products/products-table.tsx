@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { deleteProduct, toggleProductStatus, bulkToggleProductStatus, bulkDeleteProducts } from "@/actions/admin-products"
+import { deleteProduct, toggleProductStatus, bulkToggleProductStatus, bulkDeleteProducts, duplicateProduct } from "@/actions/admin-products"
 
 type Product = {
     id: string
@@ -102,6 +102,19 @@ export function ProductsTable({
     const handleToggleStatus = async (id: string) => {
         startTransition(async () => {
             await toggleProductStatus(id)
+            router.refresh()
+        })
+    }
+
+    const handleDuplicate = async (id: string, name: string) => {
+        if (!confirm(`Duplicate "${name}"?`)) return
+
+        startTransition(async () => {
+            const result = await duplicateProduct(id)
+            if (result.error) {
+                alert(result.error)
+                return
+            }
             router.refresh()
         })
     }
@@ -317,6 +330,14 @@ export function ProductsTable({
                                                 Edit
                                             </Button>
                                         </Link>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleDuplicate(product.id, product.name)}
+                                            disabled={isPending}
+                                        >
+                                            Duplicate
+                                        </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"

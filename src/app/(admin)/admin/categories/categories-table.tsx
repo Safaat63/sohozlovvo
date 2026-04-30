@@ -4,7 +4,7 @@ import { useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { deleteCategory } from "@/actions/admin-categories"
+import { deleteCategory, duplicateCategory } from "@/actions/admin-categories"
 
 type Category = {
     id: string
@@ -26,6 +26,17 @@ export function CategoriesTable({ categories }: { categories: Category[] }) {
 
         startTransition(async () => {
             const result = await deleteCategory(id)
+            if (result.error) {
+                alert(result.error)
+            }
+        })
+    }
+
+    const handleDuplicate = async (id: string, name: string) => {
+        if (!confirm(`Duplicate "${name}"?`)) return
+
+        startTransition(async () => {
+            const result = await duplicateCategory(id)
             if (result.error) {
                 alert(result.error)
             }
@@ -106,6 +117,14 @@ export function CategoriesTable({ categories }: { categories: Category[] }) {
                                     Edit
                                 </Button>
                             </Link>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDuplicate(category.id, category.name)}
+                                disabled={isPending}
+                            >
+                                Duplicate
+                            </Button>
                             <Button
                                 variant="outline"
                                 size="sm"

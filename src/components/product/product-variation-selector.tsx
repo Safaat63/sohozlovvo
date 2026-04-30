@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
@@ -36,11 +36,23 @@ export function ProductVariationSelector({
     const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>(undefined)
     const currency = useCurrencySymbol()
 
-    if (!variations || variations.length === 0) {
-        return null
-    }
+    const fallbackOption = useMemo(() => {
+        const firstVariation = variations[0]
+        const firstActiveOption = firstVariation?.options
+            .find((option) => option.isActive && (option.stock === undefined || option.stock > 0))
 
-    const handleOptionSelect = (optionId: string, optionPriceRaw: number | string | undefined, optionName: string, optionStock: number | undefined) => {
+        return firstActiveOption ?? firstVariation?.options
+            .find((option) => option.isActive)
+    }, [variations])
+
+    const resolvedOptionId = selectedOptionId ?? fallbackOption?.id
+
+    const handleOptionSelect = useCallback((
+        optionId: string,
+        optionPriceRaw: number | string | undefined,
+        optionName: string,
+        optionStock: number | undefined
+    ) => {
         setSelectedOptionId(optionId)
 
         const optionPrice = optionPriceRaw !== undefined
@@ -50,6 +62,29 @@ export function ProductVariationSelector({
         const priceAdjustment = optionPrice - basePriceNum
 
         onVariationChange?.(optionId, priceAdjustment, optionName, optionStock)
+    }, [basePrice, onVariationChange])
+
+    useEffect(() => {
+        if (selectedOptionId || !fallbackOption) {
+            return
+        }
+
+        const optionPrice = fallbackOption.price !== undefined
+            ? (typeof fallbackOption.price === "string" ? parseFloat(fallbackOption.price) : fallbackOption.price)
+            : 0
+        const basePriceNum = typeof basePrice === "string" ? parseFloat(basePrice) : basePrice
+        const priceAdjustment = optionPrice - basePriceNum
+
+        onVariationChange?.(
+            fallbackOption.id,
+            priceAdjustment,
+            fallbackOption.optionName,
+            fallbackOption.stock
+        )
+    }, [basePrice, fallbackOption, onVariationChange, selectedOptionId])
+
+    if (!variations || variations.length === 0) {
+        return null
     }
 
     return (
@@ -63,7 +98,7 @@ export function ProductVariationSelector({
                         {variation.options
                             .filter((option) => option.isActive)
                             .map((option) => {
-                                const isSelected = selectedOptionId === option.id
+                                const isSelected = resolvedOptionId === option.id
                                 const isOutOfStock = option.stock !== undefined && option.stock === 0
                                 const optionPrice = option.price !== undefined
                                     ? (typeof option.price === "string" ? parseFloat(option.price) : option.price)

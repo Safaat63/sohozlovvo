@@ -97,11 +97,11 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
     }
 
     return (
-        <div className="group relative flex flex-col md:flex-row items-stretch rounded-xl border border-gray-100 bg-white transition-all hover:shadow-lg w-full h-full overflow-hidden">
+        <div className="group relative flex flex-col md:flex-row items-stretch rounded-xl border border-border bg-card transition-all hover:shadow-lg w-full h-full overflow-hidden">
 
             {/* Badge - Top Right */}
             {(activeFlashSale || hasDiscount) && (
-                <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-lg rounded-tr-xl bg-[#f04f36] px-2 py-1 text-[10px] md:text-xs font-bold text-white z-10">
+                <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-lg rounded-tr-xl bg-destructive px-2 py-1 text-[10px] md:text-xs font-bold text-destructive-foreground z-10">
                     <Flame size={12} fill="currentColor" />
                     {activeFlashSale ? "Flash Sale" : "Offered Items"}
                 </div>
@@ -109,7 +109,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
 
             {/* Product Image Area */}
             {/* On mobile: aspect-square (full width). On md+: fixed width percentage, full height */}
-            <div className="w-full md:w-[40%] lg:w-[45%] shrink-0 relative aspect-[4/3] md:aspect-auto md:min-h-[240px] flex items-center justify-center p-3 md:p-5 bg-white">
+            <div className="w-full md:w-[40%] lg:w-[45%] shrink-0 relative aspect-[4/3] md:aspect-auto md:min-h-[240px] flex items-center justify-center p-3 md:p-5 bg-card">
                 <Link href={`/products/${product.slug}/`} className="block w-full h-full relative flex items-center justify-center">
                     {product.images[0] ? (
                         <Image
@@ -120,7 +120,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
                             width={300}
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-400 rounded-lg">
+                        <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground rounded-lg">
                             No Image
                         </div>
                     )}
@@ -132,18 +132,18 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
                 <div>
                     <Link
                         href={`/products/${product.slug}/`}
-                        className="text-sm md:text-xl font-bold text-gray-800 hover:text-[#f39231] line-clamp-2 transition-colors leading-snug"
+                        className="text-sm md:text-xl font-bold text-card-foreground hover:text-primary line-clamp-2 transition-colors leading-snug"
                     >
                         {product.name}
                     </Link>
 
                     {/* Pricing */}
                     <div className="mt-1 md:mt-2 flex flex-wrap items-center gap-1.5 md:gap-3">
-                        <span className="text-base md:text-lg font-bold text-[#f39231]">
+                        <span className="text-base md:text-lg font-bold text-primary">
                             {formatCurrency(displayPrice, currency)}
                         </span>
                         {displayComparePrice && displayComparePrice > displayPrice && (
-                            <span className="text-xs md:text-sm text-gray-400 line-through">
+                            <span className="text-xs md:text-sm text-muted-foreground line-through">
                                 {formatCurrency(displayComparePrice, currency)}
                             </span>
                         )}
@@ -152,7 +152,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
                     {/* Save Badge */}
                     <div className="mt-1.5 md:mt-2 mb-3 md:mb-6 min-h-[20px]">
                         {savings > 0 && (
-                            <span className="rounded-full bg-[#8cc63f] px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-bold text-white inline-block">
+                            <span className="rounded-full bg-primary px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-bold text-primary-foreground inline-block">
                                 Save {formatCurrency(savings, currency)}
                             </span>
                         )}
@@ -164,7 +164,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
                     <button
                         onClick={handleAddToCart}
                         disabled={product.stock === 0 || isCartPending}
-                        className="flex-1 h-9 md:h-10 flex items-center justify-center gap-1 md:gap-2 rounded-sm border border-[#f39231] text-[11px] md:text-sm font-bold text-[#f39231] transition-colors hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed px-1 md:px-2"
+                        className="flex-1 h-9 md:h-10 flex items-center justify-center gap-1 md:gap-2 rounded-sm border border-primary text-[11px] md:text-sm font-bold text-primary transition-colors hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed px-1 md:px-2"
                     >
                         <ShoppingCart size={16} className="w-[14px] h-[14px] md:w-[18px] md:h-[18px]" />
                         <span className="truncate">{isCartPending ? "..." : "Add To Cart"}</span>
@@ -173,9 +173,9 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
                     <button
                         onClick={handleOrderNow}
                         disabled={product.stock === 0 || isOrderPending}
-                        className="flex-1 h-9 md:h-10 flex items-center justify-center gap-1 md:gap-2 rounded-sm border border-[#f39231] bg-[#f39231] text-[11px] md:text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed px-1 md:px-2"
+                        className="flex-1 h-9 md:h-10 flex items-center justify-center gap-1 md:gap-2 rounded-sm border border-primary bg-primary text-[11px] md:text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed px-1 md:px-2"
                     >
-                        <ShoppingCart size={16} className="w-[14px] h-[14px] md:w-[18px] md:h-[18px]" />
+                        <ShoppingCart size={16} className="w-3.5 h-3.5 md:w-4.5 md:h-4.5" />
                         <span className="truncate">{isOrderPending ? "..." : "Buy now"}</span>
                     </button>
                 </div>

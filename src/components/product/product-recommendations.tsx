@@ -24,6 +24,42 @@ export async function RelatedProducts({ productId, categoryId, limit = 6 }: Rela
           isActive: true,
         },
       },
+      variations: {
+        include: {
+          options: {
+            select: {
+              id: true,
+              optionName: true,
+              isActive: true,
+              variationId: true,
+              image: true,
+              hexCode: true,
+            },
+          },
+        },
+      },
+      combinations: {
+        include: {
+          options: {
+            select: {
+              id: true,
+              optionId: true,
+              option: {
+                select: {
+                  id: true,
+                  optionName: true,
+                  variation: {
+                    select: {
+                      id: true,
+                      variationName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     take: limit,
     orderBy: [
@@ -53,6 +89,37 @@ export async function RelatedProducts({ productId, categoryId, limit = 6 }: Rela
               flashSales: product.flashSales?.map((fs) => ({
                 ...fs,
                 salePrice: Number(fs.salePrice),
+              })),
+              variations: product.variations?.map((variation) => ({
+                id: variation.id,
+                variationName: variation.variationName,
+                options: variation.options.map((option) => ({
+                  id: option.id,
+                  optionName: option.optionName,
+                  isActive: option.isActive,
+                  variationId: option.variationId,
+                  image: option.image ?? null,
+                  hexCode: option.hexCode ?? null,
+                })),
+              })),
+              combinations: product.combinations?.map((combo) => ({
+                id: combo.id,
+                sku: combo.sku,
+                stock: combo.stock,
+                price: combo.price !== null && combo.price !== undefined ? Number(combo.price) : null,
+                isActive: combo.isActive,
+                options: combo.options.map((comboOption) => ({
+                  id: comboOption.id,
+                  optionId: comboOption.optionId,
+                  option: comboOption.option ? {
+                    id: comboOption.option.id,
+                    optionName: comboOption.option.optionName,
+                    variation: comboOption.option.variation ? {
+                      id: comboOption.option.variation.id,
+                      variationName: comboOption.option.variation.variationName,
+                    } : null,
+                  } : null,
+                })),
               })),
             }}
           />
@@ -100,6 +167,42 @@ export async function YouMayAlsoLike({ productId, limit = 6 }: { productId: stri
           isActive: true,
         },
       },
+      variations: {
+        include: {
+          options: {
+            select: {
+              id: true,
+              optionName: true,
+              isActive: true,
+              variationId: true,
+              image: true,
+              hexCode: true,
+            },
+          },
+        },
+      },
+      combinations: {
+        include: {
+          options: {
+            select: {
+              id: true,
+              optionId: true,
+              option: {
+                select: {
+                  id: true,
+                  optionName: true,
+                  variation: {
+                    select: {
+                      id: true,
+                      variationName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     take: limit,
     orderBy: [
@@ -129,6 +232,37 @@ export async function YouMayAlsoLike({ productId, limit = 6 }: { productId: stri
               flashSales: product.flashSales?.map((fs) => ({
                 ...fs,
                 salePrice: Number(fs.salePrice),
+              })),
+              variations: product.variations?.map((variation) => ({
+                id: variation.id,
+                variationName: variation.variationName,
+                options: variation.options.map((option) => ({
+                  id: option.id,
+                  optionName: option.optionName,
+                  isActive: option.isActive,
+                  variationId: option.variationId,
+                  image: option.image ?? null,
+                  hexCode: option.hexCode ?? null,
+                })),
+              })),
+              combinations: product.combinations?.map((combo) => ({
+                id: combo.id,
+                sku: combo.sku,
+                stock: combo.stock,
+                price: combo.price !== null && combo.price !== undefined ? Number(combo.price) : null,
+                isActive: combo.isActive,
+                options: combo.options.map((comboOption) => ({
+                  id: comboOption.id,
+                  optionId: comboOption.optionId,
+                  option: comboOption.option ? {
+                    id: comboOption.option.id,
+                    optionName: comboOption.option.optionName,
+                    variation: comboOption.option.variation ? {
+                      id: comboOption.option.variation.id,
+                      variationName: comboOption.option.variation.variationName,
+                    } : null,
+                  } : null,
+                })),
               })),
             }}
           />

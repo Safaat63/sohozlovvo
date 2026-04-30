@@ -15,6 +15,25 @@ async function checkAdminAccess() {
     return session
 }
 
+async function getUniqueProductSlug(baseSlug: string) {
+    const existing = await prisma.product.findMany({
+        where: { slug: { startsWith: baseSlug } },
+        select: { slug: true },
+    })
+
+    if (!existing.length) return baseSlug
+
+    const existingSlugs = new Set(existing.map((item) => item.slug))
+    let suffix = 2
+    let candidate = `${baseSlug}-${suffix}`
+    while (existingSlugs.has(candidate)) {
+        suffix += 1
+        candidate = `${baseSlug}-${suffix}`
+    }
+
+    return candidate
+}
+
 // Helper to serialize Decimal fields to numbers for client components
 function serializeProduct(product: any) {
     return {
@@ -561,6 +580,158 @@ export async function deleteProduct(id: string) {
         return { success: true }
     } catch {
         return { error: "Failed to delete product" }
+    }
+}
+
+export async function duplicateProduct(id: string) {
+    const session = await checkAdminAccess()
+
+    const product = await prisma.product.findUnique({
+        where: { id },
+        include: {
+            specifications: true,
+            variations: {
+                include: {
+                    options: true,
+                },
+            },
+            combinations: {
+                include: {
+                    options: true,
+                },
+            },
+        },
+    })
+
+    if (!product) return { error: "Product not found" }
+
+    const baseSlug = `${product.slug}-copy`
+    const uniqueSlug = await getUniqueProductSlug(baseSlug)
+    const duplicateName = `${product.name} (Copy)`
+
+    try {
+        const newProduct = await prisma.product.create({
+            data: {
+                name: duplicateName,
+                slug: uniqueSlug,
+                description: product.description,
+                price: product.price,
+                compareAtPrice: product.compareAtPrice,
+                costPrice: product.costPrice,
+                sku: null,
+                barcode: product.barcode,
+                stock: product.stock,
+                lowStockAlert: product.lowStockAlert,
+                weight: product.weight,
+                brand: product.brand,
+                rating: 0,
+                reviewCount: 0,
+                isActive: product.isActive,
+                isFeatured: product.isFeatured,
+                metaTitle: product.metaTitle,
+                metaDescription: product.metaDescription,
+                youtubeUrls: product.youtubeUrls,
+                images: product.images,
+                categoryId: product.categoryId,
+                discountType: product.discountType,
+                discountValue: product.discountValue,
+                discountStartDate: product.discountStartDate,
+                discountEndDate: product.discountEndDate,
+                specifications: {
+                    create: product.specifications.map((spec) => ({
+                        key: spec.key,
+                        value: spec.value,
+                    })),
+                },
+                variations: {
+                    create: product.variations.map((variation) => ({
+                        variationName: variation.variationName,
+                        options: {
+                            create: variation.options.map((option) => ({
+                                optionName: option.optionName,
+                                isActive: option.isActive,
+                                image: option.image,
+                                hexCode: option.hexCode,
+                            })),
+                        },
+                    })),
+                },
+            },
+            include: {
+                variations: {
+                    include: {
+                        options: true,
+                    },
+                },
+            },
+        })
+
+        const oldOptionIdToKey = new Map<string, string>()
+        for (const variation of product.variations) {
+            for (const option of variation.options) {
+                oldOptionIdToKey.set(option.id, `${variation.variationName}::${option.optionName}`)
+            }
+        }
+
+        const newOptionKeyToId = new Map<string, string>()
+        for (const variation of newProduct.variations) {
+            for (const option of variation.options) {
+                newOptionKeyToId.set(`${variation.variationName}::${option.optionName}`, option.id)
+            }
+        }
+
+        const combinationsToCreate = product.combinations.map((combo) => {
+            const optionIds = combo.options
+                .map((option) => {
+                    const key = oldOptionIdToKey.get(option.optionId)
+                    return key ? newOptionKeyToId.get(key) || null : null
+                })
+                .filter((optionId): optionId is string => Boolean(optionId))
+
+            if (!optionIds.length) return null
+
+            return {
+                sku: null,
+                stock: combo.stock,
+                price: combo.price,
+                isActive: combo.isActive,
+                optionIds,
+            }
+        }).filter(Boolean) as Array<{ sku: string | null; stock: number; price: any; isActive: boolean; optionIds: string[] }>
+
+        if (combinationsToCreate.length) {
+            await Promise.all(
+                combinationsToCreate.map((combo) => prisma.productVariantCombination.create({
+                    data: {
+                        productId: newProduct.id,
+                        sku: combo.sku,
+                        stock: combo.stock,
+                        price: combo.price,
+                        isActive: combo.isActive,
+                        options: {
+                            create: combo.optionIds.map((optionId) => ({ optionId })),
+                        },
+                    },
+                }))
+            )
+        }
+
+        await prisma.auditLog.create({
+            data: {
+                userId: session.user.id,
+                action: "DUPLICATE",
+                entity: "Product",
+                entityId: newProduct.id,
+                changes: JSON.stringify({ sourceProductId: product.id }),
+            },
+        })
+
+        revalidatePath("/admin/products")
+        revalidatePath("/products")
+        return { success: true, productId: newProduct.id }
+    } catch (error: unknown) {
+        console.error("Product duplication error:", error)
+        return { error: "Failed to duplicate product" }
     }
 }
 

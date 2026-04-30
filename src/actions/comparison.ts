@@ -40,6 +40,49 @@ export async function getComparisonProducts(ids: string[]) {
                         isActive: true,
                     },
                 },
+                variations: {
+                    select: {
+                        id: true,
+                        variationName: true,
+                        options: {
+                            select: {
+                                id: true,
+                                optionName: true,
+                                isActive: true,
+                                variationId: true,
+                                image: true,
+                                hexCode: true,
+                            },
+                        },
+                    },
+                },
+                combinations: {
+                    select: {
+                        id: true,
+                        sku: true,
+                        stock: true,
+                        price: true,
+                        isActive: true,
+                        options: {
+                            select: {
+                                id: true,
+                                optionId: true,
+                                option: {
+                                    select: {
+                                        id: true,
+                                        optionName: true,
+                                        variation: {
+                                            select: {
+                                                id: true,
+                                                variationName: true,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
                 specifications: {
                     select: {
                         key: true,
@@ -60,6 +103,39 @@ export async function getComparisonProducts(ids: string[]) {
                 flashSales: p.flashSales?.map((fs) => ({
                     ...fs,
                     salePrice: parseFloat(fs.salePrice.toString()),
+                })),
+                variations: p.variations?.map((variation) => ({
+                    id: variation.id,
+                    variationName: variation.variationName,
+                    options: variation.options.map((option) => ({
+                        id: option.id,
+                        optionName: option.optionName,
+                        isActive: option.isActive,
+                        variationId: option.variationId,
+                        image: option.image ?? null,
+                        hexCode: option.hexCode ?? null,
+                    })),
+                })),
+                combinations: p.combinations?.map((combo) => ({
+                    id: combo.id,
+                    sku: combo.sku,
+                    stock: combo.stock,
+                    price: combo.price !== null && combo.price !== undefined
+                        ? parseFloat(combo.price.toString())
+                        : null,
+                    isActive: combo.isActive,
+                    options: combo.options.map((comboOption) => ({
+                        id: comboOption.id,
+                        optionId: comboOption.optionId,
+                        option: comboOption.option ? {
+                            id: comboOption.option.id,
+                            optionName: comboOption.option.optionName,
+                            variation: comboOption.option.variation ? {
+                                id: comboOption.option.variation.id,
+                                variationName: comboOption.option.variation.variationName,
+                            } : null,
+                        } : null,
+                    })),
                 })),
             }))
         }
