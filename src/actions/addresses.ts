@@ -113,8 +113,7 @@ export async function updateAddress(addressId: string, formData: FormData) {
         const phone = formData.get("phone") as string
         const street = formData.get("street") as string
         const city = formData.get("city") as string
-        const state = formData.get("state") as string
-        const postalCode = formData.get("postalCode") as string
+        const thana = formData.get("thana") as string
         const country = (formData.get("country") as string) || "Bangladesh"
         const isDefault = formData.get("isDefault") === "on"
 
@@ -133,8 +132,7 @@ export async function updateAddress(addressId: string, formData: FormData) {
                 phone,
                 street,
                 city,
-                state,
-                postalCode,
+                thana,
                 country,
                 isDefault,
             },

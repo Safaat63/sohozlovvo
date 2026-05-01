@@ -77,7 +77,7 @@ export default async function AddressesPage() {
                                         {address.street}
                                     </p>
                                     <p className="text-muted-foreground">
-                                        {address.city}, {address.state} {address.postalCode}
+                                        {address.thana}, {address.city}
                                     </p>
                                     <p className="text-muted-foreground">{address.country}</p>
                                 </div>

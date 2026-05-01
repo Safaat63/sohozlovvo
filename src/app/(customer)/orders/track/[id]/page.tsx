@@ -148,7 +148,7 @@ export default async function OrderTrackingPage({ params }: { params: { id: stri
                 <div className="text-sm text-muted-foreground">
                   <p>{order.address.name}</p>
                   <p>{order.address.street}</p>
-                  <p>{order.address.city}, {order.address.state} {order.address.postalCode}</p>
+                  <p>{order.address.thana}, {order.address.city}</p>
                   <p>{order.address.country}</p>
                 </div>
               ) : (

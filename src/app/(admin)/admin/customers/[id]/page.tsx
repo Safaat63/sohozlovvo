@@ -112,7 +112,7 @@ export default async function CustomerDetailPage({
                                     <div key={address.id} className="text-sm p-3 bg-muted rounded-lg">
                                         <div className="font-medium">{address.name}</div>
                                         <div>{address.street}</div>
-                                        <div>{address.city}, {address.state}</div>
+                                        <div>{address.city}, {address.thana}</div>
                                         <div>{address.phone}</div>
                                     </div>
                                 ))}
