@@ -7,6 +7,7 @@ import { ServiceWorkerRegistration } from "@/components/providers/service-worker
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import Footer from "@/components/footer/footer-new";
+import { GoogleTagManager } from '@next/third-parties/google'
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",
@@ -41,6 +42,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <GoogleTagManager gtmId="GTM-NJSH52CZ" />
       <head>
         <meta name="apple-mobile-web-app-title" content="Sohozlovvo" />
       </head>

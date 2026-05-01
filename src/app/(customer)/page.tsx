@@ -13,6 +13,7 @@ import { OffersSection } from "@/components/home/offers-section"
 import { ArrowRight, Truck, Headphones, ShieldCheck, RefreshCw, ChevronRight, Zap } from "lucide-react"
 import { ProductCardBestSellerServer } from "@/components/product/product-card-best-seller-server"
 import BrandSection from "@/components/home/BrandSection"
+import FeaturedCategories from "@/components/home/Categories"
 
 export default async function HomePage() {
   const [featuredProducts, categories, settings, heroBanners, testimonials, specialOffers, promotionalSections] = await Promise.all([
@@ -131,65 +132,11 @@ export default async function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
-        <div className="max-w-360 mx-auto">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-              <h3 className="text-black text-[22px] font-bold leading-tight">Our Brands</h3>
-              <div className="mt-3">
-                <span className="block w-[120px] h-[6px] bg-[#FF7A00] rounded-full" />
-              </div>
-            </div>
-
-            <div className="text-left sm:text-right">
-              <a href="https://ghorerbazar.com/all-brands" className="text-[#FF7A00] font-semibold flex items-center gap-2 uppercase text-sm">
-                <span className="underline">See all</span>
-                <ArrowRight size={16} className="text-[#FF7A00]" />
-              </a>
-
-              <div className="mt-3 flex sm:justify-end">
-                <span className="block w-[64px] h-[6px] bg-[#FF7A00] rounded-full" />
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.slice(0, 4).map((category) => (
-              <Link
-                key={category.id}
-                href={`/categories/${category.slug}`}
-                className="group relative overflow-hidden rounded-2xl aspect-square md:aspect-square lg:aspect-3/4 shadow-lg hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="w-full h-full bg-linear-to-br from-primary/20 to-accent/20 transition-transform duration-700 group-hover:scale-110">
-                  {category.image ? (
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-6xl">
-                      {category.name.charAt(0)}
-                    </div>
-                  )}
-                </div>
-                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-6">
-                  <h3 className="text-white text-xl md:text-2xl font-bold mb-1">{category.name}</h3>
-                  <p className="text-gray-200 text-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1">
-                    {category._count?.products || 0} products <ChevronRight className="w-4 h-4" />
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+      <section className="py-4 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
+        {categories.length > 0 && 
+          <FeaturedCategories categories={categories}/>
+        }
       </section>
-
-      {/* Customer Testimonials */}
-      {testimonials.length > 0 && (
-        <TestimonialsSection testimonials={testimonials} />
-      )}
 
       {/* Recently Added Products */}
       <RecentProductsSection />
@@ -201,50 +148,10 @@ export default async function HomePage() {
       <section className="py-4 md:py-16 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
         <RecentlyViewed />
       </section>
-
-      {/* Trust Badges Strip */}
-      <section className="border-y border-border bg-card mt-2 md:mt-5">
-        <div className="py-8 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="flex items-center justify-center md:justify-start gap-3 group">
-              <div className="p-3 rounded-full bg-muted text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                <Truck className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm">Countrywide Shipping</h3>
-                <p className="text-xs text-muted-foreground">Shipping all over the country</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center md:justify-start gap-3 group">
-              <div className="p-3 rounded-full bg-muted text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                <Headphones className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm">24/7 Support</h3>
-                <p className="text-xs text-muted-foreground">Expert assistance</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center md:justify-start gap-3 group">
-              <div className="p-3 rounded-full bg-muted text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm">Secure Payment</h3>
-                <p className="text-xs text-muted-foreground">100% protected</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center md:justify-start gap-3 group">
-              <div className="p-3 rounded-full bg-muted text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                <RefreshCw className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm">Easy Returns</h3>
-                <p className="text-xs text-muted-foreground">30 days guarantee</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Customer Testimonials */}
+      {testimonials.length > 0 && (
+        <TestimonialsSection testimonials={testimonials} />
+      )}
 
     </main>
   )

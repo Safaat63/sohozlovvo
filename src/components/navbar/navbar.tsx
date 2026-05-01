@@ -393,7 +393,7 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
             </header>
 
             {/* LOWER NAVBAR (CATEGORIES) - STICKY */}
-            <div className="hidden lg:block bg-secondary/90 backdrop-blur-md sticky top-0 z-40 border-b border-border w-full shadow-sm">
+            <div className="hidden lg:block bg-black sticky top-0 z-40 w-full shadow-sm">
                 <div className="max-w-7xl mx-auto px-6">
                     <nav className="flex items-center gap-4 py-2">
                         <DesktopCategoryMenu categories={serializedCategories} />

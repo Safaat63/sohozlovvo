@@ -29,22 +29,23 @@ export function DesktopCategoryMenu({ categories }: DesktopCategoryMenuProps) {
             return (
                 <DropdownMenu key={category.id}>
                     <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-secondary-foreground hover:text-primary rounded-lg transition-all duration-200 group">
+                        <button className="text-white flex items-center gap-1.5 text-[15px] hover:text-primary transition-colors duration-200 group outline-none bg-transparent">
                             {category.name}
-                            <ChevronDown className="h-3.5 w-3.5 text-secondary-foreground/70 group-hover:text-primary transition-transform group-data-[state=open]:rotate-180" />
+                            <ChevronDown className="h-4 w-4 opacity-90 group-data-[state=open]:rotate-180 transition-transform duration-200" />
                         </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56 p-2 shadow-xl border-border bg-popover text-popover-foreground">
-                        <DropdownMenuItem asChild>
-                            <Link href={`/categories/${category.slug}`} className="flex items-center gap-2 font-semibold text-primary cursor-pointer rounded-lg">
-                                <Grid3X3 className="h-4 w-4" />
+                    {/* Updated dropdown to pure black with neutral borders */}
+                    <DropdownMenuContent align="start" className="bg-black w-56 p-2 shadow-xl border-neutral-800 text-white">
+                        <DropdownMenuItem asChild className="focus:bg-neutral-900 focus:text-white cursor-pointer rounded-md">
+                            <Link href={`/categories/${category.slug}`} className="flex items-center gap-2 font-medium">
+                                <Grid3X3 className="h-4 w-4 opacity-80" />
                                 View All {category.name}
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="my-2 border-border" />
+                        <DropdownMenuSeparator className="my-2 border-neutral-800" />
                         {category.children?.map((subcategory) => (
-                            <DropdownMenuItem key={subcategory.id} asChild>
-                                <Link href={`/categories/${subcategory.slug}`} className="cursor-pointer rounded-lg text-foreground hover:bg-muted">
+                            <DropdownMenuItem key={subcategory.id} asChild className="focus:bg-neutral-900 focus:text-white cursor-pointer rounded-md">
+                                <Link href={`/categories/${subcategory.slug}`}>
                                     {subcategory.name}
                                 </Link>
                             </DropdownMenuItem>
@@ -58,15 +59,16 @@ export function DesktopCategoryMenu({ categories }: DesktopCategoryMenuProps) {
             <Link
                 key={category.id}
                 href={`/categories/${category.slug}`}
-                className="px-3 py-2 text-sm font-medium text-secondary-foreground hover:text-primary rounded-lg transition-all duration-200"
+                className="text-white text-[15px] hover:text-primary transition-colors duration-200"
             >
                 {category.name}
             </Link>
         )
     }
 
+    // Changed background to pure black
     return (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-4 bg-black py-1 px-6 w-full">
             {categories.map(renderCategoryButton)}
         </div>
     )

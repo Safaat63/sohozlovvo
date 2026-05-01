@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getCart } from "@/actions/cart"
 import { getUserLoyaltyPoints } from "@/actions/loyalty"
@@ -7,11 +6,23 @@ import { getUserAddresses } from "@/actions/addresses"
 import { getUserProfile } from "@/actions/user"
 import { getPublicSettings } from "@/actions/settings"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
-import { ChevronRight } from "lucide-react"
 import { calculateDiscountedPrice } from "@/lib/utils"
 
+interface CartItemForPricing {
+    product: {
+        price: number | string;
+        discountType?: string | null;
+        discountValue?: number | string | null;
+        discountStartDate?: Date | null;
+        discountEndDate?: Date | null;
+    };
+    combination?: {
+        price: number | string;
+    } | null;
+}
+
 // Helper to calculate item price with discount
-function getItemPrice(item: any): number {
+function getItemPrice(item: CartItemForPricing): number {
     const product = item.product
     const basePrice = item.combination?.price
         ? parseFloat(item.combination.price.toString())
@@ -20,10 +31,10 @@ function getItemPrice(item: any): number {
     // Apply product discount
     const { finalPrice } = calculateDiscountedPrice(
         basePrice,
-        product.discountType,
+        product.discountType || null,
         product.discountValue ? Number(product.discountValue) : null,
-        product.discountStartDate,
-        product.discountEndDate
+        product.discountStartDate || null,
+        product.discountEndDate || null
     )
 
     return finalPrice
@@ -44,7 +55,7 @@ export default async function CheckoutPage() {
 
     const subtotal = cart.items.reduce((sum, item) => {
         // Use discounted price calculation
-        const unitPrice = getItemPrice(item)
+        const unitPrice = getItemPrice(item as unknown as CartItemForPricing)
         return sum + unitPrice * item.quantity
     }, 0)
 
@@ -62,7 +73,10 @@ export default async function CheckoutPage() {
             .join(", ") || null
 
         // Use discounted price
-        const itemPrice = getItemPrice(item)
+        const itemPrice = getItemPrice(item as unknown as CartItemForPricing)
+
+        const firstImage = item.product.images?.[0]
+        const imageUrl = typeof firstImage === "string" ? firstImage : firstImage?.url
 
         return {
             id: item.id,
@@ -74,6 +88,7 @@ export default async function CheckoutPage() {
                 id: item.product.id,
                 name: item.product.name,
                 price: parseFloat(item.product.price.toString()),
+                image: imageUrl || "/placeholder-image.png",
                 rating: item.product.rating ? parseFloat(item.product.rating.toString()) : 0,
                 compareAtPrice: item.product.compareAtPrice ? parseFloat(item.product.compareAtPrice.toString()) : null,
                 costPrice: item.product.costPrice ? parseFloat(item.product.costPrice.toString()) : null,
@@ -82,33 +97,17 @@ export default async function CheckoutPage() {
     })
 
     return (
-        <main className="min-h-screen bg-linear-to-br from-background-light via-white to-primary/5 dark:from-[#1a1d23] dark:via-[#1a1d23] dark:to-primary/5">
-            <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8">
-                {/* Breadcrumb */}
-                <nav className="flex items-center gap-2 mb-8 text-sm bg-white dark:bg-card/50 rounded-lg px-4 py-3 shadow-sm">
-                    <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                    <Link href="/cart" className="text-muted-foreground hover:text-primary transition-colors">Cart</Link>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-foreground font-semibold">Checkout</span>
-                </nav>
-
-                {/* Page Heading */}
-                <div className="flex flex-col gap-2 mb-10 text-center md:text-left">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight bg-clip-text bg-linear-to-r from-foreground to-primary">Secure Checkout</h1>
-                    <p className="text-muted-foreground text-lg">Complete your order safely and securely</p>
-                </div>
-
+        <main className="min-h-screen bg-[#f4f6f9] text-gray-800 font-sans pb-12">
+            <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <CheckoutForm
                     cartItems={serializedCartItems}
                     subtotal={subtotal}
                     shippingCost={shippingCost}
                     total={total}
-                    userEmail={session?.user?.email || undefined}
+                    isLoggedIn={!!session?.user}
                     userName={session?.user?.name || undefined}
                     userPhone={userProfile?.phone || undefined}
                     userAddresses={userAddresses}
-                    loyaltyPoints={loyaltyPoints || 0}
                 />
             </div>
         </main>
