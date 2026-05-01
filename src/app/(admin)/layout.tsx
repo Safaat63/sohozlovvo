@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/providers/theme-toggle"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { AdminMobileMenu } from "@/components/admin/admin-mobile-menu"
+import { GoogleTagManager } from "@next/third-parties/google"
 
 export const dynamic = 'force-dynamic'
 
@@ -121,6 +122,7 @@ export default async function AdminLayout({
 
                 {/* Main Content */}
                 <main className="lg:col-span-4">
+                    <GoogleTagManager gtmId="GTM-NJSH52CZ"/>
                     <div className="bg-white dark:bg-gray-900 border dark:border-gray-800 p-4 md:p-6 rounded-lg">
                         {children}
                     </div>

@@ -42,7 +42,6 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <GoogleTagManager gtmId="GTM-NJSH52CZ" />
       <head>
         <meta name="apple-mobile-web-app-title" content="Sohozlovvo" />
       </head>
@@ -62,6 +61,7 @@ export default async function RootLayout({
           <Toaster position="top-right" richColors />
         </ThemeProvider>
       </body>
+      <GoogleTagManager gtmId="GTM-NJSH52CZ"/>
     </html>
   );
 }
