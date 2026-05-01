@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select"
 import { createAddress, updateAddress } from "@/actions/addresses"
 import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
+import districtsData from "@/lib/bangladesh-geojson/bd-districts.json"
+import upazilasData from "@/lib/bangladesh-geojson/bd-upazilas.json"
 
 type Address = {
     id: string
@@ -22,8 +24,7 @@ type Address = {
     phone: string
     street: string
     city: string
-    state: string
-    postalCode: string
+    thana: string
     country: string
     isDefault: boolean
 }
@@ -36,6 +37,24 @@ export function AddressForm({ address }: AddressFormProps) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
     const [error, setError] = useState("")
+    const [selectedDistrict, setSelectedDistrict] = useState(address?.city || "")
+    const [selectedThana, setSelectedThana] = useState(address?.thana || "")
+
+    const districtIdByName = useMemo(() => {
+        const map = new Map<string, string>()
+        districtsData.districts.forEach((district) => {
+            map.set(district.name, district.id)
+        })
+        return map
+    }, [])
+
+    const selectedDistrictId = districtIdByName.get(selectedDistrict)
+    const thanaOptions = useMemo(() => {
+        if (!selectedDistrictId) return []
+        return upazilasData.upazilas
+            .filter((upazila) => upazila.district_id === selectedDistrictId)
+            .map((upazila) => upazila.name)
+    }, [selectedDistrictId])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -105,7 +124,14 @@ export function AddressForm({ address }: AddressFormProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="city">District (Zilla) *</Label>
-                            <Select name="city" defaultValue={address?.city || ""}>
+                            <Select
+                                name="city"
+                                value={selectedDistrict}
+                                onValueChange={(value) => {
+                                    setSelectedDistrict(value)
+                                    setSelectedThana("")
+                                }}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select district" />
                                 </SelectTrigger>
@@ -120,36 +146,25 @@ export function AddressForm({ address }: AddressFormProps) {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="state">State / Division *</Label>
-                            <Input
-                                id="state"
-                                name="state"
-                                required
-                                defaultValue={address?.state}
-                                placeholder="Dhaka Division"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="postalCode">Postal Code *</Label>
-                            <Input
-                                id="postalCode"
-                                name="postalCode"
-                                required
-                                defaultValue={address?.postalCode}
-                                placeholder="1205"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="country">Country</Label>
-                            <Input
-                                id="country"
-                                name="country"
-                                defaultValue={address?.country || "Bangladesh"}
-                            />
+                            <Label htmlFor="thana">Thana *</Label>
+                            <Select
+                                name="thana"
+                                value={selectedThana}
+                                onValueChange={setSelectedThana}
+                                disabled={!selectedDistrictId}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder={selectedDistrictId ? "Select thana" : "Select district first"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {thanaOptions.map((thana) => (
+                                        <SelectItem key={thana} value={thana}>
+                                            {thana}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <input type="hidden" name="thana" value={selectedThana} required />
                         </div>
                     </div>
 

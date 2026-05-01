@@ -3,7 +3,6 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
 export async function getUserAddresses() {
     const session = await auth()
@@ -61,12 +60,10 @@ export async function createAddress(formData: FormData) {
         const phone = formData.get("phone") as string
         const street = formData.get("street") as string
         const city = formData.get("city") as string
-        const state = formData.get("state") as string
-        const postalCode = formData.get("postalCode") as string
+        const thana = formData.get("thana") as string
         const country = (formData.get("country") as string) || "Bangladesh"
         const isDefault = formData.get("isDefault") === "on"
 
-        // If setting as default, unset other defaults
         if (isDefault) {
             await prisma.address.updateMany({
                 where: { userId: session.user.id, isDefault: true },
@@ -80,8 +77,7 @@ export async function createAddress(formData: FormData) {
                 phone,
                 street,
                 city,
-                state,
-                postalCode,
+                thana,
                 country,
                 isDefault,
                 userId: session.user.id,
