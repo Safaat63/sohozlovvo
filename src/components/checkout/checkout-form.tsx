@@ -10,7 +10,7 @@ import { validateCoupon } from "@/actions/admin-coupons"
 import { validateBDPhoneNumber } from "@/lib/validation"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
-import { Trash2, ChevronDown, ChevronUp, Check, Banknote, CreditCard } from "lucide-react"
+import { Trash2, ChevronDown, ChevronUp, Check, CreditCard } from "lucide-react"
 import districtsData from "@/lib/bangladesh-geojson/bd-districts.json"
 import upazilasData from "@/lib/bangladesh-geojson/bd-upazilas.json"
 import { trackBeginCheckout } from "@/lib/ga4"
@@ -55,10 +55,9 @@ interface CheckoutFormProps {
     userAddresses?: UserAddress[]
 }
 
-// Compact Section Header to match the screenshot's orange pipe
 const SectionHeader = ({ title }: { title: string }) => (
     <div className="flex items-center gap-2 mb-3">
-        <div className="w-[3px] h-[14px] bg-[#f97316] rounded-sm"></div>
+        <div className="w-0.75 h-3.5 bg-[#f97316] rounded-sm"></div>
         <h2 className="text-[15px] font-semibold text-gray-800">{title}</h2>
     </div>
 )
@@ -85,7 +84,6 @@ export function CheckoutForm({
     const [phoneError, setPhoneError] = useState<string | null>(null)
     const [cartUpdatingId, setCartUpdatingId] = useState<string | null>(null)
 
-    // Address Form State - Aligned strictly with Prisma Schema
     const initialSelectedAddressId = userAddresses.find(addr => addr.isDefault)?.id || "new"
     const [addressFormData, setAddressFormData] = useState(() => {
         const defaultAddress = userAddresses.find(addr => addr.id === initialSelectedAddressId)
@@ -112,11 +110,9 @@ export function CheckoutForm({
             }
     })
 
-    // UI Toggles
     const [isCouponOpen, setIsCouponOpen] = useState(false)
     const [termsAccepted, setTermsAccepted] = useState(false)
 
-    // Coupon State
     const referralCode = searchParams.get("referral") || ""
     const [couponCode, setCouponCode] = useState("")
     const [couponError, setCouponError] = useState("")
@@ -156,8 +152,12 @@ export function CheckoutForm({
             .filter((upazila) => upazila.district_id === selectedDistrictId)
             .map((upazila) => upazila.name)
     }, [selectedDistrictId])
+    const thanaOptionsWithOther = useMemo(() => {
+        const unique = new Set(thanaOptions)
+        unique.add("Other")
+        return Array.from(unique)
+    }, [thanaOptions])
 
-    // Handlers
     function handleApplyCoupon() {
         if (!couponCode.trim()) return
         setCouponError("")
@@ -177,9 +177,18 @@ export function CheckoutForm({
     }
 
     function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const cleaned = e.target.value.replace(/\D/g, "").slice(0, 11)
+        let cleaned = e.target.value.replace(/\D/g, "")
+
+        if (cleaned.startsWith("8801")) {
+            cleaned = `0${cleaned.slice(3)}`
+        } else if (cleaned.startsWith("1") && cleaned.length === 10) {
+            cleaned = `0${cleaned}`
+        }
+
+        cleaned = cleaned.slice(0, 11)
         setAddressFormData(prev => ({ ...prev, phone: cleaned }))
-        if (cleaned && !validateBDPhoneNumber(cleaned)) {
+
+        if (cleaned.length === 11 && !validateBDPhoneNumber(cleaned)) {
             setPhoneError("Invalid format")
         } else {
             setPhoneError(null)
@@ -218,14 +227,21 @@ export function CheckoutForm({
         }
 
         if (phoneError) {
-            setError("Please fix the phone number before submitting")
+            setError("Please fix the phone number before submitting.")
             return
         }
 
+        if (!validateBDPhoneNumber(addressFormData.phone)) {
+            setError("Please enter a valid phone number (01XXXXXXXXX).")
+            return
+        }
+
+        // Extract FormData BEFORE setting loading state to prevent race conditions 
+        // with inputs being disabled and omitted from the form submission.
+        const formData = new FormData(e.currentTarget)
+
         setLoading(true)
         setError(null)
-
-        const formData = new FormData(e.currentTarget)
 
         formData.set("phone", addressFormData.phone)
         formData.set("name", addressFormData.name)
@@ -234,6 +250,10 @@ export function CheckoutForm({
         formData.set("city", addressFormData.city)
         formData.set("state", addressFormData.state)
         formData.set("postalCode", addressFormData.postalCode)
+        formData.set("subtotal", subtotal.toString())
+        formData.set("shippingCost", shippingCost.toString())
+        formData.set("total", total.toString())
+        
         if (addressFormData.thana) formData.set("thana", addressFormData.thana)
 
         if (appliedCoupon) {
@@ -256,7 +276,6 @@ export function CheckoutForm({
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-7xl mx-auto">
-            {/* Top Login Banner */}
             {!isLoggedIn && (
                 <div className="flex flex-col sm:flex-row items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
                     <p className="text-gray-700 text-[14px] mb-2 sm:mb-0">
@@ -280,9 +299,7 @@ export function CheckoutForm({
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                {/* Left Column (Wider) */}
                 <div className="lg:col-span-7 space-y-4">
-                    {/* Order Review */}
                     <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                         <SectionHeader title="Order review" />
                         <div className="space-y-3">
@@ -291,7 +308,7 @@ export function CheckoutForm({
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 bg-gray-50 rounded border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                                             <Image
-                                                src={item.product.image}
+                                                src={item.product.image || "/placeholder-image.png"}
                                                 alt={item.product.name}
                                                 width={48}
                                                 height={48}
@@ -331,14 +348,13 @@ export function CheckoutForm({
                                         disabled={cartUpdatingId === item.id}
                                         className="p-1.5 text-red-500 bg-red-50 hover:bg-red-100 rounded transition-colors disabled:opacity-50"
                                     >
-                                        <Trash2 className="w-[14px] h-[14px]" />
+                                        <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Shipping Address */}
                     <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                         <SectionHeader title="Shipping Address" />
                         <div className="space-y-3">
@@ -364,24 +380,22 @@ export function CheckoutForm({
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div className="flex">
-                                    <input
-                                        type="tel"
-                                        placeholder="01*********"
-                                        value={addressFormData.phone}
-                                        onChange={handlePhoneChange}
-                                        required
-                                        disabled={loading}
-                                        inputMode="numeric"
-                                        pattern="01[1-9][0-9]{8}"
-                                        className={`w-full px-3 py-2 text-[14px] border ${phoneError ? 'border-red-400' : 'border-gray-200'} rounded focus:outline-none focus:border-orange-400`}
-                                    />
-                                </div>
+                                <input
+                                    type="tel"
+                                    placeholder="01*********"
+                                    value={addressFormData.phone}
+                                    onChange={handlePhoneChange}
+                                    required
+                                    disabled={loading}
+                                    inputMode="numeric"
+                                    pattern="01[1-9][0-9]{8}"
+                                    className={`w-full px-3 py-2 text-[14px] border ${phoneError ? 'border-red-400' : 'border-gray-200'} rounded focus:outline-none focus:border-orange-400`}
+                                />
                                 <input
                                     type="text"
-                                    placeholder="Division / State *"
-                                    value={addressFormData.state}
-                                    onChange={(e) => setAddressFormData({ ...addressFormData, state: e.target.value })}
+                                    placeholder="ex: House no. / building / street / area"
+                                    value={addressFormData.street}
+                                    onChange={(e) => setAddressFormData({ ...addressFormData, street: e.target.value })}
                                     required
                                     disabled={loading}
                                     className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
@@ -390,66 +404,47 @@ export function CheckoutForm({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="relative">
-                                    <select
+                                    <input
+                                        type="text"
+                                        list="district-options"
+                                        placeholder="Select District"
                                         value={addressFormData.city}
                                         onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value, thana: "" })}
                                         required
                                         disabled={loading}
-                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded appearance-none bg-white focus:outline-none focus:border-orange-400 text-gray-600"
-                                    >
-                                        <option value="" disabled>Select District</option>
-                                        {BANGLADESH_DISTRICTS.map((district) => (
-                                            <option key={district} value={district}>{district}</option>
-                                        ))}
-                                    </select>
+                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded bg-white focus:outline-none focus:border-orange-400 text-gray-600"
+                                    />
                                     <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+                                    <datalist id="district-options">
+                                        {BANGLADESH_DISTRICTS.map((district) => (
+                                            <option key={district} value={district} />
+                                        ))}
+                                        <option value="Other" />
+                                    </datalist>
                                 </div>
                                 <div className="relative">
-                                    <select
+                                    <input
+                                        type="text"
+                                        list="thana-options"
+                                        placeholder={selectedDistrictId ? "Select Thana (Optional)" : "Select Thana (Optional)"}
                                         value={addressFormData.thana}
                                         onChange={(e) => setAddressFormData({ ...addressFormData, thana: e.target.value })}
-                                        disabled={loading || !selectedDistrictId}
-                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded appearance-none bg-white focus:outline-none focus:border-orange-400 text-gray-600"
-                                    >
-                                        <option value="" disabled>
-                                            {selectedDistrictId ? "Select Thana (Optional)" : "Select District First"}
-                                        </option>
-                                        {thanaOptions.map((thana) => (
-                                            <option key={thana} value={thana}>
-                                                {thana}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        disabled={loading}
+                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded bg-white focus:outline-none focus:border-orange-400 text-gray-600"
+                                    />
                                     <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+                                    <datalist id="thana-options">
+                                        {thanaOptionsWithOther.map((thana) => (
+                                            <option key={thana} value={thana} />
+                                        ))}
+                                    </datalist>
                                 </div>
                             </div>
-
-                            <input
-                                type="text"
-                                placeholder="Postal Code *"
-                                value={addressFormData.postalCode}
-                                onChange={(e) => setAddressFormData({ ...addressFormData, postalCode: e.target.value })}
-                                required
-                                disabled={loading}
-                                className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
-                            />
-
-                            <input
-                                type="text"
-                                placeholder="ex: House no. / building / street / area"
-                                value={addressFormData.street}
-                                onChange={(e) => setAddressFormData({ ...addressFormData, street: e.target.value })}
-                                required
-                                disabled={loading}
-                                className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
-                            />
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column (Narrower) */}
                 <div className="lg:col-span-5 space-y-4">
-                    {/* Payment Method */}
                     <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                         <SectionHeader title="Payment method" />
                         <input type="hidden" name="paymentMethod" value={paymentMethod} />
@@ -560,9 +555,7 @@ export function CheckoutForm({
                         )}
                     </div>
 
-                    {/* Order Summary & Coupon */}
                     <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-4">
-                        {/* Coupon Accordion */}
                         <div className="border-b border-gray-100 pb-3">
                             <button
                                 type="button"
@@ -597,7 +590,6 @@ export function CheckoutForm({
                             {couponError && <p className="text-xs text-red-500 mt-2">{couponError}</p>}
                         </div>
 
-                        {/* Summary */}
                         <div className="space-y-2 text-[14px] text-gray-600">
                             <div className="flex justify-between">
                                 <span>Sub total</span>
@@ -620,7 +612,6 @@ export function CheckoutForm({
                         </div>
                     </div>
 
-                    {/* Special Notes */}
                     <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                         <SectionHeader title="Special notes (Optional)" />
                         <textarea
@@ -629,7 +620,6 @@ export function CheckoutForm({
                             className="w-full mt-1 px-3 py-2 text-[13px] border border-gray-200 rounded focus:outline-none focus:border-orange-400 resize-none"
                         ></textarea>
 
-                        {/* Terms and Conditions inside notes block for compactness */}
                         <div className="mt-4 pt-4 border-t border-gray-100">
                             <label className="flex items-start gap-2 cursor-pointer group">
                                 <div className="relative flex items-center justify-center w-4 h-4 mt-0.5">
@@ -648,10 +638,11 @@ export function CheckoutForm({
                             </label>
                         </div>
 
+                        {/* Replaced 'disabled={loading || !termsAccepted}' with 'disabled={loading}' to allow users to click and see the validation error */}
                         <button
                             type="submit"
-                            disabled={loading || !termsAccepted}
-                            className={`w-full mt-4 py-2.5 rounded text-white font-medium text-[14px] transition-all ${loading || !termsAccepted
+                            disabled={loading}
+                            className={`w-full mt-4 py-2.5 rounded text-white font-medium text-[14px] transition-all ${loading
                                 ? "bg-orange-300 cursor-not-allowed"
                                 : "bg-[#f97316] hover:bg-[#ea580c]"
                                 }`}

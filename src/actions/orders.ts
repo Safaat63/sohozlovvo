@@ -45,8 +45,7 @@ export async function createOrder(formData: FormData) {
             phone: formData.get("phone") as string,
             street: formData.get("street") as string,
             city: formData.get("city") as string,
-            state: formData.get("state") as string,
-            postalCode: formData.get("postalCode") as string,
+            thana: formData.get("thana") as string,
             paymentMethod: formData.get("paymentMethod") as string,
             transactionId: (() => {
                 const value = formData.get("transactionId")
