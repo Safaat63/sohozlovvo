@@ -14,7 +14,8 @@ import { sendPushNotificationToAdmins } from "@/actions/push-notifications"
 
 const checkoutSchema = z.object({
     name: z.string().min(2, "Please enter your full name (at least 2 characters)"),
-    email: z.string().email("Please enter a valid email address").refine((email) => {
+    email: z.string().optional().refine((email) => {
+        if (!email) return true
         const result = validateEmail(email)
         return result.valid
     }, { message: "Temporary/disposable email addresses are not allowed" }),
@@ -65,7 +66,8 @@ export async function createOrder(formData: FormData) {
             }
         }
 
-        const { name, email, phone, street, city, thana, paymentMethod, transactionId, notes } = validatedFields.data
+        const { name, email: rawEmail, phone, street, city, thana, paymentMethod, transactionId, notes } = validatedFields.data
+        const email = rawEmail || null
 
         // Check stock availability using combination stock if applicable
         for (const item of cart.items) {

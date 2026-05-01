@@ -7,7 +7,7 @@ import Link from "next/link"
 import { createOrder } from "@/actions/orders"
 import { removeCartItem, updateCartItemQuantity } from "@/actions/cart"
 import { validateCoupon } from "@/actions/admin-coupons"
-import { validateBDPhoneNumber } from "@/lib/validation"
+import { validateBDPhoneNumber, validateEmail } from "@/lib/validation"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
 import { Trash2, ChevronDown, ChevronUp, Check, CreditCard } from "lucide-react"
@@ -83,6 +83,8 @@ export function CheckoutForm({
     const [paymentMethod, setPaymentMethod] = useState<string>("COD")
     const [phoneError, setPhoneError] = useState<string | null>(null)
     const [cartUpdatingId, setCartUpdatingId] = useState<string | null>(null)
+    const [touched, setTouched] = useState<Record<string, boolean>>({})
+    const [transactionId, setTransactionId] = useState("")
 
     const initialSelectedAddressId = userAddresses.find(addr => addr.isDefault)?.id || "new"
     const [addressFormData, setAddressFormData] = useState(() => {
@@ -109,6 +111,31 @@ export function CheckoutForm({
                 postalCode: "",
             }
     })
+
+    const fieldErrors: Record<string, string> = {}
+    if (touched.name && addressFormData.name.trim().length < 2) {
+        fieldErrors.name = "Please enter your full name (at least 2 characters)"
+    }
+    if (touched.email && addressFormData.email) {
+        const emailResult = validateEmail(addressFormData.email)
+        if (!emailResult.valid) fieldErrors.email = "Please enter a valid email address"
+    }
+    if (touched.phone && addressFormData.phone) {
+        if (addressFormData.phone.length !== 11) {
+            fieldErrors.phone = "Please enter a valid phone number (01XXXXXXXXX)"
+        } else if (!validateBDPhoneNumber(addressFormData.phone)) {
+            fieldErrors.phone = "Invalid phone number format"
+        }
+    }
+    if (touched.street && addressFormData.street.trim().length < 5) {
+        fieldErrors.street = "Please enter your complete address (at least 5 characters)"
+    }
+    if (touched.city && addressFormData.city.trim().length < 2) {
+        fieldErrors.city = "Please enter your city name"
+    }
+    if (touched.transactionId && paymentMethod !== "COD" && paymentMethod !== "CARD" && !transactionId.trim()) {
+        fieldErrors.transactionId = "Transaction ID is required"
+    }
 
     const [isCouponOpen, setIsCouponOpen] = useState(false)
     const [termsAccepted, setTermsAccepted] = useState(false)
@@ -226,22 +253,20 @@ export function CheckoutForm({
             return
         }
 
-        if (phoneError) {
-            setError("Please fix the phone number before submitting.")
-            return
-        }
+        setTouched({ name: true, email: true, phone: true, street: true, city: true, transactionId: true })
 
-        if (!validateBDPhoneNumber(addressFormData.phone)) {
-            setError("Please enter a valid phone number (01XXXXXXXXX).")
-            return
-        }
+        if (!addressFormData.name.trim() || addressFormData.name.trim().length < 2) return
+        if (isLoggedIn && addressFormData.email && !validateEmail(addressFormData.email).valid) return
+        if (!validateBDPhoneNumber(addressFormData.phone)) return
+        if (addressFormData.street.trim().length < 5) return
+        if (addressFormData.city.trim().length < 2) return
+        if (paymentMethod !== "COD" && paymentMethod !== "CARD" && !transactionId.trim()) return
 
-        // Extract FormData BEFORE setting loading state to prevent race conditions 
-        // with inputs being disabled and omitted from the form submission.
+        setError(null)
+
         const formData = new FormData(e.currentTarget)
 
         setLoading(true)
-        setError(null)
 
         formData.set("phone", addressFormData.phone)
         formData.set("name", addressFormData.name)
@@ -255,6 +280,7 @@ export function CheckoutForm({
         formData.set("total", total.toString())
         
         if (addressFormData.thana) formData.set("thana", addressFormData.thana)
+        if (transactionId.trim()) formData.set("transactionId", transactionId.trim())
 
         if (appliedCoupon) {
             formData.set("couponId", appliedCoupon.id)
@@ -358,48 +384,63 @@ export function CheckoutForm({
                     <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                         <SectionHeader title="Shipping Address" />
                         <div className="space-y-3">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
                                 <input
                                     type="text"
                                     placeholder="Your Full Name *"
                                     value={addressFormData.name}
                                     onChange={(e) => setAddressFormData({ ...addressFormData, name: e.target.value })}
+                                    onBlur={() => setTouched(prev => ({ ...prev, name: true }))}
                                     required
                                     disabled={loading}
-                                    className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                                    className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.name ? 'border-red-400' : 'border-gray-200'}`}
                                 />
-                                <input
-                                    type="email"
-                                    placeholder="Email Address *"
-                                    value={addressFormData.email}
-                                    onChange={(e) => setAddressFormData({ ...addressFormData, email: e.target.value })}
-                                    required
-                                    disabled={loading}
-                                    className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
-                                />
+                                {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
                             </div>
+                            {isLoggedIn && (
+                                <div>
+                                    <input
+                                        type="email"
+                                        placeholder="Email Address"
+                                        value={addressFormData.email}
+                                        onChange={(e) => setAddressFormData({ ...addressFormData, email: e.target.value })}
+                                        onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+                                        disabled={loading}
+                                        className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.email ? 'border-red-400' : 'border-gray-200'}`}
+                                    />
+                                    {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <input
-                                    type="tel"
-                                    placeholder="01*********"
-                                    value={addressFormData.phone}
-                                    onChange={handlePhoneChange}
-                                    required
-                                    disabled={loading}
-                                    inputMode="numeric"
-                                    pattern="01[1-9][0-9]{8}"
-                                    className={`w-full px-3 py-2 text-[14px] border ${phoneError ? 'border-red-400' : 'border-gray-200'} rounded focus:outline-none focus:border-orange-400`}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="ex: House no. / building / street / area"
-                                    value={addressFormData.street}
-                                    onChange={(e) => setAddressFormData({ ...addressFormData, street: e.target.value })}
-                                    required
-                                    disabled={loading}
-                                    className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
-                                />
+                                <div>
+                                    <input
+                                        type="tel"
+                                        placeholder="01*********"
+                                        value={addressFormData.phone}
+                                        onChange={handlePhoneChange}
+                                        onBlur={() => setTouched(prev => ({ ...prev, phone: true }))}
+                                        required
+                                        disabled={loading}
+                                        inputMode="numeric"
+                                        pattern="01[1-9][0-9]{8}"
+                                        className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.phone || phoneError ? 'border-red-400' : 'border-gray-200'}`}
+                                    />
+                                    {(fieldErrors.phone || phoneError) && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone || phoneError}</p>}
+                                </div>
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder="ex: House no. / building / street / area"
+                                        value={addressFormData.street}
+                                        onChange={(e) => setAddressFormData({ ...addressFormData, street: e.target.value })}
+                                        onBlur={() => setTouched(prev => ({ ...prev, street: true }))}
+                                        required
+                                        disabled={loading}
+                                        className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.street ? 'border-red-400' : 'border-gray-200'}`}
+                                    />
+                                    {fieldErrors.street && <p className="text-xs text-red-500 mt-1">{fieldErrors.street}</p>}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -410,10 +451,12 @@ export function CheckoutForm({
                                         placeholder="Select District"
                                         value={addressFormData.city}
                                         onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value, thana: "" })}
+                                        onBlur={() => setTouched(prev => ({ ...prev, city: true }))}
                                         required
                                         disabled={loading}
-                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded bg-white focus:outline-none focus:border-orange-400 text-gray-600"
+                                        className={`w-full px-3 py-2 text-[14px] border rounded bg-white focus:outline-none focus:border-orange-400 text-gray-600 ${fieldErrors.city ? 'border-red-400' : 'border-gray-200'}`}
                                     />
+                                    {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
                                     <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
                                     <datalist id="district-options">
                                         {BANGLADESH_DISTRICTS.map((district) => (
@@ -545,12 +588,14 @@ export function CheckoutForm({
                             <div className="mt-3 pt-3 border-t border-gray-100">
                                 <input
                                     type="text"
-                                    name="transactionId"
                                     placeholder="Enter Transaction ID *"
-                                    required={paymentMethod !== "COD" && paymentMethod !== "CARD"}
+                                    value={transactionId}
+                                    onChange={(e) => setTransactionId(e.target.value)}
+                                    onBlur={() => setTouched(prev => ({ ...prev, transactionId: true }))}
                                     disabled={loading}
-                                    className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                                    className={`w-full px-3 py-2 text-[13px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.transactionId ? 'border-red-400' : 'border-gray-200'}`}
                                 />
+                                {fieldErrors.transactionId && <p className="text-xs text-red-500 mt-1">{fieldErrors.transactionId}</p>}
                             </div>
                         )}
                     </div>
