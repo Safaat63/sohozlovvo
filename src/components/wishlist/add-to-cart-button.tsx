@@ -7,9 +7,14 @@ import { ShoppingCart, Minus, Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { trackAddToCart } from "@/lib/ga4"
 
 interface AddToCartButtonProps {
     productId: string
+    productName?: string
+    price?: number
+    productBrand?: string | null
+    productCategory?: string | null
     stock?: number
     variant?: "default" | "secondary" | "outline"
     className?: string
@@ -20,6 +25,10 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({
     productId,
+    productName,
+    price,
+    productBrand,
+    productCategory,
     stock = 99,
     variant = "default",
     className,
@@ -44,6 +53,16 @@ export function AddToCartButton({
             toast.error(result.error)
         } else {
             toast.success(`Added ${quantity} item(s) to cart`)
+            if (productName && typeof price === "number") {
+                trackAddToCart({
+                    item_id: productId,
+                    item_name: productName,
+                    price,
+                    quantity,
+                    item_brand: productBrand || undefined,
+                    item_category: productCategory || undefined,
+                })
+            }
             router.refresh()
         }
     }

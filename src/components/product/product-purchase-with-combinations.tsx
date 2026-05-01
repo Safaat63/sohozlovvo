@@ -8,6 +8,7 @@ import { addToCart } from "@/actions/cart"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { MessageCircle } from "lucide-react"
+import { trackAddToCart } from "@/lib/ga4"
 
 interface VariationOption {
     id: string
@@ -49,12 +50,15 @@ interface Combination {
 
 interface ProductPurchaseWithCombinationsProps {
     productId: string
+    productName: string
     baseStock: number
     basePrice: number
     variations: Variation[]
     combinations: Combination[]
     whatsappLink?: string | null
     callNumber?: string | null
+    productBrand?: string | null
+    productCategory?: string | null
     productDiscount?: {
         discountType?: string | null
         discountValue?: number | null
@@ -66,12 +70,15 @@ interface ProductPurchaseWithCombinationsProps {
 
 export function ProductPurchaseWithCombinations({
     productId,
+    productName,
     baseStock,
     basePrice,
     variations,
     combinations,
     whatsappLink,
-    callNumber
+    callNumber,
+    productBrand,
+    productCategory
 }: ProductPurchaseWithCombinationsProps) {
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
     const [quantity, setQuantity] = useState(1)
@@ -114,6 +121,14 @@ export function ProductPurchaseWithCombinations({
                 comboOptionIds.length === selectedOptionIds.length
         }) || null
     }, [resolvedSelectedOptions, combinations, variations.length, hasVariations])
+
+    const selectedVariantLabel = useMemo(() => {
+        if (!selectedCombination) return undefined
+        const labels = selectedCombination.options.map((option) => {
+            return `${option.option.variation.variationName}: ${option.option.optionName}`
+        })
+        return labels.join(" / ")
+    }, [selectedCombination])
 
     const effectivePrice = useMemo(() => {
         if (selectedCombination && selectedCombination.price !== null) {
@@ -215,6 +230,15 @@ export function ProductPurchaseWithCombinations({
         }
 
         toast.success(redirectToCheckout ? "Proceeding to checkout" : "Added to cart")
+        trackAddToCart({
+            item_id: productId,
+            item_name: productName,
+            price: effectivePrice,
+            quantity,
+            item_variant: selectedVariantLabel,
+            item_brand: productBrand || undefined,
+            item_category: productCategory || undefined,
+        })
         if (redirectToCheckout) {
             router.push("/checkout")
         } else {

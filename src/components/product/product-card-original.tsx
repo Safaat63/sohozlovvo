@@ -21,6 +21,7 @@ import {
 import { ProductPurchaseSection } from "@/components/product/product-purchase"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
+import { trackAddToCart, trackAddToWishlist, trackRemoveFromWishlist } from "@/lib/ga4"
 
 interface VariationOption {
     id: string
@@ -136,7 +137,23 @@ export function ProductCard({ product, initialInWishlist = false, whatsappNumber
                 router.push("/auth/login")
             }
         } else {
+            const wasInWishlist = inWishlist
             setInWishlist(!inWishlist)
+            if (wasInWishlist) {
+                trackRemoveFromWishlist({
+                    item_id: product.id,
+                    item_name: product.name,
+                    price: displayPrice,
+                    item_brand: product.brand || undefined,
+                })
+            } else {
+                trackAddToWishlist({
+                    item_id: product.id,
+                    item_name: product.name,
+                    price: displayPrice,
+                    item_brand: product.brand || undefined,
+                })
+            }
         }
         setIsWishlistPending(false)
     }
@@ -199,6 +216,13 @@ export function ProductCard({ product, initialInWishlist = false, whatsappNumber
             toast.error(result.error)
         } else {
             toast.success("Added to cart", { duration: 1500 })
+            trackAddToCart({
+                item_id: product.id,
+                item_name: product.name,
+                price: displayPrice,
+                quantity: 1,
+                item_brand: product.brand || undefined,
+            })
             router.refresh()
         }
     }
@@ -219,6 +243,13 @@ export function ProductCard({ product, initialInWishlist = false, whatsappNumber
         if (result?.error) {
             toast.error(result.error)
         } else {
+            trackAddToCart({
+                item_id: product.id,
+                item_name: product.name,
+                price: displayPrice,
+                quantity: 1,
+                item_brand: product.brand || undefined,
+            })
             router.push("/checkout")
         }
     }
@@ -453,9 +484,11 @@ export function ProductCard({ product, initialInWishlist = false, whatsappNumber
                         ) : (
                             <ProductPurchaseSection
                                 productId={product.id}
+                                productName={product.name}
                                 stock={product.stock}
                                 basePrice={displayPrice}
                                 variations={[]}
+                                productBrand={product.brand}
                             />
                         )}
 

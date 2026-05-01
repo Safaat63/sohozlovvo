@@ -9,6 +9,7 @@ import { addToCart } from "@/actions/cart"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Currency } from "@/components/providers/currency-provider"
+import { trackAddToCart } from "@/lib/ga4"
 
 // --- STRICT TYPES ---
 interface VariationOption {
@@ -51,12 +52,15 @@ interface Combination {
 
 interface ProductPurchaseProps {
     productId: string
+    productName: string
     baseStock: number
     basePrice: number
     variations: Variation[]
     combinations: Combination[]
     whatsappLink?: string | null
     callNumber?: string | null
+    productBrand?: string | null
+    productCategory?: string | null
 }
 
 // --- 1. PRODUCT PRICE DISPLAY ---
@@ -193,7 +197,16 @@ export function ProductImageGallery({ images, productName }: { images: string[],
 
 // --- 3. PRODUCT PURCHASE & COMBINATIONS ---
 export function ProductPurchaseWithCombinations({
-    productId, baseStock, basePrice, variations, combinations, whatsappLink, callNumber
+    productId,
+    productName,
+    baseStock,
+    basePrice,
+    variations,
+    combinations,
+    whatsappLink,
+    callNumber,
+    productBrand,
+    productCategory,
 }: ProductPurchaseProps) {
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
     const [quantity, setQuantity] = useState(1)
@@ -213,6 +226,14 @@ export function ProductPurchaseWithCombinations({
             return selectedOptionIds.every(id => comboOptionIds.includes(id)) && comboOptionIds.length === selectedOptionIds.length
         }) || null
     }, [selectedOptions, combinations, variations.length, hasVariations])
+
+    const selectedVariantLabel = useMemo(() => {
+        if (!selectedCombination) return undefined
+        const labels = selectedCombination.options.map((option) => {
+            return `${option.option.variation.variationName}: ${option.option.optionName}`
+        })
+        return labels.join(" / ")
+    }, [selectedCombination])
 
     const effectivePrice = selectedCombination && selectedCombination.price !== null ? Number(selectedCombination.price) : basePrice
     const effectiveStock = selectedCombination ? selectedCombination.stock : (!hasVariations ? baseStock : combinations.filter((c) => c.isActive).reduce((sum, c) => sum + c.stock, 0))
@@ -243,6 +264,15 @@ export function ProductPurchaseWithCombinations({
         setLoading(false)
         if (result?.error) return toast.error(result.error)
         toast.success(redirectToCheckout ? "Proceeding to checkout" : "Added to cart")
+        trackAddToCart({
+            item_id: productId,
+            item_name: productName,
+            price: effectivePrice,
+            quantity,
+            item_variant: selectedVariantLabel,
+            item_brand: productBrand || undefined,
+            item_category: productCategory || undefined,
+        })
         if (redirectToCheckout) router.push("/checkout")
         else router.refresh()
     }

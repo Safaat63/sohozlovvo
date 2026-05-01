@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useTransition } from "react"
+import { useEffect, useMemo, useRef, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -13,6 +13,7 @@ import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
 import { Trash2, ChevronDown, ChevronUp, Check, Banknote, CreditCard } from "lucide-react"
 import districtsData from "@/lib/bangladesh-geojson/bd-districts.json"
 import upazilasData from "@/lib/bangladesh-geojson/bd-upazilas.json"
+import { trackBeginCheckout } from "@/lib/ga4"
 
 interface CartItem {
     id: string
@@ -74,6 +75,7 @@ export function CheckoutForm({
     const router = useRouter()
     const searchParams = useSearchParams()
     const currency = useCurrencySymbol()
+    const beginCheckoutRef = useRef(false)
 
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
@@ -115,6 +117,21 @@ export function CheckoutForm({
 
     const discount = appliedCoupon?.discount || 0
     const total = Math.max(0, initialTotal - discount)
+
+    useEffect(() => {
+        if (beginCheckoutRef.current) return
+        beginCheckoutRef.current = true
+        trackBeginCheckout(
+            cartItems.map((item) => ({
+                item_id: item.product.id,
+                item_name: item.product.name,
+                price: item.itemPrice,
+                quantity: item.quantity,
+                item_variant: item.combinationLabel || undefined,
+            })),
+            total
+        )
+    }, [cartItems, total])
 
     const districtIdByName = useMemo(() => {
         const map = new Map<string, string>()

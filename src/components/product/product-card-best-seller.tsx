@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { calculateDiscountedPrice } from "@/lib/utils"
+import { trackAddToCart } from "@/lib/ga4"
 
 interface ProductCardProps {
     product: {
@@ -80,6 +81,13 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
             toast.error(result.error)
         } else {
             toast.success("Added to cart")
+            trackAddToCart({
+                item_id: product.id,
+                item_name: product.name,
+                price: displayPrice,
+                quantity: 1,
+                item_brand: product.brand || undefined,
+            })
             router.refresh()
         }
     }
@@ -92,6 +100,13 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
         if (result?.error) {
             toast.error(result.error)
         } else {
+            trackAddToCart({
+                item_id: product.id,
+                item_name: product.name,
+                price: displayPrice,
+                quantity: 1,
+                item_brand: product.brand || undefined,
+            })
             router.push("/checkout")
         }
     }

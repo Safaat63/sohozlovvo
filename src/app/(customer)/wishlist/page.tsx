@@ -122,12 +122,22 @@ export default async function WishlistPage() {
                                         )}
 
                                         {/* Wishlist Remove Button */}
-                                        <WishlistRemoveButton productId={product.id} />
+                                        <WishlistRemoveButton
+                                            productId={product.id}
+                                            productName={product.name}
+                                            price={displayPrice}
+                                            productBrand={product.brand}
+                                            productCategory={product.category?.name}
+                                        />
 
                                         {/* Quick Add Overlay */}
                                         <div className="absolute bottom-0 inset-x-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-linear-to-t from-black/50 to-transparent">
                                             <AddToCartButton
                                                 productId={product.id}
+                                                productName={product.name}
+                                                price={displayPrice}
+                                                productBrand={product.brand}
+                                                productCategory={product.category?.name}
                                                 variant="secondary"
                                                 className="w-full bg-white text-foreground hover:bg-gray-100 rounded-lg shadow-lg font-semibold"
                                                 simple

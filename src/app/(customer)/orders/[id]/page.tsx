@@ -10,6 +10,7 @@ import Image from "next/image"
 import { InvoiceButton } from "@/components/ui/invoice-button"
 import { Currency } from "@/components/providers/currency-provider"
 import { parseVariationDetails } from "@/lib/variant-utils"
+import { Ga4Purchase } from "@/components/analytics/ga4-purchase"
 
 export default async function OrderDetailPage({
     params,
@@ -48,8 +49,33 @@ export default async function OrderDetailPage({
         }
     }
 
+    const ga4Items = order.items.map((item: OrderItem) => {
+        const variations = item.variationDetails ? parseVariationDetails(item.variationDetails) : []
+        const variantLabel = variations.length > 0
+            ? variations.map((v) => `${v.type}: ${v.value}`).join(" / ")
+            : undefined
+
+        return {
+            item_id: item.productId,
+            item_name: item.name,
+            price: Number(item.price),
+            quantity: item.quantity,
+            item_variant: variantLabel,
+            item_brand: item.product?.brand || undefined,
+        }
+    })
+
     return (
         <div className="container mx-auto px-4 py-6 md:py-8">
+            <Ga4Purchase
+                isNew={isNew === "true"}
+                transactionId={order.orderNumber}
+                value={Number(order.total)}
+                tax={Number(order.tax ?? 0)}
+                shipping={Number(order.shippingCost)}
+                coupon={order.couponCode}
+                items={ga4Items}
+            />
             {isNew === "true" && (
                 <Card className="mb-6 md:mb-8 border-green-500 bg-green-50">
                     <CardContent className="p-4 md:p-6">

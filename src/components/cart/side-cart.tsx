@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet"
 import { addToCart, updateCartItem, removeFromCart } from "@/actions/cart"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
+import { trackAddToCart } from "@/lib/ga4"
 
 type CartItem = {
     id: string
@@ -91,7 +92,16 @@ export function SideCart({
     const handleAddRelated = (productId: string) => {
         setAddingRelatedId(productId)
         startTransition(async () => {
-            await addToCart(productId, 1)
+            const result = await addToCart(productId, 1)
+            const related = relatedProducts.find((item) => item.id === productId)
+            if (!result?.error && related) {
+                trackAddToCart({
+                    item_id: related.id,
+                    item_name: related.name,
+                    price: related.price,
+                    quantity: 1,
+                })
+            }
             setAddingRelatedId(null)
         })
     }

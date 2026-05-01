@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { ReviewForm } from "@/components/product/review-form"
 import { TrackProductView } from "@/components/analytics/track-product-view"
 import { TrackProductViewAnalytics } from "@/components/analytics/track-product-view-analytics"
+import { Ga4ViewItem } from "@/components/analytics/ga4-view-item"
 import { RelatedProducts } from "@/components/product/product-recommendations"
 import { calculateDiscountedPrice, formatDateDhaka } from "@/lib/utils"
 import { ScrollToTop } from "@/components/ui/scroll-to-top"
@@ -154,6 +155,13 @@ export default async function ProductDetailPage({
             <div className="mx-auto px-4 md:px-10">
                 <TrackProductView productId={product.id} />
                 <TrackProductViewAnalytics productId={product.id} slug={product.slug} />
+                <Ga4ViewItem
+                    itemId={product.id}
+                    itemName={product.name}
+                    price={basePriceNumber}
+                    itemBrand={product.brand}
+                    itemCategory={product.category?.name}
+                />
 
                 {/* Main Product Top Container */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 bg-card p-5 md:p-8 rounded-xl border border-border shadow-sm">
@@ -181,12 +189,15 @@ export default async function ProductDetailPage({
                         {/* Render Client Combinations & Add To Cart Component */}
                         <ProductPurchaseWithCombinations
                             productId={product.id}
+                            productName={product.name}
                             baseStock={product.stock}
                             basePrice={basePriceNumber}
                             variations={normalizedVariations}
                             combinations={normalizedCombinations}
                             whatsappLink={whatsappLink}
                             callNumber={callNumber}
+                            productBrand={product.brand}
+                            productCategory={product.category?.name}
                         />
 
                         {product.brand && (

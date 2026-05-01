@@ -8,6 +8,7 @@ import { ProductVariationSelector } from "@/components/product/product-variation
 import { addToCart } from "@/actions/cart"
 import { toast } from "sonner"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
+import { trackAddToCart } from "@/lib/ga4"
 
 interface VariationOption {
     id: string
@@ -23,16 +24,22 @@ interface Variation {
 
 interface ProductPurchaseSectionProps {
     productId: string
+    productName: string
     stock: number
     basePrice: number
     variations: Variation[]
+    productBrand?: string | null
+    productCategory?: string | null
 }
 
 export function ProductPurchaseSection({
     productId,
+    productName,
     stock,
     basePrice,
     variations,
+    productBrand,
+    productCategory,
 }: ProductPurchaseSectionProps) {
     const [selectedOptionId, setSelectedOptionId] = useState<string | undefined>(undefined)
     const [selectedOptionName, setSelectedOptionName] = useState<string | undefined>(undefined)
@@ -75,6 +82,15 @@ export function ProductPurchaseSection({
         }
 
         toast.success(redirectToCheckout ? "Proceeding to checkout" : "Added to cart")
+        trackAddToCart({
+            item_id: productId,
+            item_name: productName,
+            price: effectivePrice,
+            quantity,
+            item_variant: selectedOptionName,
+            item_brand: productBrand || undefined,
+            item_category: productCategory || undefined,
+        })
         if (redirectToCheckout) {
             router.push("/checkout")
         } else {
