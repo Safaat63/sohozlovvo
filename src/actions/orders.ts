@@ -23,8 +23,7 @@ const checkoutSchema = z.object({
     }),
     street: z.string().min(5, "Please enter your complete street address (at least 5 characters)"),
     city: z.string().min(2, "Please enter your city name"),
-    state: z.string().min(2, "Please enter your state/division"),
-    postalCode: z.string().min(2, "Please enter a valid postal code"),
+    thana: z.string().min(2, "Please enter your thana"),
     paymentMethod: z.enum(["CARD", "BKASH", "NAGAD", "ROCKET", "COD", "MANUAL"]),
     transactionId: z.string().optional(),
     notes: z.string().optional(),
@@ -67,7 +66,7 @@ export async function createOrder(formData: FormData) {
             }
         }
 
-        const { name, email, phone, street, city, state, postalCode, paymentMethod, transactionId, notes } = validatedFields.data
+        const { name, email, phone, street, city, thana, paymentMethod, transactionId, notes } = validatedFields.data
 
         // Check stock availability using combination stock if applicable
         for (const item of cart.items) {
@@ -152,7 +151,7 @@ export async function createOrder(formData: FormData) {
         const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`
 
         // Create shipping address string
-        const shippingAddress = `${name}\n${street}\n${city}, ${state} ${postalCode}\nPhone: ${phone}`
+        const shippingAddress = `${name}\n${street}\n${city}, ${thana} $\nPhone: ${phone}`
 
         // Create order with new combination system
         const order = await prisma.order.create({

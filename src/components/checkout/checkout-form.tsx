@@ -51,6 +51,7 @@ interface CheckoutFormProps {
     isLoggedIn?: boolean
     userName?: string
     userPhone?: string
+    userEmail?: string
     userAddresses?: UserAddress[]
 }
 
@@ -70,6 +71,7 @@ export function CheckoutForm({
     isLoggedIn,
     userName,
     userPhone,
+    userEmail,
     userAddresses = [],
 }: CheckoutFormProps) {
     const router = useRouter()
@@ -90,17 +92,23 @@ export function CheckoutForm({
         return defaultAddress
             ? {
                 name: userName || "",
+                email: userEmail || "",
                 phone: userPhone?.replace(/^(\+?88)?/, '') || "",
                 street: defaultAddress.street,
                 city: defaultAddress.city,
                 thana: defaultAddress.thana || "",
+                state: "",
+                postalCode: "",
             }
             : {
                 name: userName || "",
+                email: userEmail || "",
                 phone: userPhone?.replace(/^(\+?88)?/, '') || "",
                 street: "",
                 city: "",
                 thana: "",
+                state: "",
+                postalCode: "",
             }
     })
 
@@ -169,9 +177,9 @@ export function CheckoutForm({
     }
 
     function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const phone = e.target.value
-        setAddressFormData(prev => ({ ...prev, phone }))
-        if (phone && !validateBDPhoneNumber(`0${phone}`)) {
+        const cleaned = e.target.value.replace(/\D/g, "").slice(0, 11)
+        setAddressFormData(prev => ({ ...prev, phone: cleaned }))
+        if (cleaned && !validateBDPhoneNumber(cleaned)) {
             setPhoneError("Invalid format")
         } else {
             setPhoneError(null)
@@ -219,10 +227,13 @@ export function CheckoutForm({
 
         const formData = new FormData(e.currentTarget)
 
-        formData.set("phone", `880${addressFormData.phone}`)
+        formData.set("phone", addressFormData.phone)
         formData.set("name", addressFormData.name)
+        formData.set("email", addressFormData.email)
         formData.set("street", addressFormData.street)
         formData.set("city", addressFormData.city)
+        formData.set("state", addressFormData.state)
+        formData.set("postalCode", addressFormData.postalCode)
         if (addressFormData.thana) formData.set("thana", addressFormData.thana)
 
         if (appliedCoupon) {
@@ -341,20 +352,40 @@ export function CheckoutForm({
                                     disabled={loading}
                                     className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
                                 />
+                                <input
+                                    type="email"
+                                    placeholder="Email Address *"
+                                    value={addressFormData.email}
+                                    onChange={(e) => setAddressFormData({ ...addressFormData, email: e.target.value })}
+                                    required
+                                    disabled={loading}
+                                    className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="flex">
-                                    <div className="bg-gray-50 border border-gray-200 border-r-0 rounded-l px-3 py-2 flex items-center text-[14px] text-gray-600">
-                                        88
-                                    </div>
                                     <input
                                         type="tel"
-                                        placeholder="017********"
+                                        placeholder="01*********"
                                         value={addressFormData.phone}
                                         onChange={handlePhoneChange}
                                         required
                                         disabled={loading}
-                                        className={`w-full px-3 py-2 text-[14px] border ${phoneError ? 'border-red-400' : 'border-gray-200'} rounded-r focus:outline-none focus:border-orange-400`}
+                                        inputMode="numeric"
+                                        pattern="01[1-9][0-9]{8}"
+                                        className={`w-full px-3 py-2 text-[14px] border ${phoneError ? 'border-red-400' : 'border-gray-200'} rounded focus:outline-none focus:border-orange-400`}
                                     />
                                 </div>
+                                <input
+                                    type="text"
+                                    placeholder="Division / State *"
+                                    value={addressFormData.state}
+                                    onChange={(e) => setAddressFormData({ ...addressFormData, state: e.target.value })}
+                                    required
+                                    disabled={loading}
+                                    className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                                />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -392,6 +423,16 @@ export function CheckoutForm({
                                     <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
                                 </div>
                             </div>
+
+                            <input
+                                type="text"
+                                placeholder="Postal Code *"
+                                value={addressFormData.postalCode}
+                                onChange={(e) => setAddressFormData({ ...addressFormData, postalCode: e.target.value })}
+                                required
+                                disabled={loading}
+                                className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                            />
 
                             <input
                                 type="text"
@@ -433,8 +474,8 @@ export function CheckoutForm({
                             </div>
 
                             <div
-                                onClick={() => setPaymentMethod("ONLINE")}
-                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "ONLINE"
+                                onClick={() => setPaymentMethod("CARD")}
+                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "CARD"
                                     ? "border-orange-400 bg-orange-50/30"
                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
@@ -443,7 +484,7 @@ export function CheckoutForm({
                                     <CreditCard className="w-5 h-5 text-blue-800" />
                                 </div>
                                 <span className="text-[13px] font-medium text-gray-700">Online Payment</span>
-                                {paymentMethod === "ONLINE" && (
+                                {paymentMethod === "CARD" && (
                                     <div className="absolute right-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 text-white" />
                                     </div>
@@ -505,13 +546,13 @@ export function CheckoutForm({
                             </div>
                         </div>
 
-                        {paymentMethod !== "COD" && paymentMethod !== "ONLINE" && (
+                        {paymentMethod !== "COD" && paymentMethod !== "CARD" && (
                             <div className="mt-3 pt-3 border-t border-gray-100">
                                 <input
                                     type="text"
                                     name="transactionId"
                                     placeholder="Enter Transaction ID *"
-                                    required={paymentMethod !== "COD" && paymentMethod !== "ONLINE"}
+                                    required={paymentMethod !== "COD" && paymentMethod !== "CARD"}
                                     disabled={loading}
                                     className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
                                 />

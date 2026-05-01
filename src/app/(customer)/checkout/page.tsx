@@ -106,6 +106,7 @@ export default async function CheckoutPage() {
                     total={total}
                     isLoggedIn={!!session?.user}
                     userName={session?.user?.name || undefined}
+                    userEmail={session?.user?.email || undefined}
                     userPhone={userProfile?.phone || undefined}
                     userAddresses={userAddresses}
                 />
