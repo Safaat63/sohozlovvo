@@ -76,7 +76,7 @@ model Address {
   name      String
   phone     String
   street    String
-  city      String
+  city      String?
   thana     String?
   country   String   @default("Bangladesh")
   isDefault Boolean  @default(false)
@@ -828,8 +828,6 @@ model LandingPageOrder {
   customerPhone   String
   customerEmail   String?
   shippingAddress String        @db.Text
-  city            String
-  thana           String?
   paymentMethod   PaymentMethod
   paymentStatus   PaymentStatus @default(PENDING)
   transactionId   String?

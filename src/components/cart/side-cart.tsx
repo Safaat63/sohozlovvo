@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useTransition } from "react"
+import { useRef, useState, useTransition, type ReactElement } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { X, Plus, Minus, Loader2, ShoppingBag } from "lucide-react"
@@ -55,6 +55,7 @@ interface SideCartProps {
     triggerLabel?: string
     triggerLabelClassName?: string
     badgeClassName?: string
+    triggerNode?: ReactElement
 }
 
 export function SideCart({
@@ -65,6 +66,7 @@ export function SideCart({
     triggerLabel,
     triggerLabelClassName,
     badgeClassName,
+    triggerNode,
 }: SideCartProps) {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
@@ -125,26 +127,30 @@ export function SideCart({
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-                <div className="flex flex-col items-center justify-center gap-1 cursor-pointer group">
-                    <button
-                        className={`relative flex items-center justify-center transition-all duration-200 ${triggerClassName ?? "text-foreground hover:text-primary"}`}
-                        style={{ width: '24px', height: '24px' }}
-                    >
-                        <ShoppingBag className="h-5 w-5" />
-                        {itemCount > 0 && (
-                            <span
-                                className={`absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 text-[9px] font-bold rounded-full shadow-sm ${badgeClassName ?? "bg-primary text-primary-foreground"}`}
-                            >
-                                {itemCount}
+                {triggerNode ? (
+                    triggerNode
+                ) : (
+                    <div className="flex flex-col items-center justify-center gap-1 cursor-pointer group">
+                        <button
+                            className={`relative flex items-center justify-center transition-all duration-200 ${triggerClassName ?? "text-foreground hover:text-primary"}`}
+                            style={{ width: "24px", height: "24px" }}
+                        >
+                            <ShoppingBag className="h-5 w-5" />
+                            {itemCount > 0 && (
+                                <span
+                                    className={`absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 text-[9px] font-bold rounded-full shadow-sm ${badgeClassName ?? "bg-primary text-primary-foreground"}`}
+                                >
+                                    {itemCount}
+                                </span>
+                            )}
+                        </button>
+                        {triggerLabel ? (
+                            <span className={`text-[11px] font-medium leading-tight ${triggerLabelClassName ?? "text-foreground"}`}>
+                                {triggerLabel}
                             </span>
-                        )}
-                    </button>
-                    {triggerLabel ? (
-                        <span className={`text-[11px] font-medium leading-tight ${triggerLabelClassName ?? "text-foreground"}`}>
-                            {triggerLabel}
-                        </span>
-                    ) : null}
-                </div>
+                        ) : null}
+                    </div>
+                )}
             </SheetTrigger>
             <SheetContent className="flex flex-col border-l border-border px-4 sm:px-6 bg-background text-foreground h-full inset-y-0 top-0 bottom-0 rounded-none w-full max-w-none sm:max-w-sm sm:inset-y-0">
                 <SheetHeader className="border-b border-border pb-4">

@@ -57,11 +57,11 @@ export default async function RootLayout({
           <ServiceWorkerRegistration />
           {children}
           <Footer />
-          <FloatingSocialButtons />
           <Toaster position="top-right" richColors />
         </ThemeProvider>
+        <FloatingSocialButtons />
       </body>
-      <GoogleTagManager gtmId="GTM-NJSH52CZ"/>
+      <GoogleTagManager gtmId="GTM-NJSH52CZ" />
     </html>
   );
 }

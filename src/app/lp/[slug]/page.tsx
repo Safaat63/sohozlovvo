@@ -6,6 +6,7 @@ import { LandingPageVideoReviews } from "@/components/landing-page/landing-page-
 import { LandingPageImageGallery } from "@/components/landing-page/landing-page-image-gallery"
 import { LandingPageCheckout } from "@/components/landing-page/landing-page-checkout"
 import { LandingPageSpecialties } from "@/components/landing-page/landing-page-specialties"
+import { LandingPageTracking } from "@/components/analytics/landing-page-tracking"
 import type { Metadata } from "next"
 
 interface LandingPageProps {
@@ -48,6 +49,15 @@ export default async function LandingPage({ params }: LandingPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <LandingPageTracking
+        pageTitle={landingPage.metaTitle || landingPage.title}
+        pageType="landing_page"
+        featuredProducts={landingPage.products.map((lp) => ({
+          id: lp.product.id,
+          name: lp.product.name,
+          price: lp.product.price,
+        }))}
+      />
       <LandingPageHero
         title={landingPage.title}
         description={landingPage.description}

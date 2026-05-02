@@ -19,8 +19,6 @@ const landingPageCheckoutSchema = z.object({
     message: "Please enter a valid Bangladesh phone number (01XXXXXXXXX)"
   }),
   street: z.string().min(5, "Please enter your complete address (at least 5 characters)"),
-  city: z.string().min(2, "Please enter your city name"),
-  thana: z.string().optional(),
   paymentMethod: z.enum(["CARD", "BKASH", "NAGAD", "ROCKET", "COD", "MANUAL"]),
   transactionId: z.string().optional(),
   notes: z.string().optional(),
@@ -53,8 +51,6 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
       email: (formData.get("email") as string) || undefined,
       phone: formData.get("phone") as string,
       street: formData.get("street") as string,
-      city: formData.get("city") as string,
-      thana: (formData.get("thana") as string) || undefined,
       paymentMethod: formData.get("paymentMethod") as string,
       transactionId: (() => {
         const value = formData.get("transactionId")
@@ -75,7 +71,7 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
       }
     }
 
-    const { name, email, phone, street, city, thana, paymentMethod, transactionId, notes, items: orderItems } = validatedFields.data
+    const { name, email, phone, street, paymentMethod, transactionId, notes, items: orderItems } = validatedFields.data
 
     const products = await prisma.product.findMany({
       where: {
@@ -149,7 +145,7 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
 
     const orderNumber = generateOrderNumber()
 
-    const shippingAddress = `${street}${thana ? `, ${thana}` : ""}, ${city}, Bangladesh`
+    const shippingAddress = `${street}, Bangladesh`
 
     const result = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
@@ -225,14 +221,12 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
 
       const landingPageOrder = await tx.landingPageOrder.create({
         data: {
-          landingPageId,
-          orderId: order.id,
+          landingPage: { connect: { id: landingPageId } },
+          order: { connect: { id: order.id } },
           customerName: name,
           customerPhone: phone,
           customerEmail: email,
           shippingAddress,
-          city,
-          thana,
           paymentMethod: paymentMethod as PaymentMethod,
           paymentStatus: PaymentStatus.PENDING,
           transactionId,

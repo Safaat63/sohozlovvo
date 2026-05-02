@@ -147,9 +147,9 @@ export function ProductImageGallery({ images, productName }: { images: string[],
     }
 
     return (
-        <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 h-auto md:h-135">
+        <div className="flex flex-row gap-3 md:gap-4 h-auto md:h-135">
             {displayImages.length > 1 && (
-                <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto w-full md:w-21 custom-scrollbar pr-1 pt-4 pb-1 md:pb-0">
+                <div className="flex flex-col gap-2 overflow-y-auto w-20 md:w-21 custom-scrollbar pr-1 pt-1">
                     {displayImages.map((image, index) => (
                         <button
                             key={`${image}-${index}`}
@@ -331,7 +331,7 @@ export function ProductPurchaseWithCombinations({
                         <Button type="button" className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded-sm shadow-none uppercase tracking-wide text-[12px] md:text-[14px]" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
                             {ordering ? "Processing..." : "BUY NOW"}
                         </Button>
-                        
+
                         <Link href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-10 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 text-white font-semibold rounded-sm transition-colors text-[12px] md:text-[14px]">
                             <MessageCircle className="h-4 w-4 mr-2" /> Order On WhatsApp
                         </Link>
@@ -370,10 +370,11 @@ export function ProductJumpLinks({ hasVideo, reviewCount }: { hasVideo: boolean,
     }, [])
 
     return (
-        <div className="hidden md:flex flex-wrap items-center bg-card border-b border-border p-4 gap-2 sticky top-15 md:top-17.5 z-30 rounded-t-xl shadow-sm">
-            <a href="#description" onClick={(e) => scrollToSection(e, 'description')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "description" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Description</a>
-            {hasVideo && <a href="#video" onClick={(e) => scrollToSection(e, 'video')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "video" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Product Video</a>}
-            <a href="#reviews" onClick={(e) => scrollToSection(e, 'reviews')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "reviews" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Customer Reviews ({reviewCount})</a>
+        <div className="hidden md:flex flex-wrap items-center bg-card border-b border-border p-4 gap-2 rounded-t-xl shadow-sm">
+            <Link href="#description" onClick={(e) => scrollToSection(e, 'description')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "description" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Description</Link>
+            {hasVideo && <Link href="#video" onClick={(e) => scrollToSection(e, 'video')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "video" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Product Video</Link>}
+            <Link href="#reviews" onClick={(e) => scrollToSection(e, 'reviews')} className={cn("px-5 py-2.5 rounded text-sm font-bold transition-all", activeSection === "reviews" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground hover:bg-accent")}>Customer Reviews ({reviewCount})</Link>
         </div>
     )
 }
+

@@ -6,9 +6,7 @@ import Image from "next/image"
 import { createLandingPageOrder } from "@/actions/landing-page-checkout"
 import { validateBDPhoneNumber, validateEmail } from "@/lib/validation"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
-import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
-import { ChevronDown, Check, CreditCard, ShoppingCart, Package, Banknote } from "lucide-react"
-import { useMemo } from "react"
+import { Check, Package, Banknote } from "lucide-react"
 
 interface Product {
   id: string
@@ -35,8 +33,8 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
 
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [paymentMethod, setPaymentMethod] = useState<string>("COD")
-  const [transactionId, setTransactionId] = useState("")
+  const [paymentMethod] = useState<string>("COD")
+  const [transactionId] = useState("")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
 
@@ -49,8 +47,6 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
     email: "",
     phone: "",
     street: "",
-    city: "",
-    thana: "",
     notes: "",
   })
 
@@ -92,9 +88,6 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
   if (touched.street && formData.street.trim().length < 5) {
     fieldErrors.street = "সম্পূর্ণ ঠিকানা লিখুন"
   }
-  if (touched.city && formData.city.trim().length < 2) {
-    fieldErrors.city = "জেলা সিলেক্ট করুন"
-  }
   if (touched.transactionId && paymentMethod !== "COD" && paymentMethod !== "CARD" && !transactionId.trim()) {
     fieldErrors.transactionId = "ট্রানজেকশন আইডি দিন"
   }
@@ -117,13 +110,12 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
       return
     }
 
-    setTouched({ name: true, email: true, phone: true, street: true, city: true, transactionId: true })
+    setTouched({ name: true, email: true, phone: true, street: true, transactionId: true })
 
     if (!formData.name.trim() || formData.name.trim().length < 2) return
     if (formData.email && !validateEmail(formData.email).valid) return
     if (!validateBDPhoneNumber(formData.phone)) return
     if (formData.street.trim().length < 5) return
-    if (formData.city.trim().length < 2) return
     if (paymentMethod !== "COD" && paymentMethod !== "CARD" && !transactionId.trim()) return
 
     const items = products
@@ -144,8 +136,6 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
     formPayload.set("email", formData.email)
     formPayload.set("phone", formData.phone)
     formPayload.set("street", formData.street)
-    formPayload.set("city", formData.city)
-    formPayload.set("thana", formData.thana)
     formPayload.set("paymentMethod", paymentMethod)
     formPayload.set("notes", formData.notes)
     if (transactionId.trim()) formPayload.set("transactionId", transactionId.trim())
@@ -170,7 +160,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-green-50 to-green-100 p-4">
             <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">আপনার পণ্য</h3>
-            
+
             <div className="bg-white rounded-lg p-3 shadow-sm">
               {products.map((product) => {
                 const qty = quantities[product.id] || 1
@@ -191,7 +181,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-900 truncate">{product.name}</h4>
                       <div className="flex items-center gap-2 mt-1">
@@ -205,7 +195,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
@@ -238,207 +228,160 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <SectionHeader title="আপনার তথ্য দিন" />
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">আপনার নাম *</label>
-                    <input
-                      type="text"
-                      placeholder="সম্পূর্ণ নাম লিখুন"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      onBlur={() => setTouched((prev) => ({ ...prev, name: true }))}
-                      required
-                      disabled={isPending}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                        fieldErrors.name ? "border-red-400" : "border-gray-300"
-                      }`}
-                    />
-                    {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
-                  </div>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <SectionHeader title="আপনার তথ্য দিন" />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">মোবাইল নাম্বার *</label>
-                    <input
-                      type="tel"
-                      placeholder="সঠিক ১১ ডিজিটের মোবাইল নাম্বার"
-                      value={formData.phone}
-                      onChange={handlePhoneChange}
-                      onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
-                      required
-                      disabled={isPending}
-                      inputMode="numeric"
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                        fieldErrors.phone ? "border-red-400" : "border-gray-300"
-                      }`}
-                    />
-                    {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
-                    <textarea
-                      placeholder="বাড়ি/রোড নং, রোড বা উপজেলা, জেলা"
-                      value={formData.street}
-                      onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                      onBlur={() => setTouched((prev) => ({ ...prev, street: true }))}
-                      required
-                      disabled={isPending}
-                      rows={3}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none ${
-                        fieldErrors.street ? "border-red-400" : "border-gray-300"
-                      }`}
-                    />
-                    {fieldErrors.street && <p className="text-xs text-red-500 mt-1">{fieldErrors.street}</p>}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">জেলা *</label>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">আপনার নাম *</label>
                       <input
                         type="text"
-                        list="lp-district-options"
-                        placeholder="জেলা সিলেক্ট করুন"
-                        value={formData.city}
-                        onChange={(e) => setFormData({ ...formData, city: e.target.value, thana: "" })}
-                        onBlur={() => setTouched((prev) => ({ ...prev, city: true }))}
+                        placeholder="সম্পূর্ণ নাম লিখুন"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onBlur={() => setTouched((prev) => ({ ...prev, name: true }))}
                         required
                         disabled={isPending}
-                        className={`w-full px-4 py-3 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
-                          fieldErrors.city ? "border-red-400" : "border-gray-300"
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${fieldErrors.name ? "border-red-400" : "border-gray-300"
+                          }`}
                       />
-                      {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
-                      <ChevronDown className="absolute right-3 top-9 w-4 h-4 text-gray-400 pointer-events-none" />
-                      <datalist id="lp-district-options">
-                        {BANGLADESH_DISTRICTS.map((district) => (
-                          <option key={district} value={district} />
-                        ))}
-                      </datalist>
+                      {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
                     </div>
-                    <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">থানা (ঐচ্ছিক)</label>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">মোবাইল নাম্বার *</label>
                       <input
-                        type="text"
-                        placeholder="থানা সিলেক্ট করুন"
-                        value={formData.thana}
-                        onChange={(e) => setFormData({ ...formData, thana: e.target.value })}
+                        type="tel"
+                        placeholder="সঠিক ১১ ডিজিটের মোবাইল নাম্বার"
+                        value={formData.phone}
+                        onChange={handlePhoneChange}
+                        onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
+                        required
                         disabled={isPending}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        inputMode="numeric"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${fieldErrors.phone ? "border-red-400" : "border-gray-300"
+                          }`}
                       />
-                      <ChevronDown className="absolute right-3 top-9 w-4 h-4 text-gray-400 pointer-events-none" />
+                      {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
+                      <textarea
+                        placeholder="বাড়ি/রোড নং, রোড বা উপজেলা, জেলা"
+                        value={formData.street}
+                        onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                        onBlur={() => setTouched((prev) => ({ ...prev, street: true }))}
+                        required
+                        disabled={isPending}
+                        rows={3}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none ${fieldErrors.street ? "border-red-400" : "border-gray-300"
+                          }`}
+                      />
+                      {fieldErrors.street && <p className="text-xs text-red-500 mt-1">{fieldErrors.street}</p>}
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <SectionHeader title="আপনার অর্ডার" />
-                
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  {mainProduct && (
-                    <>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-green-600 rounded">
-                            <Package className="w-4 h-4 text-white m-2" />
+                <div>
+                  <SectionHeader title="আপনার অর্ডার" />
+
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    {mainProduct && (
+                      <>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-green-600 rounded">
+                              <Package className="w-4 h-4 text-white m-2" />
+                            </div>
+                            <span className="font-medium">{mainProduct.name}</span>
                           </div>
-                          <span className="font-medium">{mainProduct.name}</span>
+                          <span className="font-semibold" id="itemPrice">
+                            {formatCurrency(mainProduct.price * (quantities[mainProduct.id] || 1), currency)}
+                          </span>
                         </div>
-                        <span className="font-semibold" id="itemPrice">
-                          {formatCurrency(mainProduct.price * (quantities[mainProduct.id] || 1), currency)}
+                        <div className="text-sm text-gray-600 mb-2">
+                          পরিমাণ: <span id="summaryQuantity">{quantities[mainProduct.id] || 1}</span>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="border-t pt-3 mt-3">
+                      <div className="flex justify-between text-sm">
+                        <span>পণ্যের মূল্য</span>
+                        <span className="font-semibold" id="subtotal">
+                          {formatCurrency(subtotal, currency)}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600 mb-2">
-                        পরিমাণ: <span id="summaryQuantity">{quantities[mainProduct.id] || 1}</span>
+                      <div className="flex justify-between text-sm">
+                        <span>ডেলিভারি চার্জ</span>
+                        <span className="font-semibold" id="deliveryCharge">
+                          {shippingCost > 0 ? formatCurrency(shippingCost, currency) : "ফ্রি"}
+                        </span>
                       </div>
-                    </>
+                      <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                        <span>সর্বমোট</span>
+                        <span id="total" className="text-green-600">
+                          {formatCurrency(total, currency)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 py-2 px-3 bg-green-50 border border-green-200 rounded-lg text-sm mb-6">
+                    <Banknote className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <span className="font-medium text-green-900">ক্যাশ অন ডেলিভারি (COD)</span>
+                    <span className="text-green-600">— পণ্য হাতে পেয়ে টাকা দিন</span>
+                  </div>
+
+                  <label className="flex items-start gap-2 cursor-pointer group mb-4">
+                    <div className="relative flex items-center justify-center w-4 h-4 mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                        className="peer sr-only"
+                      />
+                      <div className="w-4 h-4 border border-gray-300 rounded-sm peer-checked:bg-green-600 peer-checked:border-green-600 transition-colors"></div>
+                      <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100" />
+                    </div>
+                    <span className="text-sm text-gray-600 leading-tight">
+                      আমি শর্তাবলী পড়েছি এবং মেনে নিয়েছি।
+                    </span>
+                  </label>
+
+                  {error && (
+                    <div className="mb-4 bg-red-50 p-3 text-sm text-red-600 border border-red-200 rounded-lg">
+                      {error}
+                    </div>
                   )}
-                  
-                  <div className="border-t pt-3 mt-3">
-                    <div className="flex justify-between text-sm">
-                      <span>পণ্যের মূল্য</span>
-                      <span className="font-semibold" id="subtotal">
-                        {formatCurrency(subtotal, currency)}
-                      </span>
+
+                  {success && (
+                    <div className="mb-4 bg-green-50 p-3 text-sm text-green-600 border border-green-200 rounded-lg">
+                      {success}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span>ডেলিভারি চার্জ</span>
-                      <span className="font-semibold" id="deliveryCharge">
-                        {shippingCost > 0 ? formatCurrency(shippingCost, currency) : "ফ্রি"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
-                      <span>সর্বমোট</span>
-                      <span id="total" className="text-green-600">
-                        {formatCurrency(total, currency)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                  )}
 
-                <div className="flex items-center gap-2 py-2 px-3 bg-green-50 border border-green-200 rounded-lg text-sm mb-6">
-                  <Banknote className="w-4 h-4 text-green-600 flex-shrink-0" />
-                  <span className="font-medium text-green-900">ক্যাশ অন ডেলিভারি (COD)</span>
-                  <span className="text-green-600">— পণ্য হাতে পেয়ে টাকা দিন</span>
-                </div>
-
-                <label className="flex items-start gap-2 cursor-pointer group mb-4">
-                  <div className="relative flex items-center justify-center w-4 h-4 mt-0.5">
-                    <input
-                      type="checkbox"
-                      checked={termsAccepted}
-                      onChange={(e) => setTermsAccepted(e.target.checked)}
-                      className="peer sr-only"
-                    />
-                    <div className="w-4 h-4 border border-gray-300 rounded-sm peer-checked:bg-green-600 peer-checked:border-green-600 transition-colors"></div>
-                    <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100" />
-                  </div>
-                  <span className="text-sm text-gray-600 leading-tight">
-                    আমি শর্তাবলী পড়েছি এবং মেনে নিয়েছি।
-                  </span>
-                </label>
-
-                {error && (
-                  <div className="mb-4 bg-red-50 p-3 text-sm text-red-600 border border-red-200 rounded-lg">
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="mb-4 bg-green-50 p-3 text-sm text-green-600 border border-green-200 rounded-lg">
-                    {success}
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const form = document.querySelector("form")
-                    if (form) {
-                      setTermsAccepted(true)
-                      form.requestSubmit()
-                    }
-                  }}
-                  disabled={isPending}
-                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-lg font-semibold text-lg transition-colors ${
-                    isPending
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className={`w-full flex items-center justify-center gap-2 py-4 rounded-lg font-semibold text-lg transition-colors ${isPending
                       ? "bg-green-400 cursor-not-allowed text-white/80"
                       : "bg-green-600 hover:bg-green-700 text-white"
-                  }`}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  <span id="orderButtonText">
-                    {isPending ? "প্রসেসিং..." : `PLACE ORDER - ${formatCurrency(total, currency)}`}
-                  </span>
-                </button>
+                      }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span id="orderButtonText">
+                      {isPending ? "প্রসেসিং..." : `PLACE ORDER - ${formatCurrency(total, currency)}`}
+                    </span>
+                  </button>
+                </div>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
