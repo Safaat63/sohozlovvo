@@ -31,6 +31,7 @@ const navItems = [
 
     // Marketing
     { href: "/admin/hero-banners", label: "Hero Banners", icon: "Image", group: "Marketing" },
+    { href: "/admin/landing-pages", label: "Landing Pages", icon: "Layers", group: "Marketing" },
     { href: "/admin/testimonials", label: "Testimonials", icon: "MessageSquare", group: "Marketing" },
     { href: "/admin/special-offers", label: "Countdown Offers", icon: "Clock", group: "Marketing" },
     { href: "/admin/promotional-sections", label: "Promotions", icon: "Megaphone", group: "Marketing" },

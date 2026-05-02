@@ -151,6 +151,7 @@ model Product {
   combinations   ProductVariantCombination[]
   wishlistItems  WishlistItem[]
   productViews   ProductView[]
+  landingPages   LandingPageProduct[]
 
   @@map("products")
 }
@@ -288,6 +289,7 @@ model Order {
   items             OrderItem[]
   payment           Payment?
   affiliateReferral AffiliateReferral?
+  landingPageOrder  LandingPageOrder?
 
   @@map("orders")
 }
@@ -745,4 +747,104 @@ model PushNotification {
   @@index([status])
   @@index([createdAt])
   @@map("push_notifications")
+}
+
+model LandingPage {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String?  @db.Text
+  heroImage       String?
+  heroVideo       String?
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  customCss       String?  @db.Text
+  isActive        Boolean  @default(true)
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  products        LandingPageProduct[]
+  imageReviews      LandingPageImageReview[]
+  videoReviews      LandingPageVideoReview[]
+  orders          LandingPageOrder[]
+
+  @@index([slug])
+  @@index([isPublished, isActive])
+  @@map("landing_pages")
+}
+
+model LandingPageProduct {
+  id            String   @id @default(cuid())
+  landingPageId String
+  productId     String
+  quantity      Int      @default(1)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([landingPageId, productId])
+  @@index([landingPageId])
+  @@map("landing_page_products")
+}
+
+model LandingPageImageReview {
+  id            String   @id @default(cuid())
+  landingPageId String
+  imageUrl      String
+  caption       String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId])
+  @@map("landing_page_image_reviews")
+}
+
+model LandingPageVideoReview {
+  id            String   @id @default(cuid())
+  landingPageId String
+  videoUrl      String // YouTube, Vimeo, or direct video URL
+  title         String?
+  thumbnail     String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId])
+  @@map("landing_page_video_reviews")
+}
+
+model LandingPageOrder {
+  id              String        @id @default(cuid())
+  landingPageId   String
+  orderId         String        @unique
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  shippingAddress String        @db.Text
+  city            String
+  thana           String?
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  transactionId   String?
+  subtotal        Decimal       @db.Decimal(10, 2)
+  shippingCost    Decimal       @default(0) @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+  notes           String?       @db.Text
+  status          OrderStatus   @default(PENDING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId])
+  @@index([status])
+  @@map("landing_page_orders")
 }
