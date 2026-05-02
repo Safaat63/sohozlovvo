@@ -444,7 +444,6 @@ export function CheckoutForm({
                                         className={`w-full px-3 py-1.5 md:py-3 text-[14px] border rounded-md bg-white focus:outline-none focus:border-[#f48721] text-gray-600 ${fieldErrors.city ? 'border-red-400' : 'border-[#888888ad]'}`}
                                     />
                                     {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
-                                    <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
                                     <datalist id="district-options">
                                         {BANGLADESH_DISTRICTS.map((district) => (
                                             <option key={district} value={district} />
@@ -462,7 +461,6 @@ export function CheckoutForm({
                                         disabled={loading}
                                         className="w-full px-3 py-1.5 md:py-3 text-[14px] border border-[#888888ad] rounded-md bg-white focus:outline-none focus:border-[#f48721] text-gray-600"
                                     />
-                                    <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
                                     <datalist id="thana-options">
                                         {thanaOptionsWithOther.map((thana) => (
                                             <option key={thana} value={thana} />

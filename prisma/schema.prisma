@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enums
 enum UserRole {
   CUSTOMER
   ADMIN
@@ -44,7 +43,6 @@ enum DiscountType {
   FIXED_AMOUNT
 }
 
-// Models
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -56,8 +54,6 @@ model User {
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  // Relations
   addresses     Address[]
   orders        Order[]
   cart          Cart?
@@ -100,7 +96,6 @@ model Category {
   showInMenu  Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
   parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   children Category[] @relation("CategoryToCategory")
   products Product[]
@@ -128,16 +123,13 @@ model Product {
   isFeatured      Boolean  @default(false)
   metaTitle       String?
   metaDescription String?
-  youtubeUrls     String[] // Array of video URLs
-  images          String[] // Array of image URLs
+  youtubeUrls     String[]
+  images          String[]
   categoryId      String?
-
-  // Direct discount fields (without coupon)
-  discountType      DiscountType? // PERCENTAGE or FIXED
+  discountType      DiscountType?
   discountValue     Decimal?      @db.Decimal(10, 2)
   discountStartDate DateTime?
   discountEndDate   DateTime?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -161,7 +153,6 @@ model ProductSpec {
   productId String
   key       String
   value     String
-
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("product_specs")
@@ -170,42 +161,37 @@ model ProductSpec {
 model ProductVariation {
   id            String   @id @default(cuid())
   productId     String
-  variationName String // e.g., "Color", "Size", "Material"
+  variationName String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
   product Product                  @relation(fields: [productId], references: [id], onDelete: Cascade)
   options ProductVariationOption[]
 
   @@map("product_variations")
 }
 
-// 1. UPDATE ProductVariationOption - remove stock and price (they move to combinations)
 model ProductVariationOption {
   id          String  @id @default(cuid())
   variationId String
-  optionName  String // e.g., "Red", "Large", "Cotton"
-  image       String? // Variant-specific image URL
-  hexCode     String? // Color hex code for color variations
+  optionName  String
+  image       String?
+  hexCode     String?
   isActive    Boolean @default(true)
-
   variation    ProductVariation                  @relation(fields: [variationId], references: [id], onDelete: Cascade)
   combinations ProductVariantCombinationOption[]
 
   @@map("product_variation_options")
 }
 
-// 2. NEW ProductVariantCombination - stores all possible combinations with their stock/price
 model ProductVariantCombination {
   id        String   @id @default(cuid())
   productId String
   sku       String?  @unique
   stock     Int      @default(0)
-  price     Decimal? @db.Decimal(10, 2) // null means use base product price
+  price     Decimal? @db.Decimal(10, 2)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   product    Product                           @relation(fields: [productId], references: [id], onDelete: Cascade)
   options    ProductVariantCombinationOption[]
   cartItems  CartItem[]
@@ -214,12 +200,10 @@ model ProductVariantCombination {
   @@map("product_variant_combinations")
 }
 
-// 3. NEW ProductVariantCombinationOption - junction table linking combinations to options
 model ProductVariantCombinationOption {
   id            String @id @default(cuid())
   combinationId String
   optionId      String
-
   combination ProductVariantCombination @relation(fields: [combinationId], references: [id], onDelete: Cascade)
   option      ProductVariationOption    @relation(fields: [optionId], references: [id], onDelete: Cascade)
 
@@ -233,23 +217,20 @@ model Cart {
   sessionId String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   user  User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   items CartItem[]
 
   @@map("carts")
 }
 
-// 4. UPDATE CartItem - replace variationOptionId with combinationId
 model CartItem {
   id            String   @id @default(cuid())
   cartId        String
   productId     String
-  combinationId String? // NEW: replaces variationOptionId
+  combinationId String?
   quantity      Int      @default(1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
   cart        Cart                       @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product     Product                    @relation(fields: [productId], references: [id], onDelete: Cascade)
   combination ProductVariantCombination? @relation(fields: [combinationId], references: [id])
@@ -259,31 +240,30 @@ model CartItem {
 }
 
 model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  userId          String?
-  addressId       String?
-  status          OrderStatus   @default(PENDING)
-  subtotal        Decimal       @db.Decimal(10, 2)
-  shippingCost    Decimal       @default(0) @db.Decimal(10, 2)
-  tax             Decimal       @default(0) @db.Decimal(10, 2)
-  discount        Decimal       @default(0) @db.Decimal(10, 2)
-  total           Decimal       @db.Decimal(10, 2)
-  couponCode      String?
-  pointsUsed      Int           @default(0)
-  pointsEarned    Int           @default(0)
-  paymentMethod   PaymentMethod
-  paymentStatus   PaymentStatus @default(PENDING)
-  transactionId   String?
-  notes           String?
-  trackingNumber  String?
-  customerName    String?
-  customerEmail   String?
-  customerPhone   String?
-  shippingAddress String?       @db.Text
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
+  id                String             @id @default(cuid())
+  orderNumber       String             @unique
+  userId            String?
+  addressId         String?
+  status            OrderStatus        @default(PENDING)
+  subtotal          Decimal            @db.Decimal(10, 2)
+  shippingCost      Decimal            @default(0) @db.Decimal(10, 2)
+  tax               Decimal            @default(0) @db.Decimal(10, 2)
+  discount          Decimal            @default(0) @db.Decimal(10, 2)
+  total             Decimal            @db.Decimal(10, 2)
+  couponCode        String?
+  pointsUsed        Int                @default(0)
+  pointsEarned      Int                @default(0)
+  paymentMethod     PaymentMethod
+  paymentStatus     PaymentStatus      @default(PENDING)
+  transactionId     String?
+  notes             String?
+  trackingNumber    String?
+  customerName      String?
+  customerEmail     String?
+  customerPhone     String?
+  shippingAddress   String?            @db.Text
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   user              User?              @relation(fields: [userId], references: [id])
   address           Address?           @relation(fields: [addressId], references: [id])
   items             OrderItem[]
@@ -294,19 +274,17 @@ model Order {
   @@map("orders")
 }
 
-// 5. UPDATE OrderItem - replace variationOptionId with combinationId
 model OrderItem {
   id               String  @id @default(cuid())
   orderId          String
   productId        String
-  combinationId    String? // NEW: replaces variationOptionId
+  combinationId    String?
   quantity         Int
   price            Decimal @db.Decimal(10, 2)
   name             String
   image            String?
   sku              String?
-  // Store variation details as JSON for historical record
-  variationDetails String? @db.Text // JSON string: [{"type": "Color", "value": "Red"}, {"type": "Size", "value": "Large"}]
+  variationDetails String? @db.Text
 
   order       Order                      @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product     Product                    @relation(fields: [productId], references: [id])
@@ -339,7 +317,7 @@ model Review {
   rating     Int
   title      String?
   comment    String?  @db.Text
-  images     String[] // User-uploaded images
+  images     String[]
   isVerified Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -419,7 +397,7 @@ model AuditLog {
 model ShippingZone {
   id        String   @id @default(cuid())
   name      String
-  regions   String[] // Array of cities/districts
+  regions   String[]
   cost      Decimal  @db.Decimal(10, 2)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -562,7 +540,6 @@ model PromotionalSection {
   @@map("promotional_sections")
 }
 
-// Analytics & Tracking
 model PageView {
   id        String   @id @default(cuid())
   path      String
@@ -605,12 +582,11 @@ model ProductView {
   @@map("product_views")
 }
 
-// Affiliate Program
 model Affiliate {
   id               String   @id @default(cuid())
   userId           String   @unique
   code             String   @unique
-  commissionRate   Float    @default(10.0) // percentage
+  commissionRate   Float    @default(10.0)
   totalEarnings    Float    @default(0)
   availableBalance Float    @default(0)
   isActive         Boolean  @default(true)
@@ -633,7 +609,7 @@ model AffiliateReferral {
   orderTotal       Float
   commissionAmount Float
   commissionRate   Float
-  status           String   @default("pending") // pending, approved, paid, cancelled
+  status           String   @default("pending")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -649,9 +625,9 @@ model AffiliatePayout {
   id          String    @id @default(cuid())
   affiliateId String
   amount      Float
-  method      String // bank_transfer, bkash, nagad, etc.
+  method      String
   accountInfo String?   @db.Text
-  status      String    @default("pending") // pending, processing, completed, failed
+  status      String    @default("pending")
   note        String?   @db.Text
   createdAt   DateTime  @default(now())
   processedAt DateTime?
@@ -700,8 +676,8 @@ model Feedback {
   phone     String?
   subject   String?
   message   String   @db.Text
-  type      String   @default("general") // general, complaint, suggestion, appreciation, bug
-  status    String   @default("pending") // pending, reviewed, resolved, dismissed
+  type      String   @default("general")
+  status    String   @default("pending")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -711,7 +687,6 @@ model Feedback {
   @@map("feedback")
 }
 
-// Push Notifications
 model PushSubscription {
   id        String   @id @default(cuid())
   userId    String?
@@ -737,10 +712,10 @@ model PushNotification {
   badge     String?
   url       String?
   tag       String?
-  data      String?   @db.Text // JSON data
+  data      String?   @db.Text
   sentCount Int       @default(0)
   failCount Int       @default(0)
-  status    String    @default("pending") // pending, sending, sent, failed
+  status    String    @default("pending")
   createdAt DateTime  @default(now())
   sentAt    DateTime?
 
@@ -764,10 +739,10 @@ model LandingPage {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  products        LandingPageProduct[]
-  imageReviews      LandingPageImageReview[]
-  videoReviews      LandingPageVideoReview[]
-  orders          LandingPageOrder[]
+  products     LandingPageProduct[]
+  imageReviews LandingPageImageReview[]
+  videoReviews LandingPageVideoReview[]
+  orders       LandingPageOrder[]
 
   @@index([slug])
   @@index([isPublished, isActive])
@@ -808,7 +783,7 @@ model LandingPageImageReview {
 model LandingPageVideoReview {
   id            String   @id @default(cuid())
   landingPageId String
-  videoUrl      String // YouTube, Vimeo, or direct video URL
+  videoUrl      String
   title         String?
   thumbnail     String?
   order         Int      @default(0)

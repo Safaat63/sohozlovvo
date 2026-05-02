@@ -39,7 +39,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
   const [touched, setTouched] = useState<Record<string, boolean>>({})
 
   const [quantities, setQuantities] = useState<Record<string, number>>(
-    products.reduce((acc, p) => ({ ...acc, [p.id]: 1 }), {})
+    products.reduce((acc, p) => ({ ...acc, [p.id]: p.stock > 0 ? 1 : 0 }), {})
   )
 
   const [formData, setFormData] = useState({
@@ -54,7 +54,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
     setQuantities((prev) => {
       const product = products.find((p) => p.id === productId)
       if (!product) return prev
-      const newQty = Math.max(1, Math.min((prev[productId] || 1) + delta, product.stock))
+      const newQty = Math.max(0, Math.min((prev[productId] ?? 1) + delta, product.stock))
       return { ...prev, [productId]: newQty }
     })
   }
@@ -93,7 +93,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
   }
 
   const subtotal = products.reduce((sum, product) => {
-    const qty = quantities[product.id] || 1
+    const qty = quantities[product.id] ?? 0
     return sum + product.price * qty
   }, 0)
 
@@ -119,10 +119,10 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
     if (paymentMethod !== "COD" && paymentMethod !== "CARD" && !transactionId.trim()) return
 
     const items = products
-      .filter((p) => (quantities[p.id] || 1) > 0)
+      .filter((p) => (quantities[p.id] ?? 0) > 0)
       .map((p) => ({
         productId: p.id,
-        quantity: quantities[p.id] || 1,
+        quantity: quantities[p.id] ?? 0,
         combinationId: null,
       }))
 
@@ -163,7 +163,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
 
             <div className="bg-white rounded-lg p-3 shadow-sm">
               {products.map((product) => {
-                const qty = quantities[product.id] || 1
+                const qty = quantities[product.id] ?? (product.stock > 0 ? 1 : 0)
                 return (
                   <div key={product.id} className="flex items-center gap-3">
                     <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
@@ -200,7 +200,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
                       <button
                         type="button"
                         onClick={() => handleQuantityChange(product.id, -1)}
-                        disabled={qty <= 1}
+                        disabled={qty <= 0}
                         className="w-7 h-7 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors active:scale-95"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,11 +299,11 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
                             <span className="font-medium">{mainProduct.name}</span>
                           </div>
                           <span className="font-semibold" id="itemPrice">
-                            {formatCurrency(mainProduct.price * (quantities[mainProduct.id] || 1), currency)}
+                            {formatCurrency(mainProduct.price * (quantities[mainProduct.id] ?? 0), currency)}
                           </span>
                         </div>
                         <div className="text-sm text-gray-600 mb-2">
-                          পরিমাণ: <span id="summaryQuantity">{quantities[mainProduct.id] || 1}</span>
+                          পরিমাণ: <span id="summaryQuantity">{quantities[mainProduct.id] ?? 0}</span>
                         </div>
                       </>
                     )}

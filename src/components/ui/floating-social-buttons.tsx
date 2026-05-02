@@ -5,7 +5,7 @@ import { calculateDiscountedPrice } from "@/lib/utils"
 import Image from "next/image"
 import Link from "next/link"
 import { ShoppingBag } from "lucide-react"
-import { formatCurrency } from "@/components/providers/currency-provider"
+import { formatCurrency } from "@/lib/currency"
 
 export async function FloatingSocialButtons() {
     const settings = await getPublicSettings()

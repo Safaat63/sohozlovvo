@@ -37,14 +37,36 @@ function generateOrderNumber(): string {
 
 export async function createLandingPageOrder(landingPageId: string, formData: FormData) {
   try {
+    const isDev = process.env.NODE_ENV !== "production"
     const settings = await getPublicSettings()
+
+    const landingPage = await prisma.landingPage.findFirst({
+      where: {
+        id: landingPageId,
+        isActive: true,
+        isPublished: true,
+      },
+      select: { id: true },
+    })
+
+    if (!landingPage) {
+      return { error: "Landing page is no longer available" }
+    }
 
     const itemsRaw = formData.get("items")
     if (!itemsRaw || typeof itemsRaw !== "string") {
       return { error: "Invalid order items" }
     }
 
-    const items = JSON.parse(itemsRaw)
+    let items: unknown
+    try {
+      items = JSON.parse(itemsRaw)
+    } catch (error) {
+      if (isDev) {
+        console.error("Invalid landing page items JSON:", error)
+      }
+      return { error: "Invalid order items" }
+    }
 
     const data = {
       name: formData.get("name") as string,
@@ -72,6 +94,9 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
     }
 
     const { name, email, phone, street, paymentMethod, transactionId, notes, items: orderItems } = validatedFields.data
+    const normalizedEmail = email ?? ""
+    const normalizedTransactionId = transactionId ?? ""
+    const normalizedNotes = notes ?? ""
 
     const products = await prisma.product.findMany({
       where: {
@@ -102,7 +127,9 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
       }
     }
 
-    const defaultShippingCost = parseFloat(settings.shipping_cost || "0")
+    const defaultShippingCost = Number.isFinite(Number(settings.shipping_cost))
+      ? parseFloat(settings.shipping_cost)
+      : 0
 
     const subtotal = orderItems.reduce((sum: number, item: { productId: string; quantity: number; combinationId?: string | null }) => {
       const product = products.find((p) => p.id === item.productId)!
@@ -160,7 +187,7 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
           transactionId,
           notes,
           customerName: name,
-          customerEmail: email,
+          customerEmail: email ?? null,
           customerPhone: phone,
           shippingAddress,
           items: {
@@ -225,15 +252,15 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
           order: { connect: { id: order.id } },
           customerName: name,
           customerPhone: phone,
-          customerEmail: email,
+          customerEmail: normalizedEmail,
           shippingAddress,
           paymentMethod: paymentMethod as PaymentMethod,
           paymentStatus: PaymentStatus.PENDING,
-          transactionId,
+          transactionId: normalizedTransactionId,
           subtotal,
           shippingCost,
           total,
-          notes,
+          notes: normalizedNotes,
           status: OrderStatus.PENDING,
         },
       })
@@ -268,7 +295,12 @@ export async function createLandingPageOrder(landingPageId: string, formData: Fo
 
     revalidatePath(`/admin/landing-pages`)
     return { success: true, orderId: result.order.id, orderNumber }
-  } catch {
-    return { error: "Failed to create order. Please try again." }
+  } catch (error) {
+    console.error("Landing page order creation error:", error)
+    return {
+      error: error instanceof Error && process.env.NODE_ENV !== "production"
+        ? error.message
+        : "Failed to create order. Please try again.",
+    }
   }
 }

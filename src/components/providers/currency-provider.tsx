@@ -23,7 +23,6 @@ export function useCurrencySymbol() {
     return ctx.symbol || "৳"
 }
 
-// Re-export formatCurrency for backward compatibility
 export { formatCurrency }
 
 export function Currency({ value, className }: { value: number | string; className?: string }) {
