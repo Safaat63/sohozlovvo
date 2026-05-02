@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface LandingPageSpecialtiesProps {
   description: string
   heroImage: string | null
@@ -80,10 +82,12 @@ export function LandingPageSpecialties({ description, heroImage }: LandingPageSp
             <div className="relative max-w-md mx-auto lg:mx-0">
               {heroImage ? (
                 <div className="rounded-xl overflow-hidden shadow-lg">
-                  <img
+                  <Image
                     src={heroImage}
                     alt="Specialties Image"
                     className="w-full h-auto object-cover"
+                    height={500}
+                    width={500}
                   />
                 </div>
               ) : (

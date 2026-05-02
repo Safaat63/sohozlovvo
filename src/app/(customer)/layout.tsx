@@ -1,4 +1,5 @@
 import { getPublicSettings } from "@/actions/settings";
+import Footer from "@/components/footer/footer-new";
 import { Navbar } from "@/components/navbar/navbar"
 import { CurrencyProvider } from "@/components/providers/currency-provider"
 import { GoogleTagManager } from "@next/third-parties/google";
@@ -21,6 +22,7 @@ export default async function BlogLayout({
                     {children}
                 </div>
             </main>
+            <Footer />
         </CurrencyProvider>
     )
 }

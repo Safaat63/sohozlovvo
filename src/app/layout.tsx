@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri, Open_Sans } from "next/font/google";
-import { FloatingSocialButtons } from "@/components/ui/floating-social-buttons";
 import { getPublicSettings } from "@/actions/settings";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-import Footer from "@/components/footer/footer-new";
 import { GoogleTagManager } from '@next/third-parties/google'
 
 const hindSiliguri = Hind_Siliguri({
@@ -56,7 +54,6 @@ export default async function RootLayout({
         >
           <ServiceWorkerRegistration />
           {children}
-          <Footer />
           <Toaster position="top-right" richColors />
         </ThemeProvider>
         {/* <FloatingSocialButtons /> */}
