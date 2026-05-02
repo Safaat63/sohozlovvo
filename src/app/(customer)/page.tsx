@@ -14,6 +14,7 @@ import { ArrowRight, Truck, Headphones, ShieldCheck, RefreshCw, ChevronRight, Za
 import { ProductCardBestSellerServer } from "@/components/product/product-card-best-seller-server"
 import BrandSection from "@/components/home/BrandSection"
 import FeaturedCategories from "@/components/home/Categories"
+import { LandingPageTracking } from "@/components/analytics/landing-page-tracking"
 
 export default async function HomePage() {
   const [featuredProducts, categories, settings, heroBanners, testimonials, specialOffers, promotionalSections] = await Promise.all([
@@ -27,8 +28,18 @@ export default async function HomePage() {
   ])
   const whatsappNumber = settings.whatsapp_number
 
+  const serializedFeaturedProducts = featuredProducts.map(product => ({
+    id: product.id,
+    name: product.name,
+    price: parseFloat(product.price.toString()),
+    brand: product.brand || null,
+    category: product.category?.name || null,
+  }))
+
   return (
-    <main className="min-h-screen pt-5 bg-background-light dark:bg-[#1a1d23]">
+    <>
+      <LandingPageTracking featuredProducts={serializedFeaturedProducts} />
+      <main className="min-h-screen pt-5 bg-background-light dark:bg-[#1a1d23]">
       {/* Hero Section */}
       {heroBanners.length > 0 ? (
         <section className="relative w-full overflow-hidden">
@@ -154,6 +165,7 @@ export default async function HomePage() {
       )}
 
     </main>
+    </>
   )
 }
 

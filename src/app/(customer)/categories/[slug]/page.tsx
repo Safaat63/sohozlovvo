@@ -3,8 +3,7 @@ import { getCategories, getProducts } from "@/actions/products"
 import { getPublicSettings } from "@/actions/settings"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ProductCardServer } from "@/components/product/product-card-server"
-
+import { ProductCard } from "@/components/product/product-card"
 interface PageProps {
     params: Promise<{ slug: string }>
     searchParams: Promise<{
@@ -31,7 +30,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     }
 
     // Get products for this category
-    const [productResult, settings] = await Promise.all([
+    const [productResult] = await Promise.all([
         getProducts({
             categorySlug: slug,
             minPrice: searchParamsResolved.minPrice ? parseFloat(searchParamsResolved.minPrice) : undefined,
@@ -47,7 +46,6 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
     const { products, pagination } = productResult
     type Product = (typeof products)[number]
-    const whatsappNumber = settings.whatsapp_number
 
     return (
         <main className="min-h-screen">
@@ -122,10 +120,23 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                     <>
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                             {products.map((product: Product) => (
-                                <ProductCardServer
+                                <ProductCard
                                     key={product.id}
-                                    product={product}
-                                    whatsappNumber={whatsappNumber}
+                                    product={{
+                                        ...product,
+                                        price: Number(product.price),
+                                        compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
+                                        rating: product.rating ? Number(product.rating) : null,
+                                        discountValue: product.discountValue ? Number(product.discountValue) : null,
+                                        combinations: product.combinations?.map(c => ({
+                                            ...c,
+                                            price: Number(c.price),
+                                        })),
+                                        flashSales: product.flashSales?.map(f => ({
+                                            ...f,
+                                            salePrice: Number(f.salePrice),
+                                        })),
+                                    }}
                                 />
                             ))}
                         </div>

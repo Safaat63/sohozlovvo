@@ -12,9 +12,10 @@ interface Category {
 
 interface MobileCategoryMenuProps {
     categories: Category[]
+    onLinkClick?: () => void
 }
 
-export function MobileCategoryMenu({ categories }: MobileCategoryMenuProps) {
+export function MobileCategoryMenu({ categories, onLinkClick }: MobileCategoryMenuProps) {
     return (
         <div className="flex flex-col">
             {categories.map((category) => {
@@ -23,6 +24,7 @@ export function MobileCategoryMenu({ categories }: MobileCategoryMenuProps) {
                     <Link
                         key={category.id}
                         href={`/categories/${category.slug}`}
+                        onClick={onLinkClick}
                         className="flex items-center justify-between py-3 px-4 text-sm font-medium text-foreground border-b border-border last:border-b-0"
                     >
                         <span>{category.name}</span>

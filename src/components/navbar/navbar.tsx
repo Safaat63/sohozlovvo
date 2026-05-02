@@ -14,16 +14,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { SearchBar } from "@/components/navbar/search-bar"
 import { SideCart } from "@/components/cart/side-cart"
 import { MobileCategoryMenu } from "./mobile-category-menu"
+import { MobileMenu } from "./mobile-menu"
 import { DesktopCategoryMenu } from "./desktop-category-menu"
 import { NotificationSubscriptionDialog } from "../ui/notification-subscription-dialog"
 import { ThemeToggle } from "../providers/theme-toggle"
@@ -303,90 +298,26 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
 
                 {/* Mobile Header + Menu */}
                 <div className="lg:hidden">
-                    <Sheet>
-                        <div className="flex h-14 items-center justify-between px-4">
-                            <SheetTrigger className="p-2 text-foreground">
-                                <MenuIcon className="h-6 w-6" />
-                            </SheetTrigger>
-                            <Link href="/" className="flex items-center gap-2">
-                                <Image src="/icon0.svg" alt="Logo" width={40} height={40} className="w-9 h-9" />
-                                <span className="text-base font-bold text-primary">{storeName}</span>
-                            </Link>
-                            <div className="flex items-center gap-2">
-                                <SideCart
-                                    cart={serializedCart}
-                                    itemCount={itemCount}
-                                    relatedProducts={serializedRelatedProducts}
-                                    triggerClassName="text-foreground"
-                                    badgeClassName="bg-primary text-primary-foreground"
-                                />
-                                <ThemeToggle />
-                            </div>
+                    <div className="flex h-14 items-center justify-between px-4">
+                        <MobileMenu
+                            session={session ? { user: session.user } : null}
+                            categories={serializedCategories}
+                        />
+                        <Link href="/" className="flex items-center gap-2">
+                            <Image src="/icon0.svg" alt="Logo" width={40} height={40} className="w-9 h-9" />
+                            <span className="text-base font-bold text-primary">{storeName}</span>
+                        </Link>
+                        <div className="flex items-center gap-2">
+                            <SideCart
+                                cart={serializedCart}
+                                itemCount={itemCount}
+                                relatedProducts={serializedRelatedProducts}
+                                triggerClassName="text-foreground"
+                                badgeClassName="bg-primary text-primary-foreground"
+                            />
+                            <ThemeToggle />
                         </div>
-
-                        <SheetContent side="left" className="w-[320px] max-w-[90vw] p-0 bg-background text-foreground border-border">
-                            <SheetHeader className="px-4 py-3 border-b border-border">
-                                <SheetTitle className="text-left flex items-center justify-between text-base font-semibold">
-                                    <span className="flex items-center gap-2">
-                                        <MenuIcon className="h-5 w-5" />
-                                        Menu
-                                    </span>
-                                </SheetTitle>
-                            </SheetHeader>
-                            <div className="p-4 space-y-5">
-                                {session?.user ? (
-                                    <Link href="/account" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
-                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
-                                            <UserIcon className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-base font-semibold">{session.user.name}</p>
-                                            <p className="text-sm">Account</p>
-                                        </div>
-                                    </Link>
-                                ) : (
-                                    <Link href="/auth/login" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
-                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
-                                            <UserIcon className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-base font-semibold">Hello there!</p>
-                                            <p className="text-sm">Sign in</p>
-                                        </div>
-                                    </Link>
-                                )}
-
-                                <div className="rounded-2xl border border-border overflow-hidden">
-                                    <MobileCategoryMenu categories={serializedCategories} />
-                                </div>
-
-                                <div>
-                                    <p className="text-base font-semibold">Quick Links</p>
-                                    <span className="inline-block w-12 h-0.5 bg-primary mt-1" />
-                                    <div className="mt-3 rounded-2xl border border-border p-4 space-y-3">
-                                        <Link href="/about" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">i</span>
-                                            About Us
-                                        </Link>
-                                        <Link href="/wishlist" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">
-                                                <HeartIcon className="h-4 w-4" />
-                                            </span>
-                                            Wishlists
-                                        </Link>
-                                        <Link href="/products?category=oil-ghee" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">O</span>
-                                            Oil &amp; Ghee
-                                        </Link>
-                                        <Link href="/faq" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">?</span>
-                                            Faqs
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </SheetContent>
-                    </Sheet>
+                    </div>
                 </div>
             </header>
 
@@ -406,76 +337,11 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                         <Home className="h-5 w-5" />
                         Home
                     </Link>
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <button className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
-                                <MenuIcon className="h-5 w-5" />
-                                Menu
-                            </button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-[320px] max-w-[90vw] p-0 bg-background text-foreground border-border">
-                            <SheetHeader className="px-4 py-3 border-b border-border">
-                                <SheetTitle className="text-left flex items-center justify-between text-base font-semibold">
-                                    <span className="flex items-center gap-2">
-                                        <MenuIcon className="h-5 w-5" />
-                                        Menu
-                                    </span>
-                                </SheetTitle>
-                            </SheetHeader>
-                            <div className="p-4 space-y-5">
-                                {session?.user ? (
-                                    <Link href="/account" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
-                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
-                                            <UserIcon className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-base font-semibold">{session.user.name}</p>
-                                            <p className="text-sm">Account</p>
-                                        </div>
-                                    </Link>
-                                ) : (
-                                    <Link href="/auth/login" className="flex items-center gap-3 rounded-2xl bg-primary text-primary-foreground p-4">
-                                        <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
-                                            <UserIcon className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-base font-semibold">Hello there!</p>
-                                            <p className="text-sm">Sign in</p>
-                                        </div>
-                                    </Link>
-                                )}
-
-                                <div className="rounded-2xl border border-border overflow-hidden">
-                                    <MobileCategoryMenu categories={serializedCategories} />
-                                </div>
-
-                                <div>
-                                    <p className="text-base font-semibold">Quick Links</p>
-                                    <span className="inline-block w-12 h-0.5 bg-primary mt-1" />
-                                    <div className="mt-3 rounded-2xl border border-border p-4 space-y-3">
-                                        <Link href="/about" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">i</span>
-                                            About Us
-                                        </Link>
-                                        <Link href="/wishlist" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">
-                                                <HeartIcon className="h-4 w-4" />
-                                            </span>
-                                            Wishlists
-                                        </Link>
-                                        <Link href="/products?category=oil-ghee" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">O</span>
-                                            Oil &amp; Ghee
-                                        </Link>
-                                        <Link href="/faq" className="flex items-center gap-3 text-sm text-foreground">
-                                            <span className="h-8 w-8 rounded-full border border-border flex items-center justify-center">?</span>
-                                            Faqs
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </SheetContent>
-                    </Sheet>
+                    <MobileMenu
+                        session={session ? { user: session.user } : null}
+                        categories={serializedCategories}
+                        triggerClassName="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary"
+                    />
                     <SideCart
                         cart={serializedCart}
                         itemCount={itemCount}

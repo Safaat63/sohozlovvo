@@ -695,7 +695,7 @@ export function CheckoutForm({
                                 : "bg-[#f48721] hover:bg-[#ea580c]"
                                 }`}
                         >
-                            {loading ? "Processing..." : "PLACE ORDER"}
+                            {loading ? "Processing..." : `PLACE ORDER - ${formatCurrency(total, currency)}`}
                         </button>
                     </div>
                 </div>

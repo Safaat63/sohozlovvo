@@ -14,7 +14,7 @@ export default async function BlogLayout({
     const currencySymbol = settings.currency_symbol || "৳";
     return (
         <CurrencyProvider symbol={currencySymbol}>
-            {/* <Navbar storeName={settings.store_name} /> */}
+            <Navbar storeName={settings.store_name} />
             <main className="min-h-screen bg-background">
                 <div className="mx-auto w-full">
                     <GoogleTagManager gtmId="GTM-NJSH52CZ" />
