@@ -16,13 +16,11 @@ function Footer() {
     {
       title: "Information",
       links: [
-        { linkText: "About us", url: "#" },
-        { linkText: "Contact us", url: "#" },
-        { linkText: "Company Information", url: "#" },
-        { linkText: "Sohozlovvo Stories", url: "#" },
-        { linkText: "Terms & Conditions", url: "#" },
-        { linkText: "Privacy Policy", url: "#" },
-        { linkText: "Careers", url: "#" },
+        { linkText: "About us", url: "/about" },
+        { linkText: "Contact us", url: "/contact" },
+        { linkText: "Terms & Conditions", url: "/terms" },
+        { linkText: "Privacy Policy", url: "/privacy" },
+        
       ],
     },
     {
@@ -42,21 +40,19 @@ function Footer() {
       links: [
         { linkText: "Support Center", url: "#" },
         { linkText: "How to Order", url: "#" },
-        { linkText: "Order Tracking", url: "#" },
+        { linkText: "Order Tracking", url: "/tracking" },
         { linkText: "Payment", url: "#" },
         { linkText: "Shipping", url: "#" },
-        { linkText: "FAQ", url: "#" },
+        { linkText: "FAQ", url: "/faq" },
       ],
     },
     {
-      title: "Consumer Policy",
+      title: "Others",
       links: [
-        { linkText: "Happy Return", url: "#" },
-        { linkText: "Refund Policy", url: "#" },
-        { linkText: "Exchange", url: "#" },
-        { linkText: "Cancellation", url: "#" },
-        { linkText: "Pre-Order", url: "#" },
-        { linkText: "EXtra Discount", url: "#" },
+        { linkText: "Affiliate", url: "/affiliate" },
+        { linkText: "Wish List", url: "/wishlist" },
+        { linkText: "Refund Policy", url: "/privacy" },
+      
       ],
     },
   ];
@@ -183,7 +179,7 @@ function Footer() {
       {/* copyright section */}
       <div className="py-5 space-y-2 flex items-center justify-center lg:justify-start">
         <h3 className="text-center lg:text-left text-muted-foreground text-xs sm:text-sm">
-          Copyright © {new Date().getFullYear()} Sohozlovvo
+          Copyright © {new Date().getFullYear()} Sohozlovvo | Developed by <a href="https://miftahcoding.com/" className="hover:text-primary font-bold">MiftahCoding</a>
         </h3>
       </div>
     </div>

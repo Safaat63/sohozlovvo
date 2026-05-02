@@ -23,10 +23,10 @@ export async function RecentProductsSection() {
             </div>
 
             <div className="text-left sm:text-right">
-              <a href="https://ghorerbazar.com/all-brands" className="text-[#FF7A00] font-semibold flex items-center gap-2 uppercase text-sm">
+              <Link href="/categories" className="text-[#FF7A00] font-semibold flex items-center gap-2 uppercase text-sm">
                 <span className="underline">See all</span>
                 <ArrowRight size={16} className="text-[#FF7A00]" />
-              </a>
+              </Link>
 
               <div className="mt-3 flex sm:justify-end">
                 <span className="block w-[64px] h-[6px] bg-[#FF7A00] rounded-full" />
