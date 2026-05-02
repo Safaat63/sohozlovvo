@@ -2,10 +2,10 @@ import { notFound } from "next/navigation"
 import { getLandingPage } from "@/actions/landing-pages"
 import { LandingPageHero } from "@/components/landing-page/landing-page-hero"
 import { LandingPageProducts } from "@/components/landing-page/landing-page-products"
-import { LandingPageDescription } from "@/components/landing-page/landing-page-description"
 import { LandingPageVideoReviews } from "@/components/landing-page/landing-page-video-reviews"
 import { LandingPageImageGallery } from "@/components/landing-page/landing-page-image-gallery"
 import { LandingPageCheckout } from "@/components/landing-page/landing-page-checkout"
+import { LandingPageSpecialties } from "@/components/landing-page/landing-page-specialties"
 import type { Metadata } from "next"
 
 interface LandingPageProps {
@@ -47,12 +47,20 @@ export default async function LandingPage({ params }: LandingPageProps) {
   const hasDescription = landingPage.description && landingPage.description.length > 0
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <LandingPageHero
         title={landingPage.title}
+        description={landingPage.description}
         heroImage={landingPage.heroImage}
         heroVideo={landingPage.heroVideo}
       />
+
+      {hasDescription && (
+        <LandingPageSpecialties
+          description={landingPage.description!}
+          heroImage={landingPage.heroImage}
+        />
+      )}
 
       {hasProducts && (
         <LandingPageProducts
@@ -71,12 +79,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
             reviews: lp.product.reviews,
             quantity: lp.quantity,
           }))}
-        />
-      )}
-
-      {hasDescription && (
-        <LandingPageDescription
-          description={landingPage.description!}
         />
       )}
 

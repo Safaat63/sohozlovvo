@@ -305,10 +305,8 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                 <div className="lg:hidden">
                     <Sheet>
                         <div className="flex h-14 items-center justify-between px-4">
-                            <SheetTrigger asChild>
-                                <button className="p-2 text-foreground">
-                                    <MenuIcon className="h-6 w-6" />
-                                </button>
+                            <SheetTrigger className="p-2 text-foreground">
+                                <MenuIcon className="h-6 w-6" />
                             </SheetTrigger>
                             <Link href="/" className="flex items-center gap-2">
                                 <Image src="/icon0.svg" alt="Logo" width={40} height={40} className="w-9 h-9" />

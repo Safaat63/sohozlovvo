@@ -5,6 +5,7 @@ import { getUserLoyaltyPoints } from "@/actions/loyalty"
 import { getUserAddresses } from "@/actions/addresses"
 import { getUserProfile } from "@/actions/user"
 import { getPublicSettings } from "@/actions/settings"
+import Link from "next/link"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { calculateDiscountedPrice } from "@/lib/utils"
 
@@ -98,7 +99,18 @@ export default async function CheckoutPage() {
 
     return (
         <main className="min-h-screen bg-[#f4f6f9] text-gray-800 font-sans pb-12">
-            <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="bg-white border-b border-gray-100">
+                <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+                    <h1 className="text-2xl font-semibold text-gray-900">Checkout</h1>
+                    <div className="mt-1 text-sm text-gray-500">
+                        <Link href="/" className="hover:text-gray-700">Home</Link>
+                        <span className="mx-2">&gt;</span>
+                        <span className="text-[#f97316]">Checkout</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <CheckoutForm
                     cartItems={serializedCartItems}
                     subtotal={subtotal}

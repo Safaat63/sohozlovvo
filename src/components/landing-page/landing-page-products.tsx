@@ -81,18 +81,18 @@ export function LandingPageProducts({ products }: LandingPageProductsProps) {
   }
 
   return (
-    <section id="products" className="py-12 md:py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <section id="products" className="py-12 md:py-16 bg-white">
+      <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
-            Our Products
+            আমাদের পণ্য
           </h2>
           <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
-            Choose from our carefully curated selection
+            আমাদের যত্নসহকারে বাছাইকৃত পণ্য থেকে বেছে নিন
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="max-w-4xl mx-auto">
           {products.map((product) => {
             const effectivePrice = getEffectivePrice(product)
             const discount = getDiscount(product)
@@ -101,112 +101,119 @@ export function LandingPageProducts({ products }: LandingPageProductsProps) {
             return (
               <div
                 key={product.id}
-                className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden"
               >
-                <div className="relative aspect-square bg-gray-100">
-                  {product.images[0] && (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  )}
-                  {discount && discount > 0 && (
-                    <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-md text-sm font-semibold">
-                      -{discount}%
-                    </div>
-                  )}
-                  {product.stock === 0 && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="bg-white text-gray-900 px-4 py-2 rounded-lg font-semibold">
-                        Out of Stock
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4 md:p-5">
-                  <h3 className="font-semibold text-gray-900 text-base md:text-lg mb-2 line-clamp-2">
-                    {product.name}
-                  </h3>
-
-                  {product.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`w-4 h-4 ${
-                            star <= Math.round(product.rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-500">
-                      ({product.reviewCount})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xl md:text-2xl font-bold text-orange-600">
-                      {formatCurrency(effectivePrice, currency)}
-                    </span>
-                    {(product.compareAtPrice || product.flashSale) && (
-                      <span className="text-sm text-gray-400 line-through">
-                        {formatCurrency(product.price, currency)}
-                      </span>
-                    )}
-                  </div>
-
-                  {product.stock > 0 && (
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center border border-gray-300 rounded-lg">
-                        <button
-                          onClick={() => handleQuantityChange(product.id, -1)}
-                          className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-l-lg transition-colors"
-                          disabled={quantity <= 1}
-                        >
-                          -
-                        </button>
-                        <span className="px-4 py-1.5 font-semibold text-gray-900 border-x border-gray-300 min-w-[3rem] text-center">
-                          {quantity}
-                        </span>
-                        <button
-                          onClick={() => handleQuantityChange(product.id, 1)}
-                          className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded-r-lg transition-colors"
-                          disabled={quantity >= product.stock}
-                        >
-                          +
-                        </button>
+                <div className="bg-gradient-to-r from-green-50 to-green-100 p-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">আপনার পণ্য</h3>
+                  
+                  <div className="bg-white rounded-lg p-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        {product.images[0] ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ShoppingCart className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
                       </div>
-                      <span className="text-sm text-gray-500">
-                        {product.stock} available
-                      </span>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 truncate">{product.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          {discount && discount > 0 && (
+                            <span className="text-xs line-through text-gray-400">
+                              {formatCurrency(product.price, currency)}
+                            </span>
+                          )}
+                          <span className="text-lg font-bold text-green-600">
+                            {formatCurrency(effectivePrice, currency)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {product.stock > 0 && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleQuantityChange(product.id, -1)}
+                            disabled={quantity <= 1}
+                            className="w-7 h-7 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors active:scale-95"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                          </button>
+                          <span className="text-base font-semibold px-2 min-w-[2.5rem] text-center bg-gray-50 rounded py-1 border">
+                            {quantity}
+                          </span>
+                          <button
+                            onClick={() => handleQuantityChange(product.id, 1)}
+                            disabled={quantity >= product.stock}
+                            className="w-7 h-7 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors active:scale-95"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-
-                  <button
-                    onClick={scrollToCheckout}
-                    disabled={product.stock === 0}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    Order Now
-                  </button>
+                  </div>
                 </div>
+
+                {product.stock === 0 && (
+                  <div className="p-4 text-center bg-gray-50">
+                    <span className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold">
+                      স্টক শেষ
+                    </span>
+                  </div>
+                )}
               </div>
             )
           })}
         </div>
+
+        {products.some(p => p.rating > 0) && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.filter(p => p.reviews.length > 0).slice(0, 3).map((product) => (
+              <div key={product.id} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${
+                          star <= Math.round(product.rating)
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    ({product.reviewCount})
+                  </span>
+                </div>
+                {product.reviews[0]?.comment && (
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    "{product.reviews[0].comment}"
+                  </p>
+                )}
+                {product.reviews[0]?.user.name && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    - {product.reviews[0].user.name}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

@@ -57,7 +57,7 @@ interface CheckoutFormProps {
 
 const SectionHeader = ({ title }: { title: string }) => (
     <div className="flex items-center gap-2 mb-3">
-        <div className="w-0.75 h-3.5 bg-[#f97316] rounded-sm"></div>
+        <div className="w-[3px] h-4 bg-[#f97316] rounded-sm"></div>
         <h2 className="text-[15px] font-semibold text-gray-800">{title}</h2>
     </div>
 )
@@ -278,7 +278,7 @@ export function CheckoutForm({
         formData.set("subtotal", subtotal.toString())
         formData.set("shippingCost", shippingCost.toString())
         formData.set("total", total.toString())
-        
+
         if (addressFormData.thana) formData.set("thana", addressFormData.thana)
         if (transactionId.trim()) formData.set("transactionId", transactionId.trim())
 
@@ -301,9 +301,9 @@ export function CheckoutForm({
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-7xl mx-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-360 mx-auto">
             {!isLoggedIn && (
-                <div className="flex flex-col sm:flex-row items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                <div className="flex flex-col sm:flex-row items-center justify-between bg-white px-4 py-3 rounded-lg border border-gray-200 shadow-sm">
                     <p className="text-gray-700 text-[14px] mb-2 sm:mb-0">
                         Have any account? please login or register
                     </p>
@@ -326,7 +326,7 @@ export function CheckoutForm({
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 <div className="lg:col-span-7 space-y-4">
-                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                         <SectionHeader title="Order review" />
                         <div className="space-y-3">
                             {cartItems.map((item) => (
@@ -381,7 +381,7 @@ export function CheckoutForm({
                         </div>
                     </div>
 
-                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                         <SectionHeader title="Shipping Address" />
                         <div className="space-y-3">
                             <div>
@@ -393,7 +393,7 @@ export function CheckoutForm({
                                     onBlur={() => setTouched(prev => ({ ...prev, name: true }))}
                                     required
                                     disabled={loading}
-                                    className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.name ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full px-3 py-2 text-[14px] border rounded-md focus:outline-none focus:border-orange-400 ${fieldErrors.name ? 'border-red-400' : 'border-gray-200'}`}
                                 />
                                 {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
                             </div>
@@ -406,7 +406,7 @@ export function CheckoutForm({
                                         onChange={(e) => setAddressFormData({ ...addressFormData, email: e.target.value })}
                                         onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
                                         disabled={loading}
-                                        className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.email ? 'border-red-400' : 'border-gray-200'}`}
+                                        className={`w-full px-3 py-2 text-[14px] border rounded-md focus:outline-none focus:border-orange-400 ${fieldErrors.email ? 'border-red-400' : 'border-gray-200'}`}
                                     />
                                     {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
                                 </div>
@@ -424,7 +424,7 @@ export function CheckoutForm({
                                         disabled={loading}
                                         inputMode="numeric"
                                         pattern="01[1-9][0-9]{8}"
-                                        className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.phone || phoneError ? 'border-red-400' : 'border-gray-200'}`}
+                                        className={`w-full px-3 py-2 text-[14px] border rounded-md focus:outline-none focus:border-orange-400 ${fieldErrors.phone || phoneError ? 'border-red-400' : 'border-gray-200'}`}
                                     />
                                     {(fieldErrors.phone || phoneError) && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone || phoneError}</p>}
                                 </div>
@@ -437,7 +437,7 @@ export function CheckoutForm({
                                         onBlur={() => setTouched(prev => ({ ...prev, street: true }))}
                                         required
                                         disabled={loading}
-                                        className={`w-full px-3 py-2 text-[14px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.street ? 'border-red-400' : 'border-gray-200'}`}
+                                        className={`w-full px-3 py-2 text-[14px] border rounded-md focus:outline-none focus:border-orange-400 ${fieldErrors.street ? 'border-red-400' : 'border-gray-200'}`}
                                     />
                                     {fieldErrors.street && <p className="text-xs text-red-500 mt-1">{fieldErrors.street}</p>}
                                 </div>
@@ -454,7 +454,7 @@ export function CheckoutForm({
                                         onBlur={() => setTouched(prev => ({ ...prev, city: true }))}
                                         required
                                         disabled={loading}
-                                        className={`w-full px-3 py-2 text-[14px] border rounded bg-white focus:outline-none focus:border-orange-400 text-gray-600 ${fieldErrors.city ? 'border-red-400' : 'border-gray-200'}`}
+                                        className={`w-full px-3 py-2 text-[14px] border rounded-md bg-white focus:outline-none focus:border-orange-400 text-gray-600 ${fieldErrors.city ? 'border-red-400' : 'border-gray-200'}`}
                                     />
                                     {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
                                     <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -473,7 +473,7 @@ export function CheckoutForm({
                                         value={addressFormData.thana}
                                         onChange={(e) => setAddressFormData({ ...addressFormData, thana: e.target.value })}
                                         disabled={loading}
-                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded bg-white focus:outline-none focus:border-orange-400 text-gray-600"
+                                        className="w-full px-3 py-2 text-[14px] border border-gray-200 rounded-md bg-white focus:outline-none focus:border-orange-400 text-gray-600"
                                     />
                                     <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
                                     <datalist id="thana-options">
@@ -488,14 +488,14 @@ export function CheckoutForm({
                 </div>
 
                 <div className="lg:col-span-5 space-y-4">
-                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                         <SectionHeader title="Payment method" />
                         <input type="hidden" name="paymentMethod" value={paymentMethod} />
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
                             <div
                                 onClick={() => setPaymentMethod("COD")}
-                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "COD"
+                                className={`relative flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all ${paymentMethod === "COD"
                                     ? "border-orange-400 bg-orange-50/30"
                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
@@ -505,7 +505,7 @@ export function CheckoutForm({
                                 </div>
                                 <span className="text-[13px] font-medium text-gray-700">Cash On Delivery</span>
                                 {paymentMethod === "COD" && (
-                                    <div className="absolute right-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 text-white" />
                                     </div>
                                 )}
@@ -513,7 +513,7 @@ export function CheckoutForm({
 
                             <div
                                 onClick={() => setPaymentMethod("CARD")}
-                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "CARD"
+                                className={`relative flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all ${paymentMethod === "CARD"
                                     ? "border-orange-400 bg-orange-50/30"
                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
@@ -523,7 +523,7 @@ export function CheckoutForm({
                                 </div>
                                 <span className="text-[13px] font-medium text-gray-700">Online Payment</span>
                                 {paymentMethod === "CARD" && (
-                                    <div className="absolute right-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 text-white" />
                                     </div>
                                 )}
@@ -531,7 +531,7 @@ export function CheckoutForm({
 
                             <div
                                 onClick={() => setPaymentMethod("BKASH")}
-                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "BKASH"
+                                className={`relative flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all ${paymentMethod === "BKASH"
                                     ? "border-orange-400 bg-orange-50/30"
                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
@@ -541,7 +541,7 @@ export function CheckoutForm({
                                 </div>
                                 <span className="text-[13px] font-medium text-gray-700">Bkash</span>
                                 {paymentMethod === "BKASH" && (
-                                    <div className="absolute right-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 text-white" />
                                     </div>
                                 )}
@@ -549,7 +549,7 @@ export function CheckoutForm({
 
                             <div
                                 onClick={() => setPaymentMethod("NAGAD")}
-                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "NAGAD"
+                                className={`relative flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all ${paymentMethod === "NAGAD"
                                     ? "border-orange-400 bg-orange-50/30"
                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
@@ -559,7 +559,7 @@ export function CheckoutForm({
                                 </div>
                                 <span className="text-[13px] font-medium text-gray-700">Nagad</span>
                                 {paymentMethod === "NAGAD" && (
-                                    <div className="absolute right-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 text-white" />
                                     </div>
                                 )}
@@ -567,7 +567,7 @@ export function CheckoutForm({
 
                             <div
                                 onClick={() => setPaymentMethod("ROCKET")}
-                                className={`relative flex items-center gap-2 p-2 rounded border cursor-pointer transition-all ${paymentMethod === "ROCKET"
+                                className={`relative flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-all ${paymentMethod === "ROCKET"
                                     ? "border-orange-400 bg-orange-50/30"
                                     : "border-gray-200 hover:border-gray-300"
                                     }`}
@@ -577,7 +577,7 @@ export function CheckoutForm({
                                 </div>
                                 <span className="text-[13px] font-medium text-gray-700">Rocket</span>
                                 {paymentMethod === "ROCKET" && (
-                                    <div className="absolute right-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
+                                    <div className="absolute right-2 top-2 w-4 h-4 bg-[#f97316] rounded-full flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 text-white" />
                                     </div>
                                 )}
@@ -593,14 +593,14 @@ export function CheckoutForm({
                                     onChange={(e) => setTransactionId(e.target.value)}
                                     onBlur={() => setTouched(prev => ({ ...prev, transactionId: true }))}
                                     disabled={loading}
-                                    className={`w-full px-3 py-2 text-[13px] border rounded focus:outline-none focus:border-orange-400 ${fieldErrors.transactionId ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full px-3 py-2 text-[13px] border rounded-md focus:outline-none focus:border-orange-400 ${fieldErrors.transactionId ? 'border-red-400' : 'border-gray-200'}`}
                                 />
                                 {fieldErrors.transactionId && <p className="text-xs text-red-500 mt-1">{fieldErrors.transactionId}</p>}
                             </div>
                         )}
                     </div>
 
-                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-4">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
                         <div className="border-b border-gray-100 pb-3">
                             <button
                                 type="button"
@@ -619,7 +619,7 @@ export function CheckoutForm({
                                         onChange={(e) => setCouponCode(e.target.value)}
                                         placeholder="Enter code here"
                                         disabled={loading || isPending || !!appliedCoupon}
-                                        className="flex-1 px-3 py-1.5 text-[13px] border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                                        className="flex-1 px-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-orange-400"
                                     />
                                     {appliedCoupon ? (
                                         <button type="button" onClick={() => setAppliedCoupon(null)} className="px-3 py-1.5 bg-red-50 text-red-600 text-[13px] rounded border border-red-100 hover:bg-red-100">
@@ -657,12 +657,12 @@ export function CheckoutForm({
                         </div>
                     </div>
 
-                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                         <SectionHeader title="Special notes (Optional)" />
                         <textarea
                             name="notes"
                             rows={2}
-                            className="w-full mt-1 px-3 py-2 text-[13px] border border-gray-200 rounded focus:outline-none focus:border-orange-400 resize-none"
+                            className="w-full mt-1 px-3 py-2 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-orange-400 resize-none"
                         ></textarea>
 
                         <div className="mt-4 pt-4 border-t border-gray-100">
@@ -687,7 +687,7 @@ export function CheckoutForm({
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full mt-4 py-2.5 rounded text-white font-medium text-[14px] transition-all ${loading
+                            className={`w-full mt-4 py-2.5 rounded-md text-white font-semibold text-[14px] transition-all ${loading
                                 ? "bg-orange-300 cursor-not-allowed"
                                 : "bg-[#f97316] hover:bg-[#ea580c]"
                                 }`}

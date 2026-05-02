@@ -7,9 +7,7 @@ import { createLandingPageOrder } from "@/actions/landing-page-checkout"
 import { validateBDPhoneNumber, validateEmail } from "@/lib/validation"
 import { formatCurrency, useCurrencySymbol } from "@/components/providers/currency-provider"
 import { BANGLADESH_DISTRICTS } from "@/lib/bangladesh-districts"
-import { ChevronDown, Check, CreditCard, ShoppingCart } from "lucide-react"
-import districtsData from "@/lib/bangladesh-geojson/bd-districts.json"
-import upazilasData from "@/lib/bangladesh-geojson/bd-upazilas.json"
+import { ChevronDown, Check, CreditCard, ShoppingCart, Package, Banknote } from "lucide-react"
 import { useMemo } from "react"
 
 interface Product {
@@ -27,10 +25,7 @@ interface LandingPageCheckoutProps {
 }
 
 const SectionHeader = ({ title }: { title: string }) => (
-  <div className="flex items-center gap-2 mb-3">
-    <div className="w-0.75 h-3.5 bg-orange-500 rounded-sm"></div>
-    <h3 className="text-[15px] font-semibold text-gray-800">{title}</h3>
-  </div>
+  <h3 className="text-xl font-semibold mb-4 text-gray-900">{title}</h3>
 )
 
 export function LandingPageCheckout({ landingPageId, products }: LandingPageCheckoutProps) {
@@ -79,50 +74,29 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
     setFormData((prev) => ({ ...prev, phone: cleaned }))
   }
 
-  const districtIdByName = useMemo(() => {
-    const map = new Map<string, string>()
-    districtsData.districts.forEach((district) => {
-      map.set(district.name, district.id)
-    })
-    return map
-  }, [])
-
-  const selectedDistrictId = districtIdByName.get(formData.city)
-  const thanaOptions = useMemo(() => {
-    if (!selectedDistrictId) return []
-    return upazilasData.upazilas
-      .filter((upazila) => upazila.district_id === selectedDistrictId)
-      .map((upazila) => upazila.name)
-  }, [selectedDistrictId])
-  const thanaOptionsWithOther = useMemo(() => {
-    const unique = new Set(thanaOptions)
-    unique.add("Other")
-    return Array.from(unique)
-  }, [thanaOptions])
-
   const fieldErrors: Record<string, string> = {}
   if (touched.name && formData.name.trim().length < 2) {
-    fieldErrors.name = "Please enter your full name (at least 2 characters)"
+    fieldErrors.name = "সম্পূর্ণ নাম লিখুন"
   }
   if (touched.email && formData.email) {
     const emailResult = validateEmail(formData.email)
-    if (!emailResult.valid) fieldErrors.email = "Please enter a valid email address"
+    if (!emailResult.valid) fieldErrors.email = "সঠিক ইমেইল দিন"
   }
   if (touched.phone && formData.phone) {
     if (formData.phone.length !== 11) {
-      fieldErrors.phone = "Please enter a valid phone number (01XXXXXXXXX)"
+      fieldErrors.phone = "সঠিক ১১ ডিজিটের মোবাইল নাম্বার দিন"
     } else if (!validateBDPhoneNumber(formData.phone)) {
-      fieldErrors.phone = "Invalid phone number format"
+      fieldErrors.phone = "মোবাইল নাম্বার সঠিক নয়"
     }
   }
   if (touched.street && formData.street.trim().length < 5) {
-    fieldErrors.street = "Please enter your complete address (at least 5 characters)"
+    fieldErrors.street = "সম্পূর্ণ ঠিকানা লিখুন"
   }
   if (touched.city && formData.city.trim().length < 2) {
-    fieldErrors.city = "Please enter your city name"
+    fieldErrors.city = "জেলা সিলেক্ট করুন"
   }
   if (touched.transactionId && paymentMethod !== "COD" && paymentMethod !== "CARD" && !transactionId.trim()) {
-    fieldErrors.transactionId = "Transaction ID is required"
+    fieldErrors.transactionId = "ট্রানজেকশন আইডি দিন"
   }
 
   const subtotal = products.reduce((sum, product) => {
@@ -139,7 +113,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
     setSuccess(null)
 
     if (!termsAccepted) {
-      setError("Please agree to the Terms and Conditions to proceed.")
+      setError("অর্ডার করতে হলে শর্তাবলী মেনে নিতে হবে।")
       return
     }
 
@@ -161,7 +135,7 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
       }))
 
     if (items.length === 0) {
-      setError("Please select at least one product")
+      setError("অন্যূন একটি পণ্য সিলেক্ট করুন")
       return
     }
 
@@ -182,90 +156,140 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
       if (result?.error) {
         setError(result.error)
       } else if (result?.success) {
-        setSuccess("Order placed successfully!")
+        setSuccess("অর্ডার সফল হয়েছে!")
         router.push(`/orders/${result.orderId}?new=true`)
       }
     })
   }
 
-  return (
-    <section id="checkout" className="py-12 md:py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
-            Order Now
-          </h2>
-          <p className="text-gray-600 text-base md:text-lg">
-            Fill in your details to place your order
-          </p>
-        </div>
+  const mainProduct = products[0]
 
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-7 space-y-5">
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <SectionHeader title="Your Information" />
-                <div className="space-y-3">
+  return (
+    <section id="checkout" className="py-12 md:py-16 bg-white">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-green-50 to-green-100 p-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">আপনার পণ্য</h3>
+            
+            <div className="bg-white rounded-lg p-3 shadow-sm">
+              {products.map((product) => {
+                const qty = quantities[product.id] || 1
+                return (
+                  <div key={product.id} className="flex items-center gap-3">
+                    <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      {product.images[0] ? (
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 truncate">{product.name}</h4>
+                      <div className="flex items-center gap-2 mt-1">
+                        {product.compareAtPrice && product.compareAtPrice > product.price && (
+                          <span className="text-xs line-through text-gray-400">
+                            {formatCurrency(product.compareAtPrice, currency)}
+                          </span>
+                        )}
+                        <span className="text-lg font-bold text-green-600">
+                          {formatCurrency(product.price, currency)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(product.id, -1)}
+                        disabled={qty <= 1}
+                        className="w-7 h-7 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors active:scale-95"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
+                      </button>
+                      <span className="text-base font-semibold px-2 min-w-[2.5rem] text-center bg-gray-50 rounded py-1 border">
+                        {qty}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(product.id, 1)}
+                        disabled={qty >= product.stock}
+                        className="w-7 h-7 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 rounded-full flex items-center justify-center transition-colors active:scale-95"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <SectionHeader title="আপনার তথ্য দিন" />
+                
+                <div className="space-y-4">
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">আপনার নাম *</label>
                     <input
                       type="text"
-                      placeholder="Your Full Name *"
+                      placeholder="সম্পূর্ণ নাম লিখুন"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       onBlur={() => setTouched((prev) => ({ ...prev, name: true }))}
                       required
                       disabled={isPending}
-                      className={`w-full px-3 py-2.5 text-[14px] border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 ${
-                        fieldErrors.name ? "border-red-400" : "border-gray-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                        fieldErrors.name ? "border-red-400" : "border-gray-300"
                       }`}
                     />
                     {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
                   </div>
 
                   <div>
-                    <input
-                      type="email"
-                      placeholder="Email Address (Optional)"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
-                      disabled={isPending}
-                      className={`w-full px-3 py-2.5 text-[14px] border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 ${
-                        fieldErrors.email ? "border-red-400" : "border-gray-200"
-                      }`}
-                    />
-                    {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
-                  </div>
-
-                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">মোবাইল নাম্বার *</label>
                     <input
                       type="tel"
-                      placeholder="01XXXXXXXXX *"
+                      placeholder="সঠিক ১১ ডিজিটের মোবাইল নাম্বার"
                       value={formData.phone}
                       onChange={handlePhoneChange}
                       onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
                       required
                       disabled={isPending}
                       inputMode="numeric"
-                      pattern="01[1-9][0-9]{8}"
-                      className={`w-full px-3 py-2.5 text-[14px] border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 ${
-                        fieldErrors.phone ? "border-red-400" : "border-gray-200"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                        fieldErrors.phone ? "border-red-400" : "border-gray-300"
                       }`}
                     />
                     {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
                     <textarea
-                      placeholder="Full Address *"
+                      placeholder="বাড়ি/রোড নং, রোড বা উপজেলা, জেলা"
                       value={formData.street}
                       onChange={(e) => setFormData({ ...formData, street: e.target.value })}
                       onBlur={() => setTouched((prev) => ({ ...prev, street: true }))}
                       required
                       disabled={isPending}
-                      rows={2}
-                      className={`w-full px-3 py-2.5 text-[14px] border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none ${
-                        fieldErrors.street ? "border-red-400" : "border-gray-200"
+                      rows={3}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none ${
+                        fieldErrors.street ? "border-red-400" : "border-gray-300"
                       }`}
                     />
                     {fieldErrors.street && <p className="text-xs text-red-500 mt-1">{fieldErrors.street}</p>}
@@ -273,21 +297,22 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">জেলা *</label>
                       <input
                         type="text"
                         list="lp-district-options"
-                        placeholder="Select District *"
+                        placeholder="জেলা সিলেক্ট করুন"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value, thana: "" })}
                         onBlur={() => setTouched((prev) => ({ ...prev, city: true }))}
                         required
                         disabled={isPending}
-                        className={`w-full px-3 py-2.5 text-[14px] border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 ${
-                          fieldErrors.city ? "border-red-400" : "border-gray-200"
+                        className={`w-full px-4 py-3 border rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                          fieldErrors.city ? "border-red-400" : "border-gray-300"
                         }`}
                       />
                       {fieldErrors.city && <p className="text-xs text-red-500 mt-1">{fieldErrors.city}</p>}
-                      <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-3 top-9 w-4 h-4 text-gray-400 pointer-events-none" />
                       <datalist id="lp-district-options">
                         {BANGLADESH_DISTRICTS.map((district) => (
                           <option key={district} value={district} />
@@ -295,208 +320,127 @@ export function LandingPageCheckout({ landingPageId, products }: LandingPageChec
                       </datalist>
                     </div>
                     <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">থানা (ঐচ্ছিক)</label>
                       <input
                         type="text"
-                        list="lp-thana-options"
-                        placeholder="Select Thana (Optional)"
+                        placeholder="থানা সিলেক্ট করুন"
                         value={formData.thana}
                         onChange={(e) => setFormData({ ...formData, thana: e.target.value })}
                         disabled={isPending}
-                        className="w-full px-3 py-2.5 text-[14px] border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       />
-                      <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400 pointer-events-none" />
-                      <datalist id="lp-thana-options">
-                        {thanaOptionsWithOther.map((thana) => (
-                          <option key={thana} value={thana} />
-                        ))}
-                      </datalist>
+                      <ChevronDown className="absolute right-3 top-9 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <SectionHeader title="Payment Method" />
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
-                  {[
-                    { id: "COD", label: "Cash On Delivery", icon: "/svg/cash-on-delivery.png" },
-                    { id: "CARD", label: "Online Payment", icon: "card" },
-                    { id: "BKASH", label: "Bkash", icon: "/svg/BKash-bKash-Logo.svg" },
-                    { id: "NAGAD", label: "Nagad", icon: "/svg/Nagad-Logo.svg" },
-                    { id: "ROCKET", label: "Rocket", icon: "/svg/Rocket_mobile_banking_logo.svg" },
-                  ].map((method) => (
-                    <div
-                      key={method.id}
-                      onClick={() => setPaymentMethod(method.id)}
-                      className={`relative flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${
-                        paymentMethod === method.id
-                          ? "border-orange-400 bg-orange-50/30"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded bg-gray-50 flex items-center justify-center">
-                        {method.icon === "card" ? (
-                          <CreditCard className="w-5 h-5 text-blue-800" />
-                        ) : (
-                          <Image src={method.icon} alt={method.label} width={20} height={20} className="object-contain" />
-                        )}
-                      </div>
-                      <span className="text-[13px] font-medium text-gray-700">{method.label}</span>
-                      {paymentMethod === method.id && (
-                        <div className="absolute right-2 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-white" />
+              <div>
+                <SectionHeader title="আপনার অর্ডার" />
+                
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  {mainProduct && (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 bg-green-600 rounded">
+                            <Package className="w-4 h-4 text-white m-2" />
+                          </div>
+                          <span className="font-medium">{mainProduct.name}</span>
                         </div>
-                      )}
+                        <span className="font-semibold" id="itemPrice">
+                          {formatCurrency(mainProduct.price * (quantities[mainProduct.id] || 1), currency)}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        পরিমাণ: <span id="summaryQuantity">{quantities[mainProduct.id] || 1}</span>
+                      </div>
+                    </>
+                  )}
+                  
+                  <div className="border-t pt-3 mt-3">
+                    <div className="flex justify-between text-sm">
+                      <span>পণ্যের মূল্য</span>
+                      <span className="font-semibold" id="subtotal">
+                        {formatCurrency(subtotal, currency)}
+                      </span>
                     </div>
-                  ))}
+                    <div className="flex justify-between text-sm">
+                      <span>ডেলিভারি চার্জ</span>
+                      <span className="font-semibold" id="deliveryCharge">
+                        {shippingCost > 0 ? formatCurrency(shippingCost, currency) : "ফ্রি"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                      <span>সর্বমোট</span>
+                      <span id="total" className="text-green-600">
+                        {formatCurrency(total, currency)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                {paymentMethod !== "COD" && paymentMethod !== "CARD" && (
-                  <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2 py-2 px-3 bg-green-50 border border-green-200 rounded-lg text-sm mb-6">
+                  <Banknote className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span className="font-medium text-green-900">ক্যাশ অন ডেলিভারি (COD)</span>
+                  <span className="text-green-600">— পণ্য হাতে পেয়ে টাকা দিন</span>
+                </div>
+
+                <label className="flex items-start gap-2 cursor-pointer group mb-4">
+                  <div className="relative flex items-center justify-center w-4 h-4 mt-0.5">
                     <input
-                      type="text"
-                      placeholder="Enter Transaction ID *"
-                      value={transactionId}
-                      onChange={(e) => setTransactionId(e.target.value)}
-                      onBlur={() => setTouched((prev) => ({ ...prev, transactionId: true }))}
-                      disabled={isPending}
-                      className={`w-full px-3 py-2.5 text-[13px] border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 ${
-                        fieldErrors.transactionId ? "border-red-400" : "border-gray-200"
-                      }`}
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="peer sr-only"
                     />
-                    {fieldErrors.transactionId && (
-                      <p className="text-xs text-red-500 mt-1">{fieldErrors.transactionId}</p>
-                    )}
+                    <div className="w-4 h-4 border border-gray-300 rounded-sm peer-checked:bg-green-600 peer-checked:border-green-600 transition-colors"></div>
+                    <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100" />
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="lg:col-span-5 space-y-5">
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <SectionHeader title="Your Order" />
-                <div className="space-y-3 mt-3">
-                  {products.map((product) => {
-                    const qty = quantities[product.id] || 1
-                    return (
-                      <div key={product.id} className="flex items-center gap-3 p-2 border border-gray-200 rounded-lg">
-                        <div className="w-14 h-14 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                          {product.images[0] && (
-                            <Image
-                              src={product.images[0]}
-                              alt={product.name}
-                              width={56}
-                              height={56}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[14px] font-medium text-gray-800 truncate">{product.name}</p>
-                          <p className="text-sm text-orange-600 font-semibold">
-                            {formatCurrency(product.price, currency)}
-                          </p>
-                        </div>
-                        <div className="flex items-center border border-gray-200 rounded-lg h-8">
-                          <button
-                            type="button"
-                            onClick={() => handleQuantityChange(product.id, -1)}
-                            disabled={qty <= 1}
-                            className="px-2.5 text-gray-500 hover:text-gray-700 disabled:opacity-50 rounded-l-lg"
-                          >
-                            -
-                          </button>
-                          <span className="px-2 border-x border-gray-200 text-sm">{qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleQuantityChange(product.id, 1)}
-                            disabled={qty >= product.stock}
-                            className="px-2.5 text-orange-500 hover:text-orange-600 disabled:opacity-50 rounded-r-lg"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-gray-100 space-y-2 text-[14px] text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="font-semibold text-gray-800">
-                      {formatCurrency(subtotal, currency)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Delivery Cost</span>
-                    <span className="font-semibold text-gray-800">
-                      {shippingCost > 0 ? formatCurrency(shippingCost, currency) : "Free"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-gray-100 text-[16px] font-bold text-gray-900">
-                    <span>Total</span>
-                    <span>{formatCurrency(total, currency)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <SectionHeader title="Special Notes (Optional)" />
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={2}
-                  className="w-full mt-2 px-3 py-2.5 text-[13px] border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none"
-                  placeholder="Any special instructions..."
-                />
-
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <label className="flex items-start gap-2 cursor-pointer group">
-                    <div className="relative flex items-center justify-center w-4 h-4 mt-0.5">
-                      <input
-                        type="checkbox"
-                        checked={termsAccepted}
-                        onChange={(e) => setTermsAccepted(e.target.checked)}
-                        className="peer sr-only"
-                      />
-                      <div className="w-4 h-4 border border-gray-300 rounded-sm peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-colors"></div>
-                      <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100" />
-                    </div>
-                    <span className="text-[12px] text-gray-500 leading-tight">
-                      I have read and agree to the Terms & Conditions.
-                    </span>
-                  </label>
-                </div>
+                  <span className="text-sm text-gray-600 leading-tight">
+                    আমি শর্তাবলী পড়েছি এবং মেনে নিয়েছি।
+                  </span>
+                </label>
 
                 {error && (
-                  <div className="mt-4 bg-red-50 p-3 text-sm text-red-600 border border-red-200 rounded-lg">
+                  <div className="mb-4 bg-red-50 p-3 text-sm text-red-600 border border-red-200 rounded-lg">
                     {error}
                   </div>
                 )}
 
                 {success && (
-                  <div className="mt-4 bg-green-50 p-3 text-sm text-green-600 border border-green-200 rounded-lg">
+                  <div className="mb-4 bg-green-50 p-3 text-sm text-green-600 border border-green-200 rounded-lg">
                     {success}
                   </div>
                 )}
 
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => {
+                    const form = document.querySelector("form")
+                    if (form) {
+                      setTermsAccepted(true)
+                      form.requestSubmit()
+                    }
+                  }}
                   disabled={isPending}
-                  className={`w-full mt-4 flex items-center justify-center gap-2 py-3 rounded-lg text-white font-semibold text-[15px] transition-all ${
+                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-lg font-semibold text-lg transition-colors ${
                     isPending
-                      ? "bg-orange-300 cursor-not-allowed"
-                      : "bg-orange-500 hover:bg-orange-600"
+                      ? "bg-green-400 cursor-not-allowed text-white/80"
+                      : "bg-green-600 hover:bg-green-700 text-white"
                   }`}
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  {isPending ? "Processing..." : `Place Order - ${formatCurrency(total, currency)}`}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span id="orderButtonText">
+                    {isPending ? "প্রসেসিং..." : `PLACE ORDER - ${formatCurrency(total, currency)}`}
+                  </span>
                 </button>
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </section>
   )
