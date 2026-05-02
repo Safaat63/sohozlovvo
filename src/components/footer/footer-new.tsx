@@ -154,7 +154,7 @@ function Footer() {
         </div>
 
         {/* Links */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-15 lg:flex-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-15 lg:flex-1 text-sm">
           {footerLinks.map((linkGroup) => (
             <div key={linkGroup.title} className="space-y-5">
               <h2 className="font-semibold">{linkGroup.title}</h2>
@@ -179,7 +179,7 @@ function Footer() {
       {/* copyright section */}
       <div className="py-5 space-y-2 flex items-center justify-center lg:justify-start">
         <h3 className="text-center lg:text-left text-muted-foreground text-xs sm:text-sm">
-          Copyright © {new Date().getFullYear()} Sohozlovvo | Developed by <a href="https://miftahcoding.com/" className="hover:text-primary font-bold">MiftahCoding</a>
+          Copyright © {new Date().getFullYear()} Sohozlovvo | Developed by <Link href="https://miftahcoding.com/" className="hover:text-primary font-bold">MiftahCoding</Link>
         </h3>
       </div>
     </div>

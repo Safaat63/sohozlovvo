@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Currency } from "@/components/providers/currency-provider"
 import { trackAddToCart } from "@/lib/ga4"
+import Link from "next/link"
 
 // --- STRICT TYPES ---
 interface VariationOption {
@@ -323,20 +324,20 @@ export function ProductPurchaseWithCombinations({
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                        <Button type="button" className="w-full h-11.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(false)} disabled={!allSelected || adding}>
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                        <Button type="button" className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-sm shadow-none uppercase tracking-wide text-[12px] md:text-[14px]" onClick={() => handleAddToCart(false)} disabled={!allSelected || adding}>
                             <ShoppingBag className="w-4 h-4 mr-2" /> {adding ? "Adding..." : "ADD TO CART"}
                         </Button>
-                        <Button type="button" className="w-full h-11.5 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded shadow-none uppercase tracking-wide text-[16px]" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
+                        <Button type="button" className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded-sm shadow-none uppercase tracking-wide text-[12px] md:text-[14px]" onClick={() => handleAddToCart(true)} disabled={!allSelected || ordering}>
                             {ordering ? "Processing..." : "BUY NOW"}
                         </Button>
-                        {/* Note: Kept specific brand colors for third party platforms (WhatsApp / Phone) but you can replace with custom themes if needed */}
-                        <a href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-11.5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 text-white font-semibold rounded transition-colors text-[16px]">
+                        
+                        <Link href={safeWhatsappLink} target="_blank" rel="noreferrer" className="flex items-center justify-center w-full h-10 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 text-white font-semibold rounded-sm transition-colors text-[12px] md:text-[14px]">
                             <MessageCircle className="h-4 w-4 mr-2" /> Order On WhatsApp
-                        </a>
-                        <a href={safeCallNumber} className="flex items-center justify-center w-full h-11.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 text-white font-semibold rounded transition-colors text-[16px]">
+                        </Link>
+                        <Link href={safeCallNumber} className="flex items-center justify-center w-full h-10 bg-[#1e3a8a] hover:bg-blue-900 dark:bg-blue-500 text-white font-semibold rounded-sm transition-colors text-[12px] md:text-[14px]">
                             <Phone className="h-4 w-4 mr-2" /> Call For Order
-                        </a>
+                        </Link>
                     </div>
                 </div>
             )}
