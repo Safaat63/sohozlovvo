@@ -17,7 +17,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { SearchBar } from "@/components/navbar/search-bar"
 import { SideCart } from "@/components/cart/side-cart"
-import { MobileCategoryMenu } from "./mobile-category-menu"
 import { MobileMenu } from "./mobile-menu"
 import { DesktopCategoryMenu } from "./desktop-category-menu"
 import { NotificationSubscriptionDialog } from "../ui/notification-subscription-dialog"
@@ -202,9 +201,11 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                             <div className="flex-1 max-w-2xl">
                                 <SearchBar />
                             </div>
-                            <div className="flex items-center gap-6">
+                            <div className="flex items-baseline gap-6">
 
-                                <ThemeToggle />
+                                <div className="translate-y-1">
+                                    <ThemeToggle />
+                                </div>
                                 <Link href="/tracking" className="flex flex-col items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
                                     <MapPin className="h-5 w-5" />
                                     <span>Track Order</span>
@@ -307,7 +308,8 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                             <Image src="/icon0.svg" alt="Logo" width={40} height={40} className="w-9 h-9" />
                             <span className="text-base font-bold text-primary">{storeName}</span>
                         </Link>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
+                            <ThemeToggle />
                             <SideCart
                                 cart={serializedCart}
                                 itemCount={itemCount}
@@ -315,7 +317,6 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                                 triggerClassName="text-foreground"
                                 badgeClassName="bg-primary text-primary-foreground"
                             />
-                            <ThemeToggle />
                         </div>
                     </div>
                 </div>
@@ -331,29 +332,29 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
             </div>
 
             {/* MOBILE BOTTOM BAR - FIXED */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border text-foreground z-50">
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-accent-foreground border-t border-border text-foreground z-50">
                 <div className="grid grid-cols-5 items-center h-16">
-                    <Link href="/" className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                    <Link href="/" className="flex flex-col items-center text-[11px] text-background hover:text-primary">
                         <Home className="h-5 w-5" />
                         Home
                     </Link>
                     <MobileMenu
                         session={session ? { user: session.user } : null}
                         categories={serializedCategories}
-                        triggerClassName="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary"
+                        triggerClassName="flex flex-col items-center text-[11px] text-background hover:text-primary"
                     />
                     <SideCart
                         cart={serializedCart}
                         itemCount={itemCount}
                         relatedProducts={serializedRelatedProducts}
                         triggerLabel="Cart"
-                        triggerClassName="text-muted-foreground hover:text-primary"
-                        triggerLabelClassName="text-muted-foreground"
-                        badgeClassName="bg-primary text-primary-foreground"
+                        triggerClassName="text-background hover:text-primary"
+                        triggerLabelClassName="text-background"
+                        badgeClassName="bg-foreground text-background"
                     />
                     <Sheet>
                         <SheetTrigger asChild>
-                            <button className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                            <button className="flex flex-col items-center text-[11px] text-background hover:text-primary">
                                 <SearchIcon className="h-5 w-5" />
                                 Search
                             </button>
@@ -365,12 +366,12 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
                         </SheetContent>
                     </Sheet>
                     {session?.user ? (
-                        <Link href="/account" className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                        <Link href="/account" className="flex flex-col items-center text-[11px] text-background hover:text-primary">
                             <UserIcon className="h-5 w-5" />
                             Account
                         </Link>
                     ) : (
-                        <Link href="/auth/login" className="flex flex-col items-center text-[11px] text-muted-foreground hover:text-primary">
+                        <Link href="/auth/login" className="flex flex-col items-center text-[11px] text-background hover:text-primary">
                             <UserIcon className="h-5 w-5" />
                             Account
                         </Link>
