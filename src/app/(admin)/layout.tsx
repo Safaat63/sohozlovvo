@@ -94,6 +94,7 @@ export default async function AdminLayout({
 
     return (
         <div className="bg-gray-50 dark:bg-gray-950">
+            <GoogleTagManager gtmId="GTM-NJSH52CZ" />
             {/* Admin Header */}
             <header className="bg-white dark:bg-gray-900 border-b dark:border-gray-800 sticky top-0 md:top-0 z-40">
                 <div className="max-w-300 mx-auto px-4">
@@ -111,6 +112,7 @@ export default async function AdminLayout({
                         </div>
                     </div>
                 </div>
+                <GoogleTagManager gtmId="GTM-NJSH52CZ" />
             </header>
 
             <div className="max-w-300 mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-8">
@@ -123,7 +125,7 @@ export default async function AdminLayout({
 
                 {/* Main Content */}
                 <main className="lg:col-span-4">
-                    <GoogleTagManager gtmId="GTM-NJSH52CZ"/>
+                    <GoogleTagManager gtmId="GTM-NJSH52CZ" />
                     <div className="bg-white dark:bg-gray-900 border dark:border-gray-800 p-4 md:p-6 rounded-lg">
                         {children}
                     </div>

@@ -25,10 +25,11 @@ export default async function BlogLayout({
                 </div>
             </main>
             {/* Cart summary floating button */}
-            <FloatingCart/>
+            <FloatingCart />
             {/* Whatsapp floating button */}
             <FloatingChat />
             <Footer />
+            <GoogleTagManager gtmId="GTM-NJSH52CZ" />
         </CurrencyProvider>
     )
 }

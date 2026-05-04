@@ -42,6 +42,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="apple-mobile-web-app-title" content="Sohozlovvo" />
+        <GoogleTagManager gtmId="GTM-NJSH52CZ" />
       </head>
       <body
         className={`${hindSiliguri.variable} ${openSans.variable} antialiased font-sans`}
