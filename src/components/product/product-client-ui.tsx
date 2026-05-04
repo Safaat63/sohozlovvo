@@ -317,9 +317,9 @@ export function ProductPurchaseWithCombinations({
                         <div className="flex items-center gap-4">
                             <span className="font-medium text-sm text-foreground">Quantity:</span>
                             <div className="flex items-center border border-border rounded bg-card w-fit h-9">
-                                <button type="button" className="w-9 h-full flex items-center justify-center text-muted-foreground hover:text-foreground" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-3 w-3" /></button>
-                                <input className="w-12 h-full text-center text-sm font-bold text-foreground border-x border-border focus:outline-none bg-transparent" value={quantity} readOnly />
-                                <button type="button" className="w-9 h-full flex items-center justify-center text-muted-foreground hover:text-foreground" onClick={() => setQuantity(Math.min(effectiveStock, quantity + 1))} disabled={quantity >= effectiveStock}><Plus className="h-3 w-3" /></button>
+                                <button type="button" className="w-9 h-full flex items-center justify-center" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}><Minus className="h-3 w-3 p-0" /></button>
+                                <input className="w-12 h-full text-center text-sm font-bold text-foreground focus:outline-none bg-transparent" value={quantity} readOnly />
+                                <button type="button" className="w-9 h-full flex items-center justify-center" onClick={() => setQuantity(Math.min(effectiveStock, quantity + 1))} disabled={quantity >= effectiveStock}><Plus className="h-3 w-3 p-0" /></button>
                             </div>
                         </div>
                     )}
