@@ -1,0 +1,37 @@
+# Build Outputs
+.next/
+out/
+build/
+dist/
+
+# Dependencies
+node_modules/
+
+# User-specific Ignore Artifacts
+coverage/
+src/generated/
+
+# Static Assets
+public/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# Environment and Secrets
+.env
+.env.*
+*.local
+
+# Version Control
+.git/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# System files
+.DS_Store
