@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri, Open_Sans } from "next/font/google";
 import { getPublicSettings } from "@/actions/settings";
+import { getCart } from "@/actions/cart";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-import { GoogleTagManager } from '@next/third-parties/google'
+import { GoogleTagManager } from "@next/third-parties/google";
+import FloatingCart from "@/components/home/floating-cart-summary";
+import FloatingChat from "@/components/home/floating-chat";
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",
@@ -28,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
     appleWebApp: {
       title: settings.store_name,
     },
-    manifest: '/manifest.json',
+    manifest: "/manifest.json",
   };
 }
 
@@ -37,6 +40,70 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cart = await getCart();
+
+  const itemCount =
+    (cart?.items ?? []).reduce(
+      (sum: number, item: { quantity: number }) => sum + item.quantity,
+      0
+    );
+
+  const serializedCart = cart ? {
+    id: cart.id,
+    items: cart.items.map((item) => {
+      const combination = item.combination;
+      const combinationLabel = combination?.options
+        ?.map(o => `${o.option.variation.variationName}: ${o.option.optionName}`)
+        .join(", ") || null;
+
+      let basePrice = combination?.price
+        ? Number(combination.price)
+        : Number(item.product.price);
+
+      const product = item.product;
+      if (product.discountType && product.discountValue && Number(product.discountValue) > 0) {
+        const now = new Date();
+        let isDiscountValid = true;
+
+        if (product.discountStartDate && now < new Date(product.discountStartDate)) {
+          isDiscountValid = false;
+        }
+        if (product.discountEndDate && now > new Date(product.discountEndDate)) {
+          isDiscountValid = false;
+        }
+
+        if (isDiscountValid) {
+          if (product.discountType === "PERCENTAGE") {
+            const discount = (basePrice * Number(product.discountValue)) / 100;
+            basePrice = basePrice - discount;
+          } else if (product.discountType === "FIXED_AMOUNT") {
+            basePrice = basePrice - Number(product.discountValue);
+          }
+          basePrice = Math.max(0, basePrice);
+        }
+      }
+
+      const itemStock = combination?.stock ?? item.product.stock;
+
+      return {
+        id: item.id,
+        quantity: item.quantity,
+        combinationId: item.combinationId ?? null,
+        combinationLabel,
+        itemPrice: basePrice.toString(),
+        itemStock,
+        product: {
+          id: item.product.id,
+          name: item.product.name,
+          slug: item.product.slug,
+          price: item.product.price.toString(),
+          categoryId: item.product.categoryId ?? null,
+          images: item.product.images,
+          stock: item.product.stock,
+        },
+      };
+    }),
+  } : null;
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -57,7 +124,10 @@ export default async function RootLayout({
           {children}
           <Toaster position="top-right" richColors />
         </ThemeProvider>
-        {/* <FloatingSocialButtons /> */}
+        {/* Whatsapp floating button */}
+        <FloatingChat />
+        {/* Cart summary floating button */}
+        <FloatingCart cart={serializedCart} itemCount={itemCount} />
       </body>
       <GoogleTagManager gtmId="GTM-NJSH52CZ" />
     </html>

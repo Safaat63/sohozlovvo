@@ -1,7 +1,5 @@
 import { getPublicSettings } from "@/actions/settings";
 import Footer from "@/components/footer/footer-new";
-import FloatingCart from "@/components/home/floating-cart-summary";
-import FloatingChat from "@/components/home/floating-chat";
 import { Navbar } from "@/components/navbar/navbar"
 import { CurrencyProvider } from "@/components/providers/currency-provider"
 import { GoogleTagManager } from "@next/third-parties/google";
@@ -24,10 +22,6 @@ export default async function BlogLayout({
                     {children}
                 </div>
             </main>
-            {/* Cart summary floating button */}
-            <FloatingCart />
-            {/* Whatsapp floating button */}
-            <FloatingChat />
             <Footer />
             <GoogleTagManager gtmId="GTM-NJSH52CZ" />
         </CurrencyProvider>
