@@ -253,21 +253,19 @@ export default async function ProductDetailPage({
         <div className="mt-4 bg-card rounded-xl border border-border shadow-sm relative">
           {/* Render Client Sticky Jump Links Component */}
           <ProductJumpLinks
-            hasVideo={!!videoUrl}
-            reviewCount={verifiedReviews.length}
+            hasVideo={!!videoUrl}reviewCount={verifiedReviews.length}
           />
 
           {/* Content Area */}
           <div className="p-6 md:p-8">
-            {/* Description Section */}
-            <div id="description" className="mb-12 scroll-mt-24">
-              <h3 className="text-[18px] font-bold text-card-foreground mb-5 inline-block border-b-[3px] border-primary pb-1">
+            {/* Product Details */}
+            <div id="description" className="mb-12 scroll-mt-24 mobile-section" data-section="description">
+              <h3 className="text-[14px] md:text-[20px] font-bold text-card-foreground mb-5 inline-block border-b-[3px] border-primary pb-1">
                 Product Details
               </h3>
-              <div className="text-muted-foreground leading-loose text-sm md:text-[15px] space-y-6">
+              <div className="text-muted-foreground leading-loose text-sm md:text-[14px] space-y-6">
                 <p className="whitespace-pre-line">{product.description}</p>
               </div>
-
               {product.specifications && product.specifications.length > 0 && (
                 <div className="mt-8 bg-muted/50 rounded border border-border p-5">
                   <h4 className="font-bold text-card-foreground mb-4">
@@ -296,9 +294,10 @@ export default async function ProductDetailPage({
             {videoUrl && (
               <div
                 id="video"
-                className="mb-12 pt-8 border-t border-border scroll-mt-24"
+                className="mb-12 pt-8 border-t border-border scroll-mt-24 mobile-section"
+                data-section="video"
               >
-                <h3 className="text-[18px] font-bold text-card-foreground mb-5 inline-block border-b-[3px] border-primary pb-1">
+                <h3 className="text-[14px] md:text-[20px] font-bold text-card-foreground mb-5 inline-block border-b-[3px] border-primary pb-1">
                   Video
                 </h3>
                 <div className="w-full h-62.5 sm:h-87.5 md:h-115 bg-black rounded overflow-hidden relative shadow-md">
@@ -314,7 +313,8 @@ export default async function ProductDetailPage({
             {/* Reviews Section */}
             <div
               id="reviews"
-              className="pt-8 border-t border-border scroll-mt-24"
+              className="pt-8 border-t border-border scroll-mt-24 mobile-section"
+              data-section="reviews"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Left: Rating Breakdown */}
@@ -439,10 +439,47 @@ export default async function ProductDetailPage({
           </div>
         </div>
 
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var activeSection = 'description';
+              
+              function updateMobileSections() {
+                var sections = document.querySelectorAll('.mobile-section');
+                sections.forEach(function(section) {
+                  if (window.innerWidth < 768) {
+                    if (section.getAttribute('data-section') === activeSection) {
+                      section.style.display = 'block';
+                    } else {
+                      section.style.display = 'none';
+                    }
+                  } else {
+                    section.style.display = 'block';
+                  }
+                });
+              }
+
+              window.addEventListener('product-tab-change', function(e) {
+                activeSection = e.detail.section;
+                updateMobileSections();
+              });
+
+              window.addEventListener('resize', updateMobileSections);
+              
+              // Initial call
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateMobileSections);
+              } else {
+                updateMobileSections();
+              }
+            })();
+          `
+        }} />
+
         {/* Related Products */}
-        <div className="py-12 mt-4">
+        <div className="py-12 px-2 mt-2">
           <div className="flex items-center justify-between mb-6 border-b border-border pb-3">
-            <h2 className="text-xl font-bold text-card-foreground uppercase">
+            <h2 className="text-[14px] md:text-xl font-bold text-card-foreground uppercase">
               Related Products
             </h2>
           </div>

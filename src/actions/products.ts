@@ -207,6 +207,25 @@ export async function getProducts(params?: {
     }
 }
 
+export async function getProductPriceRange() {
+    const range = await prisma.product.aggregate({
+        where: {
+            isActive: true,
+        },
+        _min: {
+            price: true,
+        },
+        _max: {
+            price: true,
+        },
+    })
+
+    return {
+        min: range._min.price !== null ? toPlainNumber(range._min.price) : 0,
+        max: range._max.price !== null ? toPlainNumber(range._max.price) : 0,
+    }
+}
+
 // Normalize Prisma Decimal-like values to plain numbers so they can be passed to client components safely.
 function toPlainNumber(value: any): number {
     if (value === null || value === undefined) return value

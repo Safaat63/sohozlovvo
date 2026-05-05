@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, createContext, useContext } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -18,6 +18,16 @@ import { cn } from "@/lib/utils";
 import { Currency } from "@/components/providers/currency-provider";
 import { trackAddToCart } from "@/lib/ga4";
 import Link from "next/link";
+
+interface ProductTabsContextType {
+  activeSection: string;
+}
+
+export const ProductTabsContext = createContext<ProductTabsContextType>({
+  activeSection: "description",
+});
+
+export const useProductTabs = () => useContext(ProductTabsContext);
 
 // --- STRICT TYPES ---
 interface VariationOption {
@@ -539,6 +549,11 @@ export function ProductJumpLinks({
     }
   };
 
+  const handleTabClick = (id: string) => {
+    setActiveSection(id);
+    window.dispatchEvent(new CustomEvent("product-tab-change", { detail: { section: id } }));
+  };
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -558,45 +573,87 @@ export function ProductJumpLinks({
   }, []);
 
   return (
-    <div className="hidden md:flex flex-wrap items-center bg-card border-b border-border p-4 gap-2 rounded-t-xl shadow-sm">
-      <Link
-        href="#description"
-        onClick={(e) => scrollToSection(e, "description")}
-        className={cn(
-          "px-5 py-2.5 rounded text-[14px] md:text-[20px] font-bold transition-all",
-          activeSection === "description"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground hover:bg-accent",
-        )}
-      >
-        Description
-      </Link>
-      {hasVideo && (
-        <Link
-          href="#video"
-          onClick={(e) => scrollToSection(e, "video")}
+    <ProductTabsContext.Provider value={{ activeSection }}>
+      {/* Mobile Tabs */}
+      <div className="flex md:hidden flex-wrap items-center bg-card border-b border-border p-4 gap-2 rounded-t-xl shadow-sm">
+        <button
+          onClick={() => handleTabClick("description")}
           className={cn(
-            "px-5 py-2.5 rounded text-[14px] md:text-[20px]  font-bold transition-all",
-            activeSection === "video"
+            "px-5 py-2.5 rounded text-[12px] transition-all",
+            activeSection === "description"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-foreground hover:bg-accent",
           )}
         >
-          Product Video
-        </Link>
-      )}
-      <Link
-        href="#reviews"
-        onClick={(e) => scrollToSection(e, "reviews")}
-        className={cn(
-          "px-5 py-2.5 rounded text-[14px] md:text-[20px]  font-bold transition-all",
-          activeSection === "reviews"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground hover:bg-accent",
+          Description
+        </button>
+        {hasVideo && (
+          <button
+            onClick={() => handleTabClick("video")}
+            className={cn(
+              "px-5 py-2.5 rounded text-[12px] transition-all",
+              activeSection === "video"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-accent",
+            )}
+          >
+            Product Video
+          </button>
         )}
-      >
-        Customer Reviews ({reviewCount})
-      </Link>
-    </div>
+        <button
+          onClick={() => handleTabClick("reviews")}
+          className={cn(
+            "px-5 py-2.5 rounded text-[12px] transition-all",
+            activeSection === "reviews"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-foreground hover:bg-accent",
+          )}
+        >
+          Customer Reviews ({reviewCount})
+        </button>
+      </div>
+
+      {/* Desktop Links */}
+      <div className="hidden md:flex flex-wrap items-center bg-card border-b border-border p-4 gap-2 rounded-t-xl shadow-sm">
+        <Link
+          href="#description"
+          onClick={(e) => scrollToSection(e, "description")}
+          className={cn(
+            "px-5 py-2.5 rounded text-[14px] transition-all",
+            activeSection === "description"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-foreground hover:bg-accent",
+          )}
+        >
+          Description
+        </Link>
+        {hasVideo && (
+          <Link
+            href="#video"
+            onClick={(e) => scrollToSection(e, "video")}
+            className={cn(
+              "px-5 py-2.5 rounded text-[14px] transition-all",
+              activeSection === "video"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-accent",
+            )}
+          >
+            Product Video
+          </Link>
+        )}
+        <Link
+          href="#reviews"
+          onClick={(e) => scrollToSection(e, "reviews")}
+          className={cn(
+            "px-5 py-2.5 rounded text-[14px] transition-all",
+            activeSection === "reviews"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-foreground hover:bg-accent",
+          )}
+        >
+          Customer Reviews ({reviewCount})
+        </Link>
+      </div>
+    </ProductTabsContext.Provider>
   );
 }
