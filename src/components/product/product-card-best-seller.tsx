@@ -167,7 +167,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
                     {/* Save Badge */}
                     <div className="mt-1.5 md:mt-2 mb-3 md:mb-6 min-h-[20px]">
                         {savings > 0 && (
-                            <span className="rounded-full bg-primary px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-bold text-primary-foreground inline-block">
+                            <span className="rounded-full bg-[#34BE82] px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-bold text-primary-foreground inline-block">
                                 Save {formatCurrency(savings, currency)}
                             </span>
                         )}

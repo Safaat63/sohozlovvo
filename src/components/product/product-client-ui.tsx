@@ -113,16 +113,16 @@ export function ProductPriceDisplay({
       : null);
 
   return (
-    <div className="flex items-center flex-wrap gap-3 my-2">
-      <span className="text-primary text-[26px] md:text-3xl font-bold tracking-tight">
+    <div className="flex items-center flex-wrap gap-3 font-mono">
+      <span className="text-primary text-[18px] md:text-[24px] font-semibold tracking-tight">
         <Currency value={currentPrice} />
       </span>
       {effectiveComparePrice && currentPrice < effectiveComparePrice && (
         <>
-          <span className="text-muted-foreground text-lg md:text-xl line-through">
+          <span className="text-muted-foreground text-[18px] md:text-[24px] line-through">
             <Currency value={effectiveComparePrice} />
           </span>
-          <span className="bg-primary text-primary-foreground text-[11px] md:text-xs font-bold px-2 py-1 rounded tracking-wide">
+          <span className="bg-[#34BE82] text-primary-foreground text-[11px] md:text-xs font-semibold px-2 py-0.5 rounded tracking-wide">
             Save{" "}
             {Math.round(
               ((effectiveComparePrice - currentPrice) / effectiveComparePrice) *
@@ -282,7 +282,19 @@ export function ProductPurchaseWithCombinations({
   );
   const [adding, setAdding] = useState(false);
   const [ordering, setOrdering] = useState(false);
+  const [activeButton, setActiveButton] = useState<null | 'plus' | 'minus'>(null);
+  const quantityContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (quantityContainerRef.current && !quantityContainerRef.current.contains(event.target as Node)) {
+        setActiveButton(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const hasVariations = variations.length > 0 && combinations.length > 0;
 
@@ -432,11 +444,14 @@ export function ProductPurchaseWithCombinations({
               <span className="font-medium text-sm text-foreground">
                 Quantity:
               </span>
-              <div className="flex items-center border border-border rounded bg-card w-fit h-9">
+              <div ref={quantityContainerRef} className="flex items-center border border-border rounded-full bg-gray-100 w-fit h-9">
                 <button
                   type="button"
-                  className="w-9 h-full flex items-center justify-center"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className={cn("w-9 h-full flex items-center justify-center rounded-l-full transition-colors", activeButton === 'minus' ? "bg-accent" : "hover:bg-gray-200")}
+                  onClick={() => {
+                    setActiveButton('minus');
+                    setQuantity(Math.max(1, quantity - 1));
+                  }}
                   disabled={quantity <= 1}
                 >
                   <Minus className="h-3 w-3 p-0" />
@@ -448,10 +463,11 @@ export function ProductPurchaseWithCombinations({
                 />
                 <button
                   type="button"
-                  className="w-9 h-full flex items-center justify-center"
-                  onClick={() =>
-                    setQuantity(Math.min(effectiveStock, quantity + 1))
-                  }
+                  className={cn("w-9 h-full flex items-center justify-center rounded-r-full transition-colors", activeButton === 'plus' ? "bg-accent" : "hover:bg-gray-200")}
+                  onClick={() => {
+                    setActiveButton('plus');
+                    setQuantity(Math.min(effectiveStock, quantity + 1));
+                  }}
                   disabled={quantity >= effectiveStock}
                 >
                   <Plus className="h-3 w-3 p-0" />
@@ -547,7 +563,7 @@ export function ProductJumpLinks({
         href="#description"
         onClick={(e) => scrollToSection(e, "description")}
         className={cn(
-          "px-5 py-2.5 rounded text-sm font-bold transition-all",
+          "px-5 py-2.5 rounded text-[14px] md:text-[20px] font-bold transition-all",
           activeSection === "description"
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground hover:bg-accent",
@@ -560,7 +576,7 @@ export function ProductJumpLinks({
           href="#video"
           onClick={(e) => scrollToSection(e, "video")}
           className={cn(
-            "px-5 py-2.5 rounded text-sm font-bold transition-all",
+            "px-5 py-2.5 rounded text-[14px] md:text-[20px]  font-bold transition-all",
             activeSection === "video"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-foreground hover:bg-accent",
@@ -573,7 +589,7 @@ export function ProductJumpLinks({
         href="#reviews"
         onClick={(e) => scrollToSection(e, "reviews")}
         className={cn(
-          "px-5 py-2.5 rounded text-sm font-bold transition-all",
+          "px-5 py-2.5 rounded text-[14px] md:text-[20px]  font-bold transition-all",
           activeSection === "reviews"
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground hover:bg-accent",

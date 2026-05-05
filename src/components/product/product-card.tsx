@@ -163,12 +163,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
     return (
         <>
-            <div className="relative w-full bg-card border border-border rounded-lg p-2 flex flex-col group transition-shadow hover:shadow-md h-full font-sans">
+            <div className="relative w-full bg-card border border-border rounded-lg p-2 flex flex-col group transition-shadow hover:shadow-md h-full font-mono">
 
                 {/* Top Right Badge Container */}
                 <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
                     {finalBadgePercentage && finalBadgePercentage > 0 && (
-                        <div className="bg-primary text-primary-foreground text-[12px] font-medium px-2 py-0.5 rounded flex items-center justify-center tracking-wide shadow-sm">
+                        <div className="bg-[#34BE82] text-primary-foreground text-[12px] font-medium px-2 py-0.5 rounded flex items-center justify-center tracking-wide shadow-sm">
                             Save {finalBadgePercentage}%
                         </div>
                     )}

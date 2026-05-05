@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { Fragment, useTransition } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -58,8 +58,8 @@ export function CategoriesTable({ categories }: { categories: Category[] }) {
         const children = childrenMap.get(category.id) || []
 
         return (
-            <>
-                <tr key={category.id} className="border-b last:border-0">
+            <Fragment key={category.id}>
+                <tr className="border-b last:border-0">
                     <td className="p-3 md:p-4">
                         <div className="flex items-center gap-3" style={{ paddingLeft: `${level * 24}px` }}>
                             {category.image ? (
@@ -138,7 +138,7 @@ export function CategoriesTable({ categories }: { categories: Category[] }) {
                     </td>
                 </tr>
                 {children.map((child) => renderCategory(child, level + 1))}
-            </>
+            </Fragment>
         )
     }
 

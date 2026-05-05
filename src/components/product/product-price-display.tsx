@@ -51,7 +51,7 @@ export function ProductPriceDisplay({
                     <span className="text-[#999999] text-xl line-through">
                         <Currency value={effectiveComparePrice} />
                     </span>
-                    <span className="bg-[#2ecc71] text-white text-[11px] font-bold px-2 py-1 rounded tracking-wide">
+                    <span className="bg-[#34BE82] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">
                         Save {Math.round(((effectiveComparePrice - currentPrice) / effectiveComparePrice) * 100)}%
                     </span>
                 </>
