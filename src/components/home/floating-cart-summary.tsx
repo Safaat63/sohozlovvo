@@ -48,7 +48,7 @@ function FloatingCart({ cart, itemCount }: FloatingCartProps) {
       </div>
       <div className="flex items-center justify-center bg-background w-full py-1 rounded-bl-sm">
         <p className="text-xs md:text-sm font-semibold text-accent-foreground">
-          ৳ {formatCurrency(subtotal, currency)}
+          {formatCurrency(subtotal, currency)}
         </p>
       </div>
     </button>

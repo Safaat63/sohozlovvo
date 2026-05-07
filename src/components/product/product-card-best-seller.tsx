@@ -80,7 +80,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
         if (result?.error) {
             toast.error(result.error)
         } else {
-            toast.success("Added to cart")
+            toast.success("Added to cart", {duration: 1000})
             trackAddToCart({
                 item_id: product.id,
                 item_name: product.name,

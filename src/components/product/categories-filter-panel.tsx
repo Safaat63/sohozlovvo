@@ -28,6 +28,8 @@ interface CategoriesFilterPanelProps {
     maxPrice?: number;
     flag?: "best_selling" | "new_arrival";
   };
+  basePath?: string;
+  categoryRouteBase?: string;
 }
 
 function formatPrice(value: number) {
@@ -53,7 +55,7 @@ function PriceRangeSection({
   ]);
 
   return (
-    <section className="rounded-md border border-border bg-card p-4 shadow-sm">
+    <section className="rounded-xs border border-border bg-card p-4 shadow-sm">
       <div className="flex items-center justify-between pb-3">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
           Price Range
@@ -83,6 +85,8 @@ export function CategoriesFilterPanel({
   brands,
   priceRange,
   selected,
+  basePath = "/categories",
+  categoryRouteBase,
 }: CategoriesFilterPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,7 +100,10 @@ export function CategoriesFilterPanel({
     selected.minPrice ?? ""
   }-${selected.maxPrice ?? ""}`;
 
-  const updateParams = (next: Record<string, string | undefined>) => {
+  const updateParams = (
+    next: Record<string, string | undefined>,
+    nextPath = basePath,
+  ) => {
     const params = new URLSearchParams(searchParams.toString());
 
     Object.entries(next).forEach(([key, value]) => {
@@ -110,11 +117,19 @@ export function CategoriesFilterPanel({
     params.delete("page");
 
     const query = params.toString();
-    router.push(query ? `?${query}` : "/categories");
+    router.push(query ? `${nextPath}?${query}` : nextPath);
   };
 
   const handleCategoryToggle = (slug: string) => {
-    updateParams({ category: selected.category === slug ? undefined : slug });
+    const nextCategory = selected.category === slug ? undefined : slug;
+    if (categoryRouteBase) {
+      updateParams(
+        { category: undefined },
+        nextCategory ? `${categoryRouteBase}/${nextCategory}` : basePath,
+      );
+      return;
+    }
+    updateParams({ category: nextCategory });
   };
 
   const handleBrandToggle = (brand: string) => {
@@ -135,7 +150,7 @@ export function CategoriesFilterPanel({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-md border border-border bg-card p-4 shadow-sm">
+      <section className="rounded-xs border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center justify-between pb-3">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
             Filter by Category
@@ -172,7 +187,7 @@ export function CategoriesFilterPanel({
         onCommit={handleRangeCommit}
       />
 
-      <section className="rounded-md border border-border bg-card p-4 shadow-sm">
+      <section className="rounded-xs border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center justify-between pb-3">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
             Brands
@@ -200,7 +215,7 @@ export function CategoriesFilterPanel({
         </div>
       </section>
 
-      <section className="rounded-md border border-border bg-card p-4 shadow-sm">
+      <section className="rounded-xs border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center justify-between pb-3">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
             Product Flag

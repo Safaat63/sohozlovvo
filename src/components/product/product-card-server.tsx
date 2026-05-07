@@ -1,16 +1,10 @@
-import { isInWishlist } from "@/actions/wishlist";
-import { ProductCard } from "./product-card-original";
-
+import { ProductCard } from "./product-card";
 interface ProductCardServerProps {
   product: any;
-  whatsappNumber?: string;
-  priority?: boolean;
 }
 
 export async function ProductCardServer({
-  product,
-  whatsappNumber,
-  priority = false,
+  product
 }: ProductCardServerProps) {
   const variations = Array.isArray(product.variations)
     ? product.variations.map((variation: any) => ({
@@ -91,16 +85,10 @@ export async function ProductCardServer({
     flashSales,
   };
 
-  const inWishlist = await isInWishlist(product.id);
-
-  const cleanWhatsapp = whatsappNumber?.replace(/[^0-9]/g, "") || "";
 
   return (
     <ProductCard
       product={safeProduct}
-      initialInWishlist={inWishlist}
-      whatsappNumber={cleanWhatsapp}
-      priority={priority}
     />
   );
 }

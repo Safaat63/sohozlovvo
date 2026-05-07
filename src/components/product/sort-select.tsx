@@ -22,10 +22,10 @@ export function SortSelect({
   };
 
   return (
-    <div className="relative">
+    <div className="relative border rounded-xs">
       <select
         id="sort"
-        className={`appearance-none bg-muted border-none rounded-lg py-2 pl-3 pr-8 text-sm font-semibold text-foreground focus:ring-1 focus:ring-primary cursor-pointer ${className || ""}`}
+        className={`appearance-none bg-muted border-none py-2 pl-3 pr-8 text-sm font-semibold text-foreground focus:ring-1 focus:ring-primary cursor-pointer ${className || ""}`}
         defaultValue={defaultValue}
         onChange={handleChange}
       >
