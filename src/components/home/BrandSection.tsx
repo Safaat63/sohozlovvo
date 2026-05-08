@@ -1,31 +1,64 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, type PointerEvent, type DragEvent } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
+const AUTO_SLIDE_INTERVAL_MS = 4000;
+
 const BRANDS = [
-  { href: "https://ghorerbazar.com/brand/ghorerbazar", img: "https://backoffice.ghorerbazar.com/brand_images/7hNKq1768887947.png" },
-  { href: "https://ghorerbazar.com/brand/glarvest", img: "https://backoffice.ghorerbazar.com/brand_images/RNTIU1763611802.png" },
-  { href: "https://ghorerbazar.com/brand/khejuri", img: "https://backoffice.ghorerbazar.com/brand_images/8Gpl21757919440.png" },
-  { href: "https://ghorerbazar.com/brand/Shosti food", img: "https://backoffice.ghorerbazar.com/brand_images/8matO1757919401.png" },
-  { href: "https://ghorerbazar.com/brand/Honeyraj", img: "https://backoffice.ghorerbazar.com/brand_images/lCfRt1759553456.png" },
-  { href: "#6", img: "https://backoffice.ghorerbazar.com/brand_images/7hNKq1768887947.png" },
-  { href: "#7", img: "https://backoffice.ghorerbazar.com/brand_images/RNTIU1763611802.png" },
-  { href: "#8", img: "https://backoffice.ghorerbazar.com/brand_images/8Gpl21757919440.png" },
-  { href: "#9", img: "https://backoffice.ghorerbazar.com/brand_images/8matO1757919401.png" },
-  { href: "#10", img: "https://backoffice.ghorerbazar.com/brand_images/lCfRt1759553456.png" },
+  {
+    href: "https://ghorerbazar.com/brand/ghorerbazar",
+    img: "https://backoffice.ghorerbazar.com/brand_images/7hNKq1768887947.png",
+  },
+  {
+    href: "https://ghorerbazar.com/brand/glarvest",
+    img: "https://backoffice.ghorerbazar.com/brand_images/RNTIU1763611802.png",
+  },
+  {
+    href: "https://ghorerbazar.com/brand/khejuri",
+    img: "https://backoffice.ghorerbazar.com/brand_images/8Gpl21757919440.png",
+  },
+  {
+    href: "https://ghorerbazar.com/brand/Shosti food",
+    img: "https://backoffice.ghorerbazar.com/brand_images/8matO1757919401.png",
+  },
+  {
+    href: "https://ghorerbazar.com/brand/Honeyraj",
+    img: "https://backoffice.ghorerbazar.com/brand_images/lCfRt1759553456.png",
+  },
+  {
+    href: "#6",
+    img: "https://backoffice.ghorerbazar.com/brand_images/7hNKq1768887947.png",
+  },
+  {
+    href: "#7",
+    img: "https://backoffice.ghorerbazar.com/brand_images/RNTIU1763611802.png",
+  },
+  {
+    href: "#8",
+    img: "https://backoffice.ghorerbazar.com/brand_images/8Gpl21757919440.png",
+  },
+  {
+    href: "#9",
+    img: "https://backoffice.ghorerbazar.com/brand_images/8matO1757919401.png",
+  },
+  {
+    href: "#10",
+    img: "https://backoffice.ghorerbazar.com/brand_images/lCfRt1759553456.png",
+  },
 ];
 
 export default function BrandSection() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const [cardWidth, setCardWidth] = useState(0);
-  const [gap, setGap] = useState(16); // Tailwind gap-4 default
-  const [visibleCount, setVisibleCount] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [activePage, setActivePage] = useState(0);
+  const cardWidthRef = useRef(0);
+  const gapRef = useRef(16); // Tailwind gap-4 default
+  const visibleCountRef = useRef(1);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
 
   // Measure card width and gap and container width to compute visibleCount
   useEffect(() => {
@@ -38,23 +71,18 @@ export default function BrandSection() {
       if (!firstCard) return;
 
       const cardRect = firstCard.getBoundingClientRect();
-      setCardWidth(cardRect.width);
+      cardWidthRef.current = cardRect.width;
 
       const cs = getComputedStyle(list);
       const gapValue = cs.gap || cs.columnGap || cs.rowGap || "";
       const parsedGap = parseFloat(gapValue || "");
-      setGap(Number.isFinite(parsedGap) ? parsedGap : 16);
+      gapRef.current = Number.isFinite(parsedGap) ? parsedGap : 16;
 
       const containerRect = container.getBoundingClientRect();
-      const step = cardRect.width + (Number.isFinite(parsedGap) ? parsedGap : 16);
+      const step =
+        cardRect.width + (Number.isFinite(parsedGap) ? parsedGap : 16);
       const visible = Math.max(1, Math.floor(containerRect.width / step));
-      setVisibleCount(visible);
-
-      const totalPages = Math.max(1, Math.ceil(BRANDS.length / visible));
-      setPages(totalPages);
-
-      // clamp active page if needed
-      setActivePage((p) => Math.max(0, Math.min(totalPages - 1, p)));
+      visibleCountRef.current = visible;
     };
 
     measure();
@@ -68,40 +96,50 @@ export default function BrandSection() {
     };
   }, []);
 
-  // Update active page on scroll
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
-    let raf = 0;
+    const id = window.setInterval(() => {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const maxScrollLeft = scrollWidth - clientWidth;
+      if (maxScrollLeft <= 0) return;
 
-    const onScroll = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        if (cardWidth <= 0) return;
-        const step = cardWidth + gap;
-        const left = container.scrollLeft;
-        const pageStep = step * visibleCount;
-        const idx = Math.round(left / pageStep);
-        const bounded = Math.max(0, Math.min(pages - 1, idx));
-        setActivePage(bounded);
-      });
-    };
+      const atEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 2;
+      if (atEnd) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        const step = cardWidthRef.current + gapRef.current;
+        const visible = visibleCountRef.current;
+        const scrollByAmount = step * visible;
+        container.scrollBy({ left: scrollByAmount, behavior: "smooth" });
+      }
+    }, AUTO_SLIDE_INTERVAL_MS);
 
-    container.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      container.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [cardWidth, gap, visibleCount, pages]);
+    return () => window.clearInterval(id);
+  }, []);
 
-  // Scroll to page when dot clicked
-  const scrollToPage = (pageIndex: number) => {
-    const container = scrollRef.current;
-    if (!container || cardWidth <= 0) return;
-    const step = cardWidth + gap;
-    const left = pageIndex * visibleCount * step;
-    container.scrollTo({ left, behavior: "smooth" });
-    setActivePage(pageIndex);
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+    isDraggingRef.current = true;
+    dragStartXRef.current = event.clientX;
+    dragStartScrollLeftRef.current = scrollRef.current.scrollLeft;
+    scrollRef.current.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollRef.current) return;
+    const delta = event.clientX - dragStartXRef.current;
+    scrollRef.current.scrollLeft = dragStartScrollLeftRef.current - delta;
+  };
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+    isDraggingRef.current = false;
+    scrollRef.current.releasePointerCapture(event.pointerId);
+  };
+
+  const handleDragStart = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
   };
 
   return (
@@ -110,15 +148,22 @@ export default function BrandSection() {
         {/* Header - Fixed to be row layout on all screen sizes */}
         <div className="flex flex-row justify-between items-center gap-2 mb-6">
           <div>
-            <h3 className="text-foreground text-[18px] sm:text-[22px] font-bold leading-tight">Our Brands</h3>
+            <h3 className="text-foreground text-[18px] sm:text-[22px] font-bold leading-tight">
+              Our Brands
+            </h3>
             <div className="mt-2 sm:mt-3">
-              <span className="block w-[80px] sm:w-[120px] h-[4px] sm:h-[6px] bg-primary rounded-full" />
+              <span className="block w-20 sm:w-30 h-1 sm:h-1.5 bg-primary rounded-full" />
             </div>
           </div>
 
           <div className="text-right">
-            <a href="https://ghorerbazar.com/all-brands" className="text-primary font-semibold flex items-center gap-1 sm:gap-2 uppercase text-[11px] sm:text-sm group">
-              <span className="underline group-hover:no-underline transition-all">See all</span>
+            <a
+              href="https://ghorerbazar.com/all-brands"
+              className="text-primary font-semibold flex items-center gap-1 sm:gap-2 uppercase text-[11px] sm:text-sm group"
+            >
+              <span className="underline group-hover:no-underline transition-all">
+                See all
+              </span>
               <ArrowRight className="text-primary group-hover:translate-x-1 transition-transform w-[14px] h-[14px] sm:w-[16px] sm:h-[16px]" />
             </a>
 
@@ -129,8 +174,21 @@ export default function BrandSection() {
         </div>
 
         {/* Scrollable list */}
-        <div ref={scrollRef} className="overflow-x-auto scrollbar-hide scroll-smooth" aria-label="Brand list">
-          <div ref={listRef} className="flex gap-3 sm:gap-4" style={{ paddingBottom: 8 }}>
+        <div
+          ref={scrollRef}
+          className="overflow-x-auto scrollbar-hide scroll-smooth cursor-grab active:cursor-grabbing select-none touch-pan-x"
+          aria-label="Brand list"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          onDragStart={handleDragStart}
+        >
+          <div
+            ref={listRef}
+            className="flex gap-3 sm:gap-4"
+            style={{ paddingBottom: 8 }}
+          >
             {BRANDS.map((b, idx) => (
               <a
                 key={idx}
@@ -139,26 +197,17 @@ export default function BrandSection() {
                 aria-label={`Brand ${idx + 1}`}
               >
                 <div className="relative w-full h-[50px] sm:h-[60px] flex items-center justify-center">
-                  <Image src={b.img} alt={`brand-${idx}`} fill className="object-contain" />
+                  <Image
+                    src={b.img}
+                    alt={`brand-${idx}`}
+                    fill
+                    className="object-contain"
+                    draggable={false}
+                  />
                 </div>
               </a>
             ))}
           </div>
-        </div>
-
-        {/* Pagination dots (pages) */}
-        <div className="flex justify-center mt-5 gap-2" role="tablist" aria-label="Brand pagination">
-          {Array.from({ length: pages }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => scrollToPage(i)}
-              aria-label={`Go to page ${i + 1}`}
-              aria-current={activePage === i ? "true" : "false"}
-              className={`w-3 h-3 rounded-full transition-transform focus:outline-none ${
-                activePage === i ? "bg-primary scale-110" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-              }`}
-            />
-          ))}
         </div>
       </div>
     </section>

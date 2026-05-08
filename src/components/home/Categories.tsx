@@ -1,47 +1,77 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect, type PointerEvent, type DragEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const AUTO_SLIDE_INTERVAL_MS = 4000;
+const AUTO_SCROLL_STEP = 312;
 
 export default function FeaturedCategories({ categories }) {
-  const scrollContainerRef = useRef(null);
-  const [isAtStart, setIsAtStart] = useState(true);
-  const [isAtEnd, setIsAtEnd] = useState(false);
-
-  // Update button visibility based on scroll position
-  const handleScroll = () => {
-    if (!scrollContainerRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-    
-    setIsAtStart(scrollLeft <= 0);
-    // Adding a 2px buffer for decimal pixel rendering issues on some screens
-    setIsAtEnd(Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 2);
-  };
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
 
   // Check initial state on mount and window resize
   useEffect(() => {
-    handleScroll();
-    window.addEventListener("resize", handleScroll);
-    return () => window.removeEventListener("resize", handleScroll);
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const onResize = () => {
+      container.scrollTo({ left: container.scrollLeft });
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, [categories]);
 
-  // Handle arrow button clicks
-  const scroll = (direction) => {
-    if (scrollContainerRef.current) {
-      // Scroll by roughly 2 cards at a time (card width + gap = ~156px * 2 = 312px)
-      const scrollAmount = direction === "left" ? -312 : 312;
-      scrollContainerRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: "smooth",
-      });
-    }
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+    const id = window.setInterval(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const maxScrollLeft = scrollWidth - clientWidth;
+
+      if (maxScrollLeft <= 0) return;
+
+      const atEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 2;
+      if (atEnd) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: AUTO_SCROLL_STEP, behavior: "smooth" });
+      }
+    }, AUTO_SLIDE_INTERVAL_MS);
+
+    return () => window.clearInterval(id);
+  }, [categories]);
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    isDraggingRef.current = true;
+    dragStartXRef.current = event.clientX;
+    dragStartScrollLeftRef.current = scrollContainerRef.current.scrollLeft;
+    scrollContainerRef.current.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollContainerRef.current) return;
+    const delta = event.clientX - dragStartXRef.current;
+    scrollContainerRef.current.scrollLeft =
+      dragStartScrollLeftRef.current - delta;
+  };
+
+  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    isDraggingRef.current = false;
+    scrollContainerRef.current.releasePointerCapture(event.pointerId);
+  };
+
+  const handleDragStart = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
   };
 
   return (
     <section className="w-full">
       <div className="mx-auto">
-        
         {/* Header */}
         <div className="text-center mb-10">
           <h3 className="text-[#333333] text-[24px] md:text-[28px] font-semibold">
@@ -51,24 +81,27 @@ export default function FeaturedCategories({ categories }) {
 
         {/* Carousel Wrapper */}
         <div className="relative group/slider">
-          
           {/* Scroll Container */}
           <div
             ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth py-4 cursor-grab active:cursor-grabbing select-none touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onDragStart={handleDragStart}
           >
             {categories.map((category) => (
-              <div 
-                key={category.id} 
+              <div
+                key={category.id}
                 className="snap-start shrink-0 first:ml-2 last:mr-2 md:first:ml-0 md:last:mr-0"
               >
                 <Link
                   href={`/categories/${category.slug}`}
-                  className="flex flex-col items-center group w-[120px] md:w-[140px]"
+                  className="flex flex-col items-center group w-30 md:w-35"
                 >
                   {/* Image Card */}
-                  <div className="w-[120px] h-[120px] md:w-[140px] md:h-[140px] bg-white rounded-[28px] flex items-center justify-center p-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] group-hover:shadow-[0_4px_15px_rgba(0,0,0,0.08)] transition-all duration-300">
+                  <div className="w-30 h-30 md:w-35 md:h-35 bg-white rounded-[28px] flex items-center justify-center p-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] group-hover:shadow-[0_4px_15px_rgba(0,0,0,0.08)] transition-all duration-300">
                     {category.image ? (
                       <div className="relative w-full h-full">
                         <Image
@@ -77,6 +110,7 @@ export default function FeaturedCategories({ categories }) {
                           fill
                           className="object-contain transform group-hover:scale-105 transition-transform duration-300"
                           sizes="(max-width: 768px) 120px, 140px"
+                          draggable={false}
                         />
                       </div>
                     ) : (
@@ -85,10 +119,10 @@ export default function FeaturedCategories({ categories }) {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Category Name */}
                   <div className="mt-4 text-center w-full">
-                    <p className="text-sm md:text-[15px] font-medium text-[#4A4A4A] group-hover:text-[#FF7A00] transition-colors duration-300 break-words">
+                    <p className="text-sm md:text-[15px] font-medium text-[#4A4A4A] group-hover:text-[#FF7A00] transition-colors duration-300 wrap-break-word">
                       {category.name}
                     </p>
                   </div>
@@ -96,27 +130,7 @@ export default function FeaturedCategories({ categories }) {
               </div>
             ))}
           </div>
-
-          {/* Custom Navigation Buttons */}
-          <button
-            onClick={() => scroll("left")}
-            disabled={isAtStart}
-            className="absolute left-0 top-[60px] md:top-[70px] -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-[#FF9A42] hover:bg-[#FF7A00] text-white rounded-full flex items-center justify-center shadow-md transition-all duration-300 disabled:opacity-0 disabled:scale-90 disabled:pointer-events-none"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft size={20} className="mr-0.5" />
-          </button>
-          
-          <button
-            onClick={() => scroll("right")}
-            disabled={isAtEnd}
-            className="absolute right-0 top-[60px] md:top-[70px] -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-[#FFD7BA] hover:bg-[#FF7A00] hover:text-white text-white rounded-full flex items-center justify-center shadow-md transition-all duration-300 disabled:opacity-0 disabled:scale-90 disabled:pointer-events-none"
-            aria-label="Scroll right"
-          >
-            <ChevronRight size={20} className="ml-0.5" />
-          </button>
         </div>
-
       </div>
     </section>
   );

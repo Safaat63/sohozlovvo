@@ -71,7 +71,7 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
             </div>
 
             {/* Content Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <div className="absolute inset-0 flex items-start pt-20  justify-center bg-black/20">
                 <div className="container mx-auto px-4 text-center text-white">
                     <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-lg">
                         {currentBanner.title}
