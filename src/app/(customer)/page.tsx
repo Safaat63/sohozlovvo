@@ -101,72 +101,16 @@ export default async function HomePage() {
     <>
       <LandingPageTracking featuredProducts={serializedFeaturedProducts} />
       <main className="min-h-screen pt-5 bg-background-light dark:bg-[#1a1d23]">
-        {/* Hero Section */}
-        {heroBanners.length > 0 ? (
-          <section className="relative w-auto overflow-hidden px-10 object-cover_ h-50 sm:h-65 md:h-93">
-            <div className="w-full">
-              <HeroSlider banners={heroBanners} />
-            </div>
-          </section>
-        ) : (
-          <section className="relative w-full overflow-hidden max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
-            <div className="max-w-360 mx-auto">
-              <div className="grid lg:grid-cols-2 gap-12 items-center">
-                <div className="flex flex-col gap-6 lg:pr-12 order-2 lg:order-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 w-fit">
-                    <span className="w-2 h-2 rounded-full bg-primary"></span>
-                    <span className="text-xs font-bold text-primary tracking-wide uppercase">
-                      New Collection
-                    </span>
-                  </div>
-                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight">
-                    Discover Your <br />
-                    <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-600">
-                      Perfect Style.
-                    </span>
-                  </h1>
-                  <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
-                    Explore our curated collection of premium products designed
-                    for modern living.
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-4">
-                    <Link
-                      href="/products"
-                      className="px-8 py-4 bg-primary hover:bg-primary/90 text-white text-base font-bold rounded-xl transition-all shadow-lg hover:shadow-primary/30 flex items-center gap-2 group"
-                    >
-                      Shop Collection
-                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                    <Link
-                      href="/categories"
-                      className="px-8 py-4 bg-white dark:bg-card border border-border text-foreground text-base font-bold rounded-xl hover:bg-muted transition-all flex items-center gap-2"
-                    >
-                      Browse Categories
-                    </Link>
-                  </div>
-                  <div className="flex items-center gap-6 pt-8 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-green-600" />
-                      <span>Countrywide Shipping</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-green-600" />
-                      <span>Quality Guaranteed</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="relative order-1 lg:order-2">
-                  <div className="absolute -inset-4 bg-linear-to-tr from-primary/20 to-accent/10 rounded-3xl blur-2xl opacity-50"></div>
-                  <div className="relative aspect-4/3 w-full rounded-3xl overflow-hidden shadow-2xl bg-linear-to-br from-primary/10 to-accent/10">
-                    <div className="w-full h-full flex items-center justify-center text-6xl">
-                      🛍️
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
+        {/* Hero Sections */}
+        <div className="mx-auto flex flex-row gap-0">
+          {/* Hero Section */}
+          {heroBanners.length > 0 && <HeroSlider banners={heroBanners} />}
+
+          {/* Promotional Sections */}
+          {promotionalSections.length > 0 && (
+            <PromotionalSectionsDisplay sections={promotionalSections} />
+          )}
+        </div>
 
         {/* Flash Sale / Special Offers Section */}
         {specialOffers.length > 0 && (
@@ -188,11 +132,6 @@ export default async function HomePage() {
               <OfferCountdownWidget offers={specialOffers} />
             </div>
           </section>
-        )}
-
-        {/* Promotional Sections */}
-        {promotionalSections.length > 0 && (
-          <PromotionalSectionsDisplay sections={promotionalSections} />
         )}
 
         {/* Featured Products / Best Sellers */}
