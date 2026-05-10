@@ -609,7 +609,7 @@ export function ProductJumpLinks({
               : "bg-muted text-foreground hover:bg-accent",
           )}
         >
-          Customer Reviews ({reviewCount})
+          Reviews ({reviewCount})
         </button>
       </div>
 
@@ -651,7 +651,7 @@ export function ProductJumpLinks({
               : "bg-muted text-foreground hover:bg-accent",
           )}
         >
-          Customer Reviews ({reviewCount})
+          Reviews ({reviewCount})
         </Link>
       </div>
     </ProductTabsContext.Provider>

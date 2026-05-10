@@ -79,7 +79,7 @@ export function ProductJumpLinks({ hasVideo, reviewCount }: ProductJumpLinksProp
                     activeSection === "reviews" ? "bg-[#f48721] text-white" : "bg-[#f5f5f5] text-[#252a34] hover:bg-[#e0e0e0]"
                 )}
             >
-                Customer Reviews ({reviewCount})
+                Reviews ({reviewCount})
             </a>
         </div>
     )

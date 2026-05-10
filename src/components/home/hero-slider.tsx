@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowBigLeft, ArrowLeft, ArrowLeftIcon, ArrowLeftToLine, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 type HeroBanner = {
   id: string;
@@ -46,7 +46,7 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
   const currentBanner = banners[currentIndex];
 
   return (
-    <div className="relative w-full h-[244px] md:h-[372px] overflow-hidden rounded-2xl bg-muted lg:flex-1 lg:min-w-0">
+    <Link href={currentBanner.link} className="relative w-full h-[244px] md:h-[372px] overflow-hidden rounded-2xl bg-muted lg:flex-1 lg:min-w-0">
       {/* Mobile Image */}
       <Image
         src={currentBanner.mobileImage ?? currentBanner.image}
@@ -72,14 +72,14 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
             className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-9 w-9 md:h-10 md:w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Previous banner"
           >
-            <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
+            <ArrowLeft className="h-5 w-5 md:h-6 md:w-6" />
           </button>
           <button
             onClick={goToNext}
             className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-9 w-9 md:h-10 md:w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Next banner"
           >
-            <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
+            <ArrowRight className="h-5 w-5 md:h-6 md:w-6" />
           </button>
         </>
       )}
@@ -104,6 +104,6 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
           ))}
         </div>
       )}
-    </div>
+    </Link>
   );
 }

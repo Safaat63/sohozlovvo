@@ -46,7 +46,7 @@ export function ProductTabs({
                     onClick={() => setActiveTab("reviews")}
                     className={`px-6 py-2 rounded text-sm font-bold transition-colors ${activeTab === "reviews" ? "bg-[#f48721] text-white" : "bg-transparent text-[#252a34] hover:bg-gray-200"}`}
                 >
-                    Customer Reviews ({verifiedReviews.length})
+                    Reviews ({verifiedReviews.length})
                 </button>
             </div>
 

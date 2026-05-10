@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 type PromotionalSection = {
   id: string;
@@ -92,14 +92,14 @@ export function PromotionalSectionsDisplay({
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-10 w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Previous slide"
           >
-            <ChevronLeft size={24} />
+            <ArrowLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
             className="absolute right-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-10 w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Next slide"
           >
-            <ChevronRight size={24} />
+            <ArrowRight size={24} />
           </button>
         </>
       )}
