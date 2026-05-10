@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type HeroBanner = {
@@ -47,14 +46,22 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
   const currentBanner = banners[currentIndex];
 
   return (
-    <div className="relative md:w-[930px] md:h-[372px] w-[434px] h-[244] overflow-hidden bg-muted">
+    <div className="relative w-full h-[244px] md:h-[372px] overflow-hidden rounded-2xl bg-muted lg:flex-1 lg:min-w-0">
+      {/* Mobile Image */}
+      <Image
+        src={currentBanner.mobileImage ?? currentBanner.image}
+        alt={currentBanner.title}
+        fill
+        priority
+        className="object-cover md:hidden"
+      />
       {/* Desktop/Tablet Image */}
       <Image
         src={currentBanner.image}
         alt={currentBanner.title}
         fill
         priority
-        className="object-cover"
+        className="hidden object-cover md:block"
       />
 
       {/* Navigation Arrows */}
@@ -62,14 +69,14 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-full p-2 shadow-lg transition-colors"
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-9 w-9 md:h-10 md:w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Previous banner"
           >
             <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-full p-2 shadow-lg transition-colors"
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-9 w-9 md:h-10 md:w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Next banner"
           >
             <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
@@ -79,7 +86,7 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
 
       {/* Dots Indicator */}
       {banners.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-4 left-6 flex gap-2">
           {banners.map((_, index) => (
             <button
               key={index}
@@ -89,8 +96,8 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
               }}
               className={`h-2 rounded-full transition-all ${
                 index === currentIndex
-                  ? "w-8 bg-white dark:bg-gray-200"
-                  : "w-2 bg-white/50 dark:bg-gray-400/50 hover:bg-white/75 dark:hover:bg-gray-300/75"
+                  ? "w-4 bg-orange-500"
+                  : "w-2 bg-white/70 hover:bg-white"
               }`}
               aria-label={`Go to banner ${index + 1}`}
             />

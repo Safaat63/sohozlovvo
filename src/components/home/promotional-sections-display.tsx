@@ -46,18 +46,21 @@ export function PromotionalSectionsDisplay({
   }
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto overflow-hidden rounded-lg group">
+    <div className="relative overflow-hidden h-[374px] w-[455px] rounded-2xl">
       {/* Slider Container */}
       <div
-        className="flex transition-transform duration-500 ease-out"
+        className="flex h-full transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {validSections.map((section) => (
-          <div key={section.id} className="w-full flex-shrink-0">
+          <div
+            key={section.id}
+            className="relative h-full w-full flex-shrink-0"
+          >
             {section.link ? (
               <Link
                 href={section.link}
-                className="block relative aspect-[16/9] md:aspect-[21/9]"
+                className="relative block h-full w-full"
               >
                 <Image
                   src={section.image!}
@@ -68,7 +71,7 @@ export function PromotionalSectionsDisplay({
                 />
               </Link>
             ) : (
-              <div className="relative aspect-[16/9] md:aspect-[21/9]">
+              <div className="relative h-full w-full">
                 <Image
                   src={section.image!}
                   alt="Promotional Image"
@@ -86,14 +89,14 @@ export function PromotionalSectionsDisplay({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-10 w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Previous slide"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-10 w-10 flex items-center justify-center shadow-md transition-colors"
             aria-label="Next slide"
           >
             <ChevronRight size={24} />
@@ -103,13 +106,13 @@ export function PromotionalSectionsDisplay({
 
       {/* Dots Indicator */}
       {validSections.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-4 left-6 flex gap-2">
           {validSections.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`h-2 w-2 rounded-full transition-all ${
-                currentIndex === index ? "bg-white w-4" : "bg-white/50"
+                currentIndex === index ? "bg-orange-500 w-4" : "bg-white/70"
               }`}
             />
           ))}

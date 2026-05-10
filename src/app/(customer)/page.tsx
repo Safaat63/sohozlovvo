@@ -102,13 +102,15 @@ export default async function HomePage() {
       <LandingPageTracking featuredProducts={serializedFeaturedProducts} />
       <main className="min-h-screen pt-5 bg-background-light dark:bg-[#1a1d23]">
         {/* Hero Sections */}
-        <div className="mx-auto flex flex-row gap-0">
+        <div className="mx-auto flex flex-col lg:flex-row gap-4 max-w-360 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
           {/* Hero Section */}
           {heroBanners.length > 0 && <HeroSlider banners={heroBanners} />}
 
           {/* Promotional Sections */}
           {promotionalSections.length > 0 && (
-            <PromotionalSectionsDisplay sections={promotionalSections} />
+            <div className="hidden lg:block lg:w-[455px] lg:flex-shrink-0">
+              <PromotionalSectionsDisplay sections={promotionalSections} />
+            </div>
           )}
         </div>
 
