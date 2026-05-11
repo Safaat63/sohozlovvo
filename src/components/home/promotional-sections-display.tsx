@@ -86,14 +86,14 @@ export function PromotionalSectionsDisplay({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto"
+            className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto"
             aria-label="Previous slide"
           >
             <ArrowLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto"
+            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto"
             aria-label="Next slide"
           >
             <ArrowRight size={24} />

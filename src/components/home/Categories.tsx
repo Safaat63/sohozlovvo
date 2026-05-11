@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, type PointerEvent, type DragEvent } from "react";
+import { useRef, useEffect, useState, type PointerEvent, type DragEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,16 +11,41 @@ export default function FeaturedCategories({ categories }) {
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartScrollLeftRef = useRef(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [totalDots, setTotalDots] = useState(0);
+  const cardWidthRef = useRef(0);
+  const gapRef = useRef(0);
+  const visibleCountRef = useRef(1);
 
-  // Check initial state on mount and window resize
+  // Measure card width and gap and container width to compute visibleCount
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const onResize = () => {
-      container.scrollTo({ left: container.scrollLeft });
+    const measure = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const firstCard = container.querySelector<HTMLElement>("div");
+      if (!firstCard) return;
+
+      const cardRect = firstCard.getBoundingClientRect();
+      cardWidthRef.current = cardRect.width;
+
+      const cs = getComputedStyle(container);
+      const gapValue = cs.gap || cs.columnGap || cs.rowGap || "";
+      const parsedGap = parseFloat(gapValue || "");
+      gapRef.current = Number.isFinite(parsedGap) ? parsedGap : 16;
+
+      const containerRect = container.getBoundingClientRect();
+      const step = cardRect.width + gapRef.current;
+      const visible = Math.max(1, Math.floor(containerRect.width / step));
+      visibleCountRef.current = visible;
+
+      const dots = Math.ceil(categories.length / visible);
+      setTotalDots(dots);
     };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
   }, [categories]);
 
   useEffect(() => {
@@ -69,6 +94,29 @@ export default function FeaturedCategories({ categories }) {
     event.preventDefault();
   };
 
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft } = scrollContainerRef.current;
+    const step = cardWidthRef.current + gapRef.current;
+    const visible = visibleCountRef.current;
+    const scrollByAmount = step * visible;
+    if (scrollByAmount === 0) return;
+
+    const index = Math.round(scrollLeft / scrollByAmount);
+    setActiveIndex(index);
+  };
+
+  const scrollToDot = (index: number) => {
+    if (!scrollContainerRef.current) return;
+    const step = cardWidthRef.current + gapRef.current;
+    const visible = visibleCountRef.current;
+    const scrollByAmount = step * visible;
+    scrollContainerRef.current.scrollTo({
+      left: index * scrollByAmount,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="w-full">
       <div className="mx-auto">
@@ -90,6 +138,7 @@ export default function FeaturedCategories({ categories }) {
             onPointerUp={handlePointerUp}
             onPointerLeave={handlePointerUp}
             onDragStart={handleDragStart}
+            onScroll={handleScroll}
           >
             {categories.map((category) => (
               <div
@@ -130,6 +179,24 @@ export default function FeaturedCategories({ categories }) {
               </div>
             ))}
           </div>
+
+          {/* Dots Indicator */}
+          {totalDots > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              {Array.from({ length: totalDots }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToDot(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === activeIndex
+                      ? "w-6 bg-[#FF7A00]"
+                      : "bg-[#FF7A00]/20 hover:bg-[#FF7A00]/40 w-2"
+                  }`}
+                  aria-label={`Go to category page ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

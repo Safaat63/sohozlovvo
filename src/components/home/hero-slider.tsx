@@ -72,14 +72,14 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto md:h-10 md:w-10"
+            className="absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto md:h-10 md:w-10"
             aria-label="Previous banner"
           >
             <ArrowLeft className="h-5 w-5 md:h-6 md:w-6" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 z-10 flex h-9 w-9 translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto md:h-10 md:w-10"
+            className="absolute right-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto md:h-10 md:w-10"
             aria-label="Next banner"
           >
             <ArrowRight className="h-5 w-5 md:h-6 md:w-6" />

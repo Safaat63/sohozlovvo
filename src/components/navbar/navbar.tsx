@@ -81,16 +81,41 @@ function SearchIcon({ className }: { className?: string }) {
 function MenuIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={className}
-      fill="none"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.5}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      /* text-black handles light mode, dark:text-white handles dark mode */
+      className={`text-white dark:text-black ${className || ""}`}
     >
       <path
+        d="M9 3H5C3.89543 3 3 3.89543 3 5V9C3 10.1046 3.89543 11 5 11H9C10.1046 11 11 10.1046 11 9V5C11 3.89543 10.1046 3 9 3Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+      />
+      <path
+        d="M19 3H15C13.8954 3 13 3.89543 13 5V9C13 10.1046 13.8954 11 15 11H19C20.1046 11 21 10.1046 21 9V5C21 3.89543 20.1046 3 19 3Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 13H5C3.89543 13 3 13.8954 3 15V19C3 20.1046 3.89543 21 5 21H9C10.1046 21 11 20.1046 11 19V15C11 13.8954 10.1046 13 9 13Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M19 13H15C13.8954 13 13 13.8954 13 15V19C13 20.1046 13.8954 21 15 21H19C20.1046 21 21 20.1046 21 19V15C21 13.8954 20.1046 13 19 13Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -252,7 +277,7 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
   return (
     <>
       {/* UPPER NAVBAR - NON-STICKY (Scrolls away normally) */}
-      <header className="w-full bg-white border-b border-border relative z-50">
+      <header className="w-full bg-white dark:bg-black border-b border-border relative z-50">
         {/* Desktop Header */}
         <div className="hidden lg:block">
           <div className="max-w-7xl mx-auto px-6">
@@ -442,19 +467,20 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
       </div>
 
       {/* MOBILE BOTTOM BAR - FIXED */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-accent-foreground border-t border-border text-foreground z-50">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-accent-foreground border-t border-border text-foreground font-sans z-50">
         <div className="grid grid-cols-5 items-center h-16">
           <Link
             href="/"
             className="flex flex-col items-center text-[11px] text-background hover:text-primary"
           >
             <Home className="h-5 w-5" />
-            Home
+            HOME
           </Link>
           <MobileMenu
             session={session ? { user: session.user } : null}
             categories={serializedCategories}
             triggerClassName="flex flex-col items-center text-[11px] text-background hover:text-primary"
+            icon={<MenuIcon className="h-5 w-5" />}
           />
           <SideCart
             cart={serializedCart}
@@ -469,7 +495,7 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
             <SheetTrigger asChild>
               <button className="flex flex-col items-center text-[11px] text-background hover:text-primary">
                 <SearchIcon className="h-5 w-5" />
-                Search
+                SEARCH
               </button>
             </SheetTrigger>
             <SheetContent
@@ -487,7 +513,7 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
               className="flex flex-col items-center text-[11px] text-background hover:text-primary"
             >
               <UserIcon className="h-5 w-5" />
-              Account
+              ACCOUNT
             </Link>
           ) : (
             <Link
@@ -495,7 +521,7 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
               className="flex flex-col items-center text-[11px] text-background hover:text-primary"
             >
               <UserIcon className="h-5 w-5" />
-              Account
+              ACCOUNT
             </Link>
           )}
         </div>

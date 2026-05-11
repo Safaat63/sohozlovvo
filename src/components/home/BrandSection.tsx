@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent, type DragEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent, type DragEvent } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
@@ -59,6 +59,8 @@ export default function BrandSection() {
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartScrollLeftRef = useRef(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [totalDots, setTotalDots] = useState(0);
 
   // Measure card width and gap and container width to compute visibleCount
   useEffect(() => {
@@ -83,6 +85,9 @@ export default function BrandSection() {
         cardRect.width + (Number.isFinite(parsedGap) ? parsedGap : 16);
       const visible = Math.max(1, Math.floor(containerRect.width / step));
       visibleCountRef.current = visible;
+
+      const dots = Math.ceil(BRANDS.length / visible);
+      setTotalDots(dots);
     };
 
     measure();
@@ -142,6 +147,29 @@ export default function BrandSection() {
     event.preventDefault();
   };
 
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft } = scrollRef.current;
+    const step = cardWidthRef.current + gapRef.current;
+    const visible = visibleCountRef.current;
+    const scrollByAmount = step * visible;
+    if (scrollByAmount === 0) return;
+
+    const index = Math.round(scrollLeft / scrollByAmount);
+    setActiveIndex(index);
+  };
+
+  const scrollToDot = (index: number) => {
+    if (!scrollRef.current) return;
+    const step = cardWidthRef.current + gapRef.current;
+    const visible = visibleCountRef.current;
+    const scrollByAmount = step * visible;
+    scrollRef.current.scrollTo({
+      left: index * scrollByAmount,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section>
       <div className="mx-auto">
@@ -183,6 +211,7 @@ export default function BrandSection() {
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
           onDragStart={handleDragStart}
+          onScroll={handleScroll}
         >
           <div
             ref={listRef}
@@ -201,6 +230,7 @@ export default function BrandSection() {
                     src={b.img}
                     alt={`brand-${idx}`}
                     fill
+                    sizes="(max-width: 768px) 33vw, (max-width: 1024px) 20vw, 180px"
                     className="object-contain"
                     draggable={false}
                   />
@@ -209,6 +239,24 @@ export default function BrandSection() {
             ))}
           </div>
         </div>
+
+        {/* Dots Indicator */}
+        {totalDots > 1 && (
+          <div className="flex justify-center gap-2 mt-6">
+            {Array.from({ length: totalDots }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollToDot(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === activeIndex
+                    ? "w-6 bg-primary"
+                    : "w-2 bg-primary/20 hover:bg-primary/40"
+                }`}
+                aria-label={`Go to brand page ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
