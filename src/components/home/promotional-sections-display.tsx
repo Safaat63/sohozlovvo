@@ -46,17 +46,14 @@ export function PromotionalSectionsDisplay({
   }
 
   return (
-    <div className="relative overflow-hidden h-[374px] w-[455px] rounded-2xl">
+    <div className="group relative overflow-hidden h-93.5 w-113.75 rounded-2xl">
       {/* Slider Container */}
       <div
         className="flex h-full transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {validSections.map((section) => (
-          <div
-            key={section.id}
-            className="relative h-full w-full flex-shrink-0"
-          >
+          <div key={section.id} className="relative h-full w-full shrink-0">
             {section.link ? (
               <Link
                 href={section.link}
@@ -89,14 +86,14 @@ export function PromotionalSectionsDisplay({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-10 w-10 flex items-center justify-center shadow-md transition-colors"
+            className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto"
             aria-label="Previous slide"
           >
             <ArrowLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-10 w-10 flex items-center justify-center shadow-md transition-colors"
+            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto"
             aria-label="Next slide"
           >
             <ArrowRight size={24} />

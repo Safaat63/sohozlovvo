@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowBigLeft, ArrowLeft, ArrowLeftIcon, ArrowLeftToLine, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 type HeroBanner = {
   id: string;
@@ -46,7 +46,10 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
   const currentBanner = banners[currentIndex];
 
   return (
-    <Link href={currentBanner.link} className="relative w-full h-[244px] md:h-[372px] overflow-hidden rounded-2xl bg-muted lg:flex-1 lg:min-w-0">
+    <Link
+      href={currentBanner.link}
+      className="group relative w-full h-61 md:h-93 overflow-hidden rounded-2xl bg-muted lg:flex-1 lg:min-w-0"
+    >
       {/* Mobile Image */}
       <Image
         src={currentBanner.mobileImage ?? currentBanner.image}
@@ -69,14 +72,14 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-9 w-9 md:h-10 md:w-10 flex items-center justify-center shadow-md transition-colors"
+            className="absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto md:h-10 md:w-10"
             aria-label="Previous banner"
           >
             <ArrowLeft className="h-5 w-5 md:h-6 md:w-6" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white rounded-md h-9 w-9 md:h-10 md:w-10 flex items-center justify-center shadow-md transition-colors"
+            className="absolute right-0 top-1/2 z-10 flex h-9 w-9 translate-x-1/2 -translate-y-1/2 items-center justify-center bg-white text-orange-500 shadow-md transition-all opacity-0 pointer-events-none hover:bg-orange-500 hover:text-white group-hover:opacity-100 group-hover:pointer-events-auto md:h-10 md:w-10"
             aria-label="Next banner"
           >
             <ArrowRight className="h-5 w-5 md:h-6 md:w-6" />

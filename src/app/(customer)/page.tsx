@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getFeaturedProducts, getCategories } from "@/actions/products";
 import { getPublicSettings } from "@/actions/settings";
 import {
@@ -14,7 +13,7 @@ import { OfferCountdownWidget } from "@/components/home/offer-countdown-widget";
 import { PromotionalSectionsDisplay } from "@/components/home/promotional-sections-display";
 import { RecentProductsSection } from "@/components/product/recent-products-section";
 import { OffersSection } from "@/components/home/offers-section";
-import { ArrowRight, ShieldCheck, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import BrandSection from "@/components/home/BrandSection";
 import FeaturedCategories from "@/components/home/Categories";
 import { LandingPageTracking } from "@/components/analytics/landing-page-tracking";
@@ -145,12 +144,6 @@ export default async function HomePage() {
               </h2>
             </div>
             <FeaturedProductsSlider products={featuredProductsForSlider} />
-            {/* <div className="mt-8 flex justify-center">
-            <Link href="/products" className="group px-10 py-4 bg-linear-to-r from-primary to-primary/90 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2">
-              View More Products
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div> */}
           </div>
         </section>
 
