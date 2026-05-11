@@ -17,7 +17,7 @@ import { Zap } from "lucide-react";
 import BrandSection from "@/components/home/BrandSection";
 import FeaturedCategories from "@/components/home/Categories";
 import { LandingPageTracking } from "@/components/analytics/landing-page-tracking";
-import { FeaturedProductsSlider } from "@/components/home/featured-products-slider";
+import { FeaturedProducts } from "@/components/home/featured-products";
 
 const toNumber = (value: unknown) => {
   if (typeof value === "object" && value !== null && "toNumber" in value) {
@@ -48,7 +48,7 @@ export default async function HomePage() {
     specialOffers,
     promotionalSections,
   ] = await Promise.all([
-    getFeaturedProducts(8),
+    getFeaturedProducts(4),
     getCategories(),
     getPublicSettings(),
     getActiveHeroBanners(),
@@ -143,7 +143,7 @@ export default async function HomePage() {
                 Top Selling Products
               </h2>
             </div>
-            <FeaturedProductsSlider products={featuredProductsForSlider} />
+            <FeaturedProducts products={featuredProductsForSlider} />
           </div>
         </section>
 
