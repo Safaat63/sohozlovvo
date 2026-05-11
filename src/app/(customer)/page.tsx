@@ -136,8 +136,8 @@ export default async function HomePage() {
         )}
 
         {/* Featured Products / Best Sellers */}
-        <section className="py-10 md:py-16 max-w-360 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
-          <div className="max-w-360 mx-auto">
+        <section className="py-10 md:py-16 mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
+          <div className="mx-auto">
             <div className="flex flex-col items-center text-center mb-8">
               <h2 className="text-2xl md:text-[32px] font-extrabold text-[#1a1d23]">
                 Top Selling Products

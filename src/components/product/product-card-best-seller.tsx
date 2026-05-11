@@ -165,7 +165,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
       </Link>
 
       {/* Content Area */}
-      <div className="flex flex-col flex-1 pt-10 md:pl-6 justify-center">
+      <div className="flex flex-col flex-1 md:pl-6 justify-around">
         <Link
           href={`/products/${product.slug}/`}
           className="text-sm md:text-xl font-bold text-[#1a1d23] hover:text-[#F28C28] transition-colors line-clamp-2 mb-2 leading-tight"
