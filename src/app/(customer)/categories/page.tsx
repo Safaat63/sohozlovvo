@@ -138,11 +138,7 @@ export default async function CategoriesPage({
             {products.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {products.map((product) => (
-                  <ProductCardServer
-                    key={product.id}
-                    product={product}
-                    whatsappNumber={whatsappNumber}
-                  />
+                  <ProductCardServer key={product.id} product={product} />
                 ))}
               </div>
             ) : (
