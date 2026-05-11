@@ -75,7 +75,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
   if (normalizedProducts.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
       {normalizedProducts.map((product) => (
         <ProductCardBestSeller key={product.id} product={product} />
       ))}

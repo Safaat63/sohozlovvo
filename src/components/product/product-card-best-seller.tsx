@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Flame } from "lucide-react";
+import { ShoppingCart, Flame, Plus, Minus } from "lucide-react";
 import { addToCart } from "@/actions/cart";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -45,10 +45,11 @@ interface ProductCardProps {
 export function ProductCardBestSeller({ product }: ProductCardProps) {
   const [isCartPending, setIsCartPending] = useState(false);
   const [isOrderPending, setIsOrderPending] = useState(false);
+  const [quantity, setQuantity] = useState(0);
+  const [showQuantityBox, setShowQuantityBox] = useState(false);
   const router = useRouter();
   const currency = useCurrencySymbol();
 
-  // Logic: Check for active flash sale
   const now = new Date();
   const activeFlashSale = product.flashSales?.find(
     (fs) =>
@@ -57,14 +58,10 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
       new Date(fs.endDate) >= now,
   );
 
-  // Logic: Calculate discounted price
-  const { finalPrice, hasDiscount/* , discountPercentage */ } = activeFlashSale
+  const { finalPrice, hasDiscount } = activeFlashSale
     ? {
         finalPrice: activeFlashSale.salePrice,
         hasDiscount: true,
-        /* discountPercentage: Math.round(
-          ((product.price - activeFlashSale.salePrice) / product.price) * 100,
-        ), */
       }
     : calculateDiscountedPrice(
         product.price,
@@ -80,23 +77,40 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
     : product.compareAtPrice;
   const savings = displayComparePrice ? displayComparePrice - displayPrice : 0;
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleOpenQuantity = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setShowQuantityBox(true);
+    handleUpdateQuantity(1);
+  };
+
+  const handleUpdateQuantity = async (delta: number) => {
+    const newQty = Math.max(0, quantity + delta);
+    setQuantity(newQty);
+    
+    if (newQty === 0) {
+      setShowQuantityBox(false);
+      return;
+    }
+
     setIsCartPending(true);
-    const result = await addToCart(product.id, 1);
+    const result = await addToCart(product.id, delta);
     setIsCartPending(false);
+
     if (result?.error) {
       toast.error(result.error);
+      setQuantity(quantity);
     } else {
-      toast.success("Added to cart", { duration: 1000 });
-      trackAddToCart({
-        item_id: product.id,
-        item_name: product.name,
-        price: displayPrice,
-        quantity: 1,
-        item_brand: product.brand || undefined,
-      });
+      if (delta > 0) {
+        toast.success("Added to cart", { duration: 1000 });
+        trackAddToCart({
+          item_id: product.id,
+          item_name: product.name,
+          price: displayPrice,
+          quantity: delta,
+          item_brand: product.brand || undefined,
+        });
+      }
       router.refresh();
     }
   };
@@ -121,113 +135,110 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
     }
   };
 
-  const handleCardClick = () => {
-    router.push(`/products/${product.slug}/`);
-  };
-
-  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      router.push(`/products/${product.slug}/`);
-    }
-  };
-
   return (
-    <div
-      className="group relative flex flex-col md:flex-row items-stretch rounded-xs border border-border bg-card transition-all hover:shadow-lg w-full h-full overflow-hidden cursor-pointer"
-      role="link"
-      tabIndex={0}
-      onClick={handleCardClick}
-      onKeyDown={handleCardKeyDown}
-    >
-      {/* Badge - Top Right */}
+    <div className="group bg-white rounded-xl border border-gray-100/50 hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row h-full md:h-[300px] md:w-full max-w-[650px] mx-auto overflow-hidden relative p-3 md:p-5">
+      {/* Badge */}
       {(activeFlashSale || hasDiscount) && (
-        <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-lg rounded-tr-none bg-destructive px-2 py-1 text-[10px] md:text-xs font-bold text-destructive-foreground z-10">
-          <Flame size={12} fill="currentColor" />
-          {activeFlashSale ? "Flash Sale" : "Offered Items"}
+        <div className="absolute top-0 right-0 z-10 flex items-center gap-1 bg-[#FF4D4D] px-2 py-1 md:px-3 md:py-1.5 rounded-bl-xl text-[10px] md:text-xs font-bold text-white shadow-sm">
+          <Flame size={12} fill="white" />
+          <span>Best Selling</span>
         </div>
       )}
 
-      {/* Product Image Area */}
-      {/* On mobile: aspect-square (full width). On md+: fixed width percentage, full height */}
-      <div className="w-auto h-75 md:w-[40%] lg:w-[45%] shrink-0 relative aspect-4/3 md:aspect-auto md:min-h-60 flex items-center justify-center p-3 md:p-5 bg-card">
+      {/* Image Area */}
+      <Link
+        href={`/products/${product.slug}/`}
+        className="block relative w-full md:w-[40%] aspect-square md:aspect-auto overflow-hidden rounded-lg mb-3 md:mb-0"
+      >
+        {product.images[0] ? (
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+            No Image
+          </div>
+        )}
+      </Link>
+
+      {/* Content Area */}
+      <div className="flex flex-col flex-1 pt-10 md:pl-6 justify-center">
         <Link
           href={`/products/${product.slug}/`}
-          className="w-full h-full relative flex items-center justify-center"
+          className="text-sm md:text-xl font-bold text-[#1a1d23] hover:text-[#F28C28] transition-colors line-clamp-2 mb-2 leading-tight"
         >
-          {product.images[0] ? (
-            <Image
-              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
-              src={product.images[0]}
-              alt={product.name}
-              height={300}
-              width={300}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground rounded-lg">
-              No Image
-            </div>
-          )}
+          {product.name}
         </Link>
-      </div>
 
-      {/* Product Content Area */}
-      <div className="flex flex-col justify-between w-full md:w-[60%] lg:w-[55%] p-3 md:p-6 md:pl-0 h-full">
-        <div>
-          <Link
-            href={`/products/${product.slug}/`}
-            className="text-sm md:text-xl font-bold text-card-foreground hover:text-primary line-clamp-2 transition-colors leading-snug"
-          >
-            {product.name}
-          </Link>
-
-          {/* Pricing */}
-          <div className="mt-1 md:mt-2 flex flex-wrap items-center gap-1.5 md:gap-3">
-            <span className="text-base md:text-lg font-bold text-primary">
+        {/* Price Area */}
+        <div className="flex flex-col gap-2 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm md:text-xl font-bold text-[#F28C28]">
               {formatCurrency(displayPrice, currency)}
             </span>
             {displayComparePrice && displayComparePrice > displayPrice && (
-              <span className="text-xs md:text-sm text-muted-foreground line-through">
+              <span className="text-xs md:text-base text-gray-400 line-through">
                 {formatCurrency(displayComparePrice, currency)}
               </span>
             )}
           </div>
-
-          {/* Save Badge */}
-          <div className="mt-1.5 md:mt-2 mb-3 md:mb-6 min-h-5">
-            {savings > 0 && (
-              <span className="rounded-full bg-[#34BE82] px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-[11px] font-bold text-primary-foreground inline-block">
+          {savings > 0 && (
+            <div className="flex">
+              <span className="text-[10px] md:text-xs font-bold text-[#1a1d23] bg-[#A3E635] px-2 py-1 rounded-md">
                 Save {formatCurrency(savings, currency)}
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* Actions (Buttons) */}
-        <div className="flex items-center gap-1.5 md:gap-2 mt-auto w-full pt-2">
-          <button
-            onClick={handleAddToCart}
-            disabled={product.stock === 0 || isCartPending}
-            className="flex-1 h-9 md:h-10 flex items-center justify-center gap-1 md:gap-2 rounded-sm border border-primary text-[11px] md:text-sm font-bold text-primary transition-colors hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed px-1 md:px-2"
-          >
-            <ShoppingCart
-              size={16}
-              className="w-3.5 h-3.5 md:w-4.5 md:h-4.5"
-            />
-            <span className="truncate">
-              {isCartPending ? "..." : "Add To Cart"}
-            </span>
-          </button>
+        {/* Action Area */}
+        <div className="flex items-center gap-3 mt-auto">
+          <div className="relative flex-1 md:flex-initial">
+            {!showQuantityBox ? (
+              <button
+                onClick={handleOpenQuantity}
+                disabled={product.stock === 0 || isCartPending}
+                className="w-full md:w-auto h-8 md:h-10 px-2 md:px-4 flex items-center justify-center gap-1 md:gap-2 rounded-md border border-[#F28C28] text-[10px] md:text-sm font-bold text-[#F28C28] hover:bg-[#F28C28] hover:text-white transition-all duration-300 disabled:opacity-50"
+              >
+                <ShoppingCart size={14} className="md:w-4 md:h-4" />
+                Add To Cart
+              </button>
+            ) : (
+              <div className="flex items-center justify-between w-full md:w-32 h-8 md:h-10 bg-[#F28C28] rounded-md text-white px-1">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleUpdateQuantity(-1);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center hover:bg-white/20 rounded transition-colors"
+                >
+                  <Minus size={14} />
+                </button>
+                <span className="text-xs md:text-sm font-bold">{quantity}</span>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleUpdateQuantity(1);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center hover:bg-white/20 rounded transition-colors"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={handleOrderNow}
             disabled={product.stock === 0 || isOrderPending}
-            className="flex-1 h-9 md:h-10 flex items-center justify-center gap-1 md:gap-2 rounded-sm border border-primary bg-primary text-[11px] md:text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed px-1 md:px-2"
+            className="hidden md:flex flex-1 md:flex-initial h-10 px-4 items-center justify-center gap-2 rounded-md bg-[#F28C28] text-sm font-bold text-white hover:bg-[#d97d24] transition-all"
           >
-            <ShoppingCart size={16} className="w-3.5 h-3.5 md:w-4.5 md:h-4.5" />
-            <span className="truncate">
-              {isOrderPending ? "..." : "Buy now"}
-            </span>
+            Buy now
           </button>
         </div>
       </div>
