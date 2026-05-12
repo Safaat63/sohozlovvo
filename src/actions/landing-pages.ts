@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 
 export async function getLandingPage(slug: string) {
   try {
-    const landingPage = await prisma.landingPage.findUnique({
+    const landingPage = await prisma.landingPage.findFirst({
       where: {
         slug,
         isActive: true,
@@ -51,6 +51,17 @@ export async function getLandingPage(slug: string) {
           orderBy: { order: "asc" },
         },
         videoReviews: {
+          orderBy: { order: "asc" },
+        },
+        sections: {
+          orderBy: { order: "asc" },
+          include: {
+            items: {
+              orderBy: { order: "asc" },
+            },
+          },
+        },
+        reviews: {
           orderBy: { order: "asc" },
         },
       },

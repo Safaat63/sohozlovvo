@@ -143,7 +143,7 @@ export function LandingPagesTable({ landingPages }: { landingPages: LandingPage[
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <Link href={`/lp/${lp.slug}`} target="_blank">
+                    <Link href={`/landing-page/${lp.slug}`} target="_blank">
                       <Button variant="ghost" size="icon">
                         <ExternalLink className="h-4 w-4" />
                       </Button>

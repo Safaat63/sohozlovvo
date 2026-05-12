@@ -736,9 +736,17 @@ model LandingPage {
   customCss       String?  @db.Text
   isActive        Boolean  @default(true)
   isPublished     Boolean  @default(false)
+  
+  // Design settings
+  buttonText      String?  @default("অর্ডার করতে চাই")
+  primaryColor    String?  @default("#005c1b")
+  secondaryColor  String?  @default("#cc0000")
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  sections     LandingPageSection[]
+  reviews      LandingPageReview[]
   products     LandingPageProduct[]
   imageReviews LandingPageImageReview[]
   videoReviews LandingPageVideoReview[]
@@ -820,4 +828,53 @@ model LandingPageOrder {
   @@index([landingPageId])
   @@index([status])
   @@map("landing_page_orders")
+}
+
+model LandingPageSection {
+  id            String   @id @default(cuid())
+  landingPageId String
+  title         String
+  description   String?  @db.Text
+  image         String?
+  type          String   // e.g. "FEATURES", "WHY_US", "WHY_CHOOSE"
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items LandingPageSectionItem[]
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId])
+  @@map("landing_page_sections")
+}
+
+model LandingPageSectionItem {
+  id               String  @id @default(cuid())
+  sectionId        String
+  title            String?
+  text             String  @db.Text
+  icon             String?
+  order            Int     @default(0)
+
+  section LandingPageSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId])
+  @@map("landing_page_section_items")
+}
+
+model LandingPageReview {
+  id            String   @id @default(cuid())
+  landingPageId String
+  name          String
+  rating        Int      @default(5)
+  comment       String   @db.Text
+  image         String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId])
+  @@map("landing_page_reviews")
 }

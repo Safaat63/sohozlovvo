@@ -43,6 +43,36 @@ const landingPageSchema = z.object({
       })
     )
     .default([]),
+  buttonText: z.string().optional().nullable(),
+  primaryColor: z.string().optional().nullable(),
+  secondaryColor: z.string().optional().nullable(),
+  sections: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string().optional().nullable(),
+        image: z.string().optional().nullable(),
+        type: z.string(),
+        items: z.array(
+          z.object({
+            title: z.string().optional().nullable(),
+            text: z.string(),
+            icon: z.string().optional().nullable(),
+          })
+        ),
+      })
+    )
+    .default([]),
+  reviews: z
+    .array(
+      z.object({
+        name: z.string(),
+        rating: z.number().min(1).max(5),
+        comment: z.string(),
+        image: z.string().optional().nullable(),
+      })
+    )
+    .default([]),
 })
 
 export async function getAdminLandingPages({
@@ -130,6 +160,17 @@ export async function getAdminLandingPage(id: string) {
       videoReviews: {
         orderBy: { order: "asc" },
       },
+      sections: {
+        orderBy: { order: "asc" },
+        include: {
+          items: {
+            orderBy: { order: "asc" },
+          },
+        },
+      },
+      reviews: {
+        orderBy: { order: "asc" },
+      },
     },
   })
 
@@ -151,12 +192,21 @@ export async function createLandingPage(formData: FormData) {
   const videoReviews =
     typeof videoReviewsRaw === "string" ? JSON.parse(videoReviewsRaw) : []
 
+  const sectionsRaw = formData.get("sections")
+  const sections = typeof sectionsRaw === "string" ? JSON.parse(sectionsRaw) : []
+
+  const reviewsRaw = formData.get("reviews")
+  const reviews = typeof reviewsRaw === "string" ? JSON.parse(reviewsRaw) : []
+
   const data = {
     title: formData.get("title"),
     slug: formData.get("slug"),
     description: formData.get("description"),
     heroImage: formData.get("heroImage"),
     heroVideo: formData.get("heroVideo"),
+    buttonText: formData.get("buttonText"),
+    primaryColor: formData.get("primaryColor"),
+    secondaryColor: formData.get("secondaryColor"),
     metaTitle: formData.get("metaTitle"),
     metaDescription: formData.get("metaDescription"),
     customCss: formData.get("customCss"),
@@ -169,6 +219,8 @@ export async function createLandingPage(formData: FormData) {
     productIds,
     imageReviews,
     videoReviews,
+    sections,
+    reviews,
   })
 
   if (!result.success) {
@@ -209,6 +261,35 @@ export async function createLandingPage(formData: FormData) {
             order: index,
           })),
         },
+        buttonText: result.data.buttonText,
+        primaryColor: result.data.primaryColor,
+        secondaryColor: result.data.secondaryColor,
+        sections: {
+          create: result.data.sections.map((section, sectionIndex) => ({
+            title: section.title,
+            description: section.description,
+            image: section.image,
+            type: section.type,
+            order: sectionIndex,
+            items: {
+              create: section.items.map((item, itemIndex) => ({
+                title: item.title,
+                text: item.text,
+                icon: item.icon,
+                order: itemIndex,
+              })),
+            },
+          })),
+        },
+        reviews: {
+          create: result.data.reviews.map((review, index) => ({
+            name: review.name,
+            rating: review.rating,
+            comment: review.comment,
+            image: review.image,
+            order: index,
+          })),
+        },
       },
     })
 
@@ -234,12 +315,21 @@ export async function updateLandingPage(id: string, formData: FormData) {
   const videoReviews =
     typeof videoReviewsRaw === "string" ? JSON.parse(videoReviewsRaw) : []
 
+  const sectionsRaw = formData.get("sections")
+  const sections = typeof sectionsRaw === "string" ? JSON.parse(sectionsRaw) : []
+
+  const reviewsRaw = formData.get("reviews")
+  const reviews = typeof reviewsRaw === "string" ? JSON.parse(reviewsRaw) : []
+
   const data = {
     title: formData.get("title"),
     slug: formData.get("slug"),
     description: formData.get("description"),
     heroImage: formData.get("heroImage"),
     heroVideo: formData.get("heroVideo"),
+    buttonText: formData.get("buttonText"),
+    primaryColor: formData.get("primaryColor"),
+    secondaryColor: formData.get("secondaryColor"),
     metaTitle: formData.get("metaTitle"),
     metaDescription: formData.get("metaDescription"),
     customCss: formData.get("customCss"),
@@ -252,6 +342,8 @@ export async function updateLandingPage(id: string, formData: FormData) {
     productIds,
     imageReviews,
     videoReviews,
+    sections,
+    reviews,
   })
 
   if (!result.success) {
@@ -273,7 +365,50 @@ export async function updateLandingPage(id: string, formData: FormData) {
           customCss: result.data.customCss,
           isActive: result.data.isActive,
           isPublished: result.data.isPublished,
+          buttonText: result.data.buttonText,
+          primaryColor: result.data.primaryColor,
+          secondaryColor: result.data.secondaryColor,
         },
+      })
+
+      await tx.landingPageSection.deleteMany({
+        where: { landingPageId: id },
+      })
+
+      for (const [sectionIndex, section] of result.data.sections.entries()) {
+        await tx.landingPageSection.create({
+          data: {
+            landingPageId: id,
+            title: section.title,
+            description: section.description,
+            image: section.image,
+            type: section.type,
+            order: sectionIndex,
+            items: {
+              create: section.items.map((item, itemIndex) => ({
+                title: item.title,
+                text: item.text,
+                icon: item.icon,
+                order: itemIndex,
+              })),
+            },
+          },
+        })
+      }
+
+      await tx.landingPageReview.deleteMany({
+        where: { landingPageId: id },
+      })
+
+      await tx.landingPageReview.createMany({
+        data: result.data.reviews.map((review, index) => ({
+          landingPageId: id,
+          name: review.name,
+          rating: review.rating,
+          comment: review.comment,
+          image: review.image,
+          order: index,
+        })),
       })
 
       await tx.landingPageProduct.deleteMany({

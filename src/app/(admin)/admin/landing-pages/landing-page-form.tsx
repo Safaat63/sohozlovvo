@@ -64,6 +64,32 @@ type LandingPage = {
     thumbnail: string | null
     order: number
   }[]
+  buttonText: string | null
+  primaryColor: string | null
+  secondaryColor: string | null
+  sections: {
+    id: string
+    title: string
+    description: string | null
+    image: string | null
+    type: string
+    order: number
+    items: {
+      id: string
+      title: string | null
+      text: string
+      icon: string | null
+      order: number
+    }[]
+  }[]
+  reviews: {
+    id: string
+    name: string
+    rating: number
+    comment: string
+    image: string | null
+    order: number
+  }[]
 }
 
 interface LandingPageFormProps {
@@ -99,6 +125,33 @@ export function LandingPageForm({ landingPage }: LandingPageFormProps) {
       videoUrl: r.videoUrl,
       title: r.title,
       thumbnail: r.thumbnail,
+    })) || []
+  )
+
+  const [buttonText, setButtonText] = useState(landingPage?.buttonText || "অর্ডার করতে চাই")
+  const [primaryColor, setPrimaryColor] = useState(landingPage?.primaryColor || "#005c1b")
+  const [secondaryColor, setSecondaryColor] = useState(landingPage?.secondaryColor || "#cc0000")
+
+  const [sections, setSections] = useState<any[]>(
+    landingPage?.sections.map((s) => ({
+      title: s.title,
+      description: s.description,
+      image: s.image,
+      type: s.type,
+      items: s.items.map((i: any) => ({
+        title: i.title,
+        text: i.text,
+        icon: i.icon,
+      })),
+    })) || []
+  )
+
+  const [reviews, setReviews] = useState<any[]>(
+    landingPage?.reviews.map((r) => ({
+      name: r.name,
+      rating: r.rating,
+      comment: r.comment,
+      image: r.image,
     })) || []
   )
 
@@ -181,6 +234,65 @@ export function LandingPageForm({ landingPage }: LandingPageFormProps) {
     setVideoReviews(videoReviews.filter((_, i) => i !== index))
   }
 
+  const addSection = () => {
+    setSections([
+      ...sections,
+      { title: "", description: "", image: "", type: "FEATURES", items: [] },
+    ])
+  }
+
+  const updateSection = (index: number, field: string, value: any) => {
+    const updated = [...sections]
+    updated[index] = { ...updated[index], [field]: value }
+    setSections(updated)
+  }
+
+  const removeSection = (index: number) => {
+    setSections(sections.filter((_, i) => i !== index))
+  }
+
+  const addSectionItem = (sectionIndex: number) => {
+    const updated = [...sections]
+    updated[sectionIndex].items.push({ title: "", text: "", icon: "" })
+    setSections(updated)
+  }
+
+  const updateSectionItem = (
+    sectionIndex: number,
+    itemIndex: number,
+    field: string,
+    value: string
+  ) => {
+    const updated = [...sections]
+    updated[sectionIndex].items[itemIndex] = {
+      ...updated[sectionIndex].items[itemIndex],
+      [field]: value,
+    }
+    setSections(updated)
+  }
+
+  const removeSectionItem = (sectionIndex: number, itemIndex: number) => {
+    const updated = [...sections]
+    updated[sectionIndex].items = updated[sectionIndex].items.filter(
+      (_: any, i: number) => i !== itemIndex
+    )
+    setSections(updated)
+  }
+
+  const addReview = () => {
+    setReviews([...reviews, { name: "", rating: 5, comment: "", image: "" }])
+  }
+
+  const updateReview = (index: number, field: string, value: any) => {
+    const updated = [...reviews]
+    updated[index] = { ...updated[index], [field]: value }
+    setReviews(updated)
+  }
+
+  const removeReview = (index: number) => {
+    setReviews(reviews.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
@@ -189,9 +301,14 @@ export function LandingPageForm({ landingPage }: LandingPageFormProps) {
     formData.set("heroImage", heroImage)
     formData.set("isActive", isActive.toString())
     formData.set("isPublished", isPublished.toString())
+    formData.set("buttonText", buttonText)
+    formData.set("primaryColor", primaryColor)
+    formData.set("secondaryColor", secondaryColor)
     formData.set("productIds", JSON.stringify(selectedProductIds))
     formData.set("imageReviews", JSON.stringify(imageReviews.filter((r) => r.imageUrl)))
     formData.set("videoReviews", JSON.stringify(videoReviews.filter((r) => r.videoUrl)))
+    formData.set("sections", JSON.stringify(sections))
+    formData.set("reviews", JSON.stringify(reviews))
 
     startTransition(async () => {
       let result
@@ -280,6 +397,251 @@ export function LandingPageForm({ landingPage }: LandingPageFormProps) {
             Optional: Overrides hero image with a video player
           </p>
         </div>
+      </div>
+
+      <div className="rounded-lg border bg-card p-6 space-y-4">
+        <h3 className="text-lg font-semibold">Design Settings</h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="buttonText">CTA Button Text</Label>
+            <Input
+              id="buttonText"
+              value={buttonText}
+              onChange={(e) => setButtonText(e.target.value)}
+              placeholder="অর্ডার করতে চাই"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="primaryColor">Primary Color</Label>
+            <div className="flex gap-2">
+              <Input
+                id="primaryColor"
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                className="w-12 h-10 p-1"
+              />
+              <Input
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                placeholder="#005c1b"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="secondaryColor">Secondary Color</Label>
+            <div className="flex gap-2">
+              <Input
+                id="secondaryColor"
+                type="color"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                className="w-12 h-10 p-1"
+              />
+              <Input
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                placeholder="#cc0000"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border bg-card p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Sections</h3>
+          <Button type="button" variant="outline" size="sm" onClick={addSection}>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Section
+          </Button>
+        </div>
+
+        {sections.map((section, sIndex) => (
+          <div key={sIndex} className="border rounded-lg p-6 space-y-4 relative bg-gray-50/50">
+            <button
+              type="button"
+              onClick={() => removeSection(sIndex)}
+              className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded text-red-500"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Section Title</Label>
+                <Input
+                  value={section.title}
+                  onChange={(e) => updateSection(sIndex, "title", e.target.value)}
+                  placeholder="e.g., বৈশিষ্ট্য"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Section Type</Label>
+                <select
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background"
+                  value={section.type}
+                  onChange={(e) => updateSection(sIndex, "type", e.target.value)}
+                >
+                  <option value="FEATURES">Features (Image + List)</option>
+                  <option value="WHY_US">Why Us (List + Image)</option>
+                  <option value="GRID">Grid Layout</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Description (Optional)</Label>
+              <Textarea
+                value={section.description || ""}
+                onChange={(e) => updateSection(sIndex, "description", e.target.value)}
+                placeholder="Section description..."
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Section Image</Label>
+              <SingleImageUpload
+                value={section.image}
+                onChange={(url) => updateSection(sIndex, "image", url)}
+                folder="landing-pages/sections"
+                previewSize={120}
+              />
+            </div>
+
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium text-sm">Section Items</h4>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => addSectionItem(sIndex)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Item
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {section.items.map((item: any, iIndex: number) => (
+                  <div key={iIndex} className="bg-white border rounded p-4 relative space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => removeSectionItem(sIndex, iIndex)}
+                      className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Item Title (Optional)</Label>
+                        <Input
+                          value={item.title || ""}
+                          onChange={(e) =>
+                            updateSectionItem(sIndex, iIndex, "title", e.target.value)
+                          }
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Icon (Optional)</Label>
+                        <Input
+                          value={item.icon || ""}
+                          onChange={(e) =>
+                            updateSectionItem(sIndex, iIndex, "icon", e.target.value)
+                          }
+                          placeholder="e.g., CheckCircle2"
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Item Text *</Label>
+                      <Textarea
+                        value={item.text}
+                        onChange={(e) =>
+                          updateSectionItem(sIndex, iIndex, "text", e.target.value)
+                        }
+                        className="text-sm"
+                        rows={2}
+                        required
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Text Reviews</h3>
+          <Button type="button" variant="outline" size="sm" onClick={addReview}>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Review
+          </Button>
+        </div>
+
+        {reviews.map((review, index) => (
+          <div key={index} className="border rounded-lg p-4 space-y-4 relative bg-gray-50/50">
+            <button
+              type="button"
+              onClick={() => removeReview(index)}
+              className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded text-red-500"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Customer Name</Label>
+                <Input
+                  value={review.name}
+                  onChange={(e) => updateReview(index, "name", e.target.value)}
+                  placeholder="e.g., John Doe"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Rating (1-5)</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={review.rating}
+                  onChange={(e) => updateReview(index, "rating", parseInt(e.target.value))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Comment</Label>
+              <Textarea
+                value={review.comment}
+                onChange={(e) => updateReview(index, "comment", e.target.value)}
+                placeholder="Review comment..."
+                rows={3}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Review Image (Optional)</Label>
+              <SingleImageUpload
+                value={review.image}
+                onChange={(url) => updateReview(index, "image", url)}
+                folder="landing-pages/customer-reviews"
+                previewSize={80}
+              />
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="rounded-lg border bg-card p-6 space-y-4">
