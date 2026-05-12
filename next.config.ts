@@ -40,6 +40,10 @@ const nextConfig: NextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; connect-src 'self' https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com; img-src 'self' https://res.cloudinary.com data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;",
+          },
         ],
       },
       {
@@ -55,7 +59,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self'",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; connect-src 'self' https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com; img-src 'self' https://res.cloudinary.com data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;",
           },
         ],
       },

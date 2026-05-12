@@ -129,7 +129,6 @@ export default async function RootLayout({
         {/* Cart summary floating button */}
         <FloatingCart cart={serializedCart} itemCount={itemCount} />
       </body>
-      <GoogleTagManager gtmId="GTM-NJSH52CZ" />
     </html>
   );
 }
