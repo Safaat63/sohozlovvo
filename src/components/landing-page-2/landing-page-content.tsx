@@ -500,8 +500,8 @@ export function LandingPageContent({ landingPage }: LandingPageProps) {
             </a>
           </div>
           <div className="text-gray-500 mt-2 text-sm">
-            © 2025 {typeof window !== "undefined" ? window.location.hostname : ""} | Developed By{" "}
-            <span className="text-white font-semibold">Service Key</span>.
+            © 2026 {typeof window !== "undefined" ? window.location.hostname : ""} | Developed By{" "}
+            <span className="text-white font-semibold">MiftahCoding</span>.
           </div>
         </div>
       </footer>
