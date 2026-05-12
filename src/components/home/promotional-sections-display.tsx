@@ -65,6 +65,7 @@ export function PromotionalSectionsDisplay({
                   fill
                   className="object-cover"
                   priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
                 />
               </Link>
             ) : (
@@ -74,6 +75,7 @@ export function PromotionalSectionsDisplay({
                   alt="Promotional Image"
                   fill
                   className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
                 />
               </div>
             )}

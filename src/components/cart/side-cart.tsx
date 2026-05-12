@@ -213,6 +213,7 @@ export function SideCart({
                           alt={item.product.name}
                           fill
                           className="object-cover"
+                          sizes="64px"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
@@ -329,6 +330,7 @@ export function SideCart({
                             alt={product.name}
                             fill
                             className="object-contain"
+                            sizes="60px"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground text-[10px]">

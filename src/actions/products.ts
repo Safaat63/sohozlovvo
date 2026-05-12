@@ -197,7 +197,7 @@ export async function getProducts(params?: {
     ])
 
     return {
-        products,
+        products: products.map(serializeProductForClient),
         pagination: {
             total,
             pages: Math.ceil(total / limit),
@@ -357,7 +357,7 @@ export async function getProduct(slugOrId: string) {
         },
     })
 
-    return product
+    return product ? serializeProductForClient(product) : null
 }
 
 export async function getFeaturedProducts(limit = 8) {
@@ -431,7 +431,7 @@ export async function getFeaturedProducts(limit = 8) {
         })
     }
 
-    return products
+    return products.map(serializeProductForClient)
 }
 
 export async function getCategories() {

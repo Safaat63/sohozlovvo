@@ -111,6 +111,7 @@ export function AffiliateProductSearch({ affiliateCode }: { affiliateCode: strin
                                                 alt={product.name}
                                                 fill
                                                 className="object-cover"
+                                                sizes="48px"
                                             />
                                         </div>
                                     )}

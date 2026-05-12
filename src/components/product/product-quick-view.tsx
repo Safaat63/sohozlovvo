@@ -50,6 +50,7 @@ export function ProductQuickView({ product }: ProductQuickViewProps) {
                                     alt={product.name}
                                     fill
                                     className="object-cover"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                                 />
                             )}
                         </div>
@@ -62,7 +63,7 @@ export function ProductQuickView({ product }: ProductQuickViewProps) {
                                         className={`relative aspect-square w-20 rounded-lg overflow-hidden border-2 ${selectedImage === index ? "border-blue-600" : "border-transparent"
                                             }`}
                                     >
-                                        <Image src={image} alt={`${product.name} ${index + 1}`} fill className="object-cover" />
+                                        <Image src={image} alt={`${product.name} ${index + 1}`} fill className="object-cover" sizes="80px" />
                                     </button>
                                 ))}
                             </div>

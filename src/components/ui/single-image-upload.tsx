@@ -89,6 +89,7 @@ export function SingleImageUpload({
                             alt="Uploaded image"
                             fill
                             className="object-cover"
+                            sizes={`${previewSize}px`}
                         />
                     </div>
                     <Button
