@@ -60,7 +60,7 @@ export default async function HomePage() {
 
   const serializedFeaturedProducts = featuredProducts.map((product) => ({
     id: product.id,
-    name: product.name,
+    name: product.name, 
     price: parseFloat(product.price.toString()),
     brand: product.brand || null,
     category: product.category?.name || null,

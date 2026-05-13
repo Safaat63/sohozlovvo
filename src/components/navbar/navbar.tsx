@@ -282,17 +282,14 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
         <div className="hidden lg:block">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex h-20 items-center justify-between gap-6">
-              <Link href="/" className="flex items-center gap-3 shrink-0">
+              <Link href="/" className="flex items-center">
                 <Image
-                  src="/icon0.svg"
+                  src="/logo.jpeg"
                   alt="Logo"
-                  width={56}
-                  height={56}
-                  className="w-12 h-12"
+                  width={84}
+                  height={31}
+                  className="h-12 w-auto"
                 />
-                <span className="text-xl font-bold text-primary">
-                  {storeName}
-                </span>
               </Link>
 
               <div className="flex-1 max-w-2xl">

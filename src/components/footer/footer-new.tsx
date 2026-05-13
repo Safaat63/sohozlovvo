@@ -64,11 +64,11 @@ function Footer() {
         <div className="lg:w-1/3 lg:shrink-0">
           {/* Note: Update the src below when you have the official Sohozlovvo logo URL */}
           <Image
-            src="https://backoffice.ghorerbazar.com/company_logo/qJaKf1768887846.png"
+            src="/logo.png"
             alt="Sohozlovvo Logo"
             className="w-60 lg:w-50 h-auto"
-            width={60}
-            height={50}
+            width={126}
+            height={46.5}
           />
 
           <p className="text-muted-foreground py-5 font-medium">
