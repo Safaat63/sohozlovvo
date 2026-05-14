@@ -10,7 +10,7 @@ interface Props {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { slug } = await props.params;
   const landingPage = await getLandingPage(slug);
-  
+
   if (!landingPage) return {};
 
   return {
@@ -30,5 +30,9 @@ export default async function Page(props: Props) {
     notFound();
   }
 
-  return <LandingPageContent landingPage={landingPage} />;
+  return (
+    <div className="bg-gray-400">
+      <LandingPageContent landingPage={landingPage} />
+    </div>
+  );
 }
