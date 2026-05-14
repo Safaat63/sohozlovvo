@@ -1,4 +1,3 @@
-import React from "react";
 import { notFound } from "next/navigation";
 import { getLandingPage } from "@/actions/landing-pages";
 import { LandingPageContent } from "@/components/landing-page-2/landing-page-content";

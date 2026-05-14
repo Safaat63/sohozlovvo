@@ -5,7 +5,7 @@ import { getWishlistCount } from "@/actions/wishlist";
 import { getCategories } from "@/actions/products";
 import { getUserAffiliate } from "@/actions/affiliates";
 import { getRelatedProducts } from "@/actions/product-recommendations";
-import { DollarSign, Home, MapPin } from "lucide-react";
+import { DollarSign, MapPin } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,11 +14,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SearchBar } from "@/components/navbar/search-bar";
 import { SideCart } from "@/components/cart/side-cart";
 import { MobileMenu } from "./mobile-menu";
 import { DesktopCategoryMenu } from "./desktop-category-menu";
+import { MobileBottomBar } from "./mobile-bottom-bar";
 import { NotificationSubscriptionDialog } from "../ui/notification-subscription-dialog";
 import { ThemeToggle } from "../providers/theme-toggle";
 import Image from "next/image";
@@ -55,67 +55,6 @@ function HeartIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-      />
-    </svg>
-  );
-}
-
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.5}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-      />
-    </svg>
-  );
-}
-
-function MenuIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      /* text-black handles light mode, dark:text-white handles dark mode */
-      className={`text-white dark:text-black ${className || ""}`}
-    >
-      <path
-        d="M9 3H5C3.89543 3 3 3.89543 3 5V9C3 10.1046 3.89543 11 5 11H9C10.1046 11 11 10.1046 11 9V5C11 3.89543 10.1046 3 9 3Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M19 3H15C13.8954 3 13 3.89543 13 5V9C13 10.1046 13.8954 11 15 11H19C20.1046 11 21 10.1046 21 9V5C21 3.89543 20.1046 3 19 3Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9 13H5C3.89543 13 3 13.8954 3 15V19C3 20.1046 3.89543 21 5 21H9C10.1046 21 11 20.1046 11 19V15C11 13.8954 10.1046 13 9 13Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M19 13H15C13.8954 13 13 13.8954 13 15V19C13 20.1046 13.8954 21 15 21H19C20.1046 21 21 20.1046 21 19V15C21 13.8954 20.1046 13 19 13Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   );
@@ -464,65 +403,13 @@ export async function Navbar({ storeName = "LuxeStore" }: NavbarProps) {
       </div>
 
       {/* MOBILE BOTTOM BAR - FIXED */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-accent-foreground border-t border-border text-foreground font-sans z-50">
-        <div className="grid grid-cols-5 items-center h-16">
-          <Link
-            href="/"
-            className="flex flex-col items-center text-[11px] text-background hover:text-primary"
-          >
-            <Home className="h-5 w-5" />
-            HOME
-          </Link>
-          <MobileMenu
-            session={session ? { user: session.user } : null}
-            categories={serializedCategories}
-            triggerClassName="flex flex-col items-center text-[11px] text-background hover:text-primary"
-            icon={<MenuIcon className="h-5 w-5" />}
-          />
-          <SideCart
-            cart={serializedCart}
-            itemCount={itemCount}
-            relatedProducts={serializedRelatedProducts}
-            triggerLabel="Cart"
-            triggerClassName="text-background hover:text-primary"
-            triggerLabelClassName="text-background"
-            badgeClassName="bg-foreground text-background"
-          />
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="flex flex-col items-center text-[11px] text-background hover:text-primary">
-                <SearchIcon className="h-5 w-5" />
-                SEARCH
-              </button>
-            </SheetTrigger>
-            <SheetContent
-              side="top"
-              className="h-auto border-none bg-background"
-            >
-              <div className="pt-6 pb-4 px-4">
-                <SearchBar isMobile={true} />
-              </div>
-            </SheetContent>
-          </Sheet>
-          {session?.user ? (
-            <Link
-              href="/account"
-              className="flex flex-col items-center text-[11px] text-background hover:text-primary"
-            >
-              <UserIcon className="h-5 w-5" />
-              ACCOUNT
-            </Link>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="flex flex-col items-center text-[11px] text-background hover:text-primary"
-            >
-              <UserIcon className="h-5 w-5" />
-              ACCOUNT
-            </Link>
-          )}
-        </div>
-      </div>
+      <MobileBottomBar
+        session={session ? { user: session.user } : null}
+        categories={serializedCategories}
+        cart={serializedCart}
+        itemCount={itemCount}
+        relatedProducts={serializedRelatedProducts}
+      />
     </>
   );
 }

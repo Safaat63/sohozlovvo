@@ -10,6 +10,7 @@ import { RelatedProducts } from "@/components/product/product-recommendations";
 import { calculateDiscountedPrice, formatDateDhaka } from "@/lib/utils";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import Link from "next/link";
+import Script from "next/script";
 import { Star } from "lucide-react";
 import {
   ProductPriceDisplay,
@@ -253,13 +254,18 @@ export default async function ProductDetailPage({
         <div className="mt-4 bg-card rounded-xl border border-border shadow-sm relative">
           {/* Render Client Sticky Jump Links Component */}
           <ProductJumpLinks
-            hasVideo={!!videoUrl}reviewCount={verifiedReviews.length}
+            hasVideo={!!videoUrl}
+            reviewCount={verifiedReviews.length}
           />
 
           {/* Content Area */}
           <div className="p-6 md:p-8">
             {/* Product Details */}
-            <div id="description" className="mb-12 scroll-mt-24 mobile-section" data-section="description">
+            <div
+              id="description"
+              className="mb-12 scroll-mt-24 mobile-section"
+              data-section="description"
+            >
               <h3 className="text-[14px] md:text-[20px] font-bold text-card-foreground mb-5 inline-block border-b-[3px] border-primary pb-1">
                 Product Details
               </h3>
@@ -439,42 +445,45 @@ export default async function ProductDetailPage({
           </div>
         </div>
 
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              var activeSection = 'description';
-              
-              function updateMobileSections() {
-                var sections = document.querySelectorAll('.mobile-section');
-                sections.forEach(function(section) {
-                  if (window.innerWidth < 768) {
-                    if (section.getAttribute('data-section') === activeSection) {
-                      section.style.display = 'block';
+        <Script
+          id="product-mobile-sections"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var activeSection = 'description';
+
+                function updateMobileSections() {
+                  var sections = document.querySelectorAll('.mobile-section');
+                  sections.forEach(function(section) {
+                    if (window.innerWidth < 768) {
+                      if (section.getAttribute('data-section') === activeSection) {
+                        section.style.display = 'block';
+                      } else {
+                        section.style.display = 'none';
+                      }
                     } else {
-                      section.style.display = 'none';
+                      section.style.display = 'block';
                     }
-                  } else {
-                    section.style.display = 'block';
-                  }
+                  });
+                }
+
+                window.addEventListener('product-tab-change', function(e) {
+                  activeSection = e.detail.section;
+                  updateMobileSections();
                 });
-              }
 
-              window.addEventListener('product-tab-change', function(e) {
-                activeSection = e.detail.section;
-                updateMobileSections();
-              });
+                window.addEventListener('resize', updateMobileSections);
 
-              window.addEventListener('resize', updateMobileSections);
-              
-              // Initial call
-              if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', updateMobileSections);
-              } else {
-                updateMobileSections();
-              }
-            })();
-          `
-        }} />
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', updateMobileSections);
+                } else {
+                  updateMobileSections();
+                }
+              })();
+            `,
+          }}
+        />
 
         {/* Related Products */}
         <div className="py-12 px-2 mt-2">

@@ -87,7 +87,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
   const handleUpdateQuantity = async (delta: number) => {
     const newQty = Math.max(0, quantity + delta);
     setQuantity(newQty);
-    
+
     if (newQty === 0) {
       setShowQuantityBox(false);
       return;
@@ -156,6 +156,7 @@ export function ProductCardBestSeller({ product }: ProductCardProps) {
             alt={product.name}
             fill
             className="object-contain transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 260px"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">

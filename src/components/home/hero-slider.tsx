@@ -57,7 +57,7 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
         fill
         priority
         className="object-cover md:hidden"
-        sizes="100vw"
+        sizes="(max-width: 768px) 100vw, 0px"
       />
       {/* Desktop/Tablet Image */}
       <Image
@@ -66,7 +66,7 @@ export function HeroSlider({ banners }: { banners: HeroBanner[] }) {
         fill
         priority
         className="hidden object-cover md:block"
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 1200px"
+        sizes="(max-width: 768px) 0px, (max-width: 1024px) 100vw, (max-width: 1536px) 60vw, 900px"
       />
 
       {/* Navigation Arrows */}
