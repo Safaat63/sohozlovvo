@@ -8,8 +8,6 @@ import { Resend } from "resend"
 import { getEmailBranding } from "@/lib/email"
 import { revalidatePath } from "next/cache"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const newsletterSchema = z.object({
   email: z.string().email("Invalid email address"),
 })
@@ -127,6 +125,7 @@ export async function sendBulkNewsletter(formData: FormData) {
     return { error: "Email service not configured" }
   }
 
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const subject = formData.get("subject") as string
   const htmlContent = formData.get("htmlContent") as string
 

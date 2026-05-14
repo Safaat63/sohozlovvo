@@ -4,23 +4,29 @@ import { prisma } from "@/lib/prisma"
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
-  // Get all products
-  const products = await prisma.product.findMany({
-    where: { isActive: true },
-    select: {
-      slug: true,
-      updatedAt: true,
-    },
-  })
+  // Get all products and categories if the database is available.
+  let products: Array<{ slug: string; updatedAt: Date }> = []
+  let categories: Array<{ slug: string; updatedAt: Date }> = []
 
-  // Get all categories
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    select: {
-      slug: true,
-      updatedAt: true,
-    },
-  })
+  try {
+    products = await prisma.product.findMany({
+      where: { isActive: true },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+    })
+
+    categories = await prisma.category.findMany({
+      where: { isActive: true },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+    })
+  } catch (error) {
+    console.error("Sitemap generation skipped dynamic URLs due to database access error:", error)
+  }
 
   const productUrls = products.map((product) => ({
     url: `${baseUrl}/products/${product.slug}`,

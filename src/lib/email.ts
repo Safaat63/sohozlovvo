@@ -1,8 +1,6 @@
 import { Resend } from "resend"
 import { prisma } from "@/lib/prisma"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@sohozlovvo.com"
 const BRANDING_CACHE_TTL_MS = 5 * 60 * 1000
 
@@ -75,6 +73,7 @@ export async function sendOrderConfirmation(data: OrderEmailData) {
         return { success: false, error: "Email not configured" }
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const branding = await getEmailBranding()
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
     const trackUrl = `${baseUrl}/tracking?order=${encodeURIComponent(data.orderNumber)}`
@@ -194,6 +193,7 @@ export async function sendOrderStatusUpdate(data: OrderStatusEmailData) {
         return { success: false, error: "Email not configured" }
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const branding = await getEmailBranding()
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
     const trackUrl = `${baseUrl}/tracking?order=${encodeURIComponent(data.orderNumber)}`
@@ -318,6 +318,7 @@ export async function sendStockAlertEmail(data: StockAlertEmailData) {
         return { success: false, error: "Email not configured" }
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const branding = await getEmailBranding()
 
     try {

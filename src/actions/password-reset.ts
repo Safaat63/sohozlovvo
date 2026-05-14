@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { Resend } from "resend"
 import bcrypt from "bcryptjs"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // Generate a 6-digit code
 function generateResetCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString()
@@ -25,6 +23,10 @@ export async function requestPasswordReset(email: string, phone: string) {
             return { error: "No account found with this email and phone number combination" }
         }
 
+        if (!process.env.RESEND_API_KEY) {
+            return { error: "Email service not configured" }
+        }
+
         // Generate reset code
         const resetCode = generateResetCode()
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
@@ -37,6 +39,8 @@ export async function requestPasswordReset(email: string, phone: string) {
                 expiresAt,
             },
         })
+
+        const resend = new Resend(process.env.RESEND_API_KEY)
 
         // Send email with reset code
         const { error } = await resend.emails.send({

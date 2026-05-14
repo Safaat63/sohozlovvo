@@ -20,7 +20,7 @@
 
 // export default function CreateAdminPage() {
 //     const [state, formAction, isPending] = useActionState<FormState, FormData>(
-//         async (_prevState, formData) => {
+//         async (prevState, formData) => {
 //             const result = await createAdminUser(formData)
 //             return result
 //         },
@@ -94,10 +94,10 @@
 //     )
 // }
 
-const Hey = () => {
-  return (
-    <div>Hey</div>
-  )
-}
+// const Hey = () => {
+//   return (
+//     <div>Hey</div>
+//   )
+// }
 
-export default Hey
+// export default Hey
