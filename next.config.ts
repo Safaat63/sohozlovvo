@@ -25,7 +25,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Exclude _next/static files from custom headers
         source: '/:path((?!_next/static).*)*',
         headers: [
           {
@@ -42,7 +41,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; connect-src 'self' https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com; img-src 'self' https://res.cloudinary.com data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' https://res.cloudinary.com https://www.google-analytics.com https://stats.g.doubleclick.net data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://www.googletagmanager.com;",
           },
         ],
       },
@@ -59,7 +58,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; connect-src 'self' https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com; img-src 'self' https://res.cloudinary.com data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://res.cloudinary.com https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://stats.g.doubleclick.net; img-src 'self' https://res.cloudinary.com https://www.google-analytics.com https://stats.g.doubleclick.net data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src https://www.googletagmanager.com;",
           },
         ],
       },

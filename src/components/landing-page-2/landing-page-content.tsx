@@ -196,10 +196,10 @@ export function LandingPageContent({ landingPage }: LandingPageProps) {
     <div className="font-sans text-gray-900 bg-[#fbfbfb] min-h-screen pb-0">
       {/* Hero Section */}
       <section
-        className="relative pt-12 pb-32 px-4 rounded-b-[50%] md:rounded-b-[100%] max-w-350 mx-auto overflow-hidden"
+        className="relative pt-12 pb-32 px-4 rounded-b-[50%] md:rounded-b-[100%] max-w-280 mx-auto overflow-hidden"
         style={{ backgroundColor: primaryColor }}
       >
-        <div className="max-w-4xl mx-auto text-center space-y-4 relative z-10">
+        <div className="mx-auto text-center space-y-4 relative z-10">
           <h1 className="text-[36px] md:text-[50px] md:text-5xl font-bold text-white mb-6">
             {landingPage.title}
           </h1>
