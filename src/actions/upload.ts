@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { cloudinary } from "@/lib/cloudinary"
+import cloudinary from "@/lib/cloudinary"
 import { redirect } from "next/navigation"
 
 async function checkAdminAccess() {

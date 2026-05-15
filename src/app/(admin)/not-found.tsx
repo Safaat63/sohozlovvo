@@ -11,7 +11,7 @@ export default function NotFound() {
                         <div className="absolute -bottom-12 -right-12 h-48 w-48 rounded-full bg-accent/20 blur-3xl"></div>
                     </div>
 
-                    {/* Content */}
+                    Content
                     <div className="relative flex flex-col items-center text-center">
                         {/* 404 Animation */}
                         <div className="mb-8 flex items-center justify-center">

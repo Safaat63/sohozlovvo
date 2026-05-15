@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { Hind_Siliguri, Open_Sans } from "next/font/google";
 import { getPublicSettings } from "@/actions/settings";
 import { getCart } from "@/actions/cart";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { GoogleTagManager } from "@next/third-parties/google";
 import FloatingCart from "@/components/home/floating-cart-summary";
 import FloatingChat from "@/components/home/floating-chat";
+import { ThemeProvider } from "next-themes";
 
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",
